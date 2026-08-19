@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referenciák — NYOMBAN</title>
+<meta name="description" content="Elvégzett munkák és ügyfélvélemények.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1B1A17; --ink-soft:#26241F; --ink-line:#33302A; --ink-muted:#8E8779;
+  --amber:#E8A33D; --amber-deep:#C4711A; --amber-text:#8A5A1B; --amber-wash:#F3E7D2;
+  --paper:#FAF7F2; --sand:#F1EDE5; --sand-row:#F6F1E8;
+  --line:#E3DCD1; --line-soft:#EAE4DA;
+  --body:#57534A; --muted:#7A756C; --muted-2:#9A9388;
+  --ok:#3F7D4E; --ok-bg:#E2EDE4;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Instrument Sans',system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.5;
+}
+h1,h2,h3 { font-family:'Familjen Grotesk',system-ui,sans-serif; letter-spacing:-.03em; margin:0; }
+h1 { font-size:52px; line-height:1.02; letter-spacing:-.035em; }
+h2 { font-size:32px; margin:0 0 14px; }
+h3 { font-size:20px; letter-spacing:-.02em; margin:0 0 8px; }
+p { margin:0 0 14px; color:var(--body); }
+a { color:var(--amber-text); }
+a:hover { color:var(--amber-deep); }
+.wrap { max-width:1120px; margin:0 auto; padding:0 40px; }
+
+/* ---- fejléc ---- */
+.top {
+  position:sticky; top:0; z-index:20; background:var(--paper);
+  border-bottom:1px solid var(--line-soft);
+}
+.top .wrap { display:flex; align-items:center; justify-content:space-between; padding:20px 40px; }
+.brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); }
+.brand .mark { width:26px; height:11px; fill:var(--amber-deep); flex:none; }
+.brand b {
+  font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:21px;
+  letter-spacing:-.02em;
+}
+.brand b i { color:var(--amber-deep); font-style:normal; }
+.nav { display:flex; gap:26px; font-size:15px; }
+.nav a { color:var(--body); text-decoration:none; }
+.nav a:hover { color:var(--ink); }
+.nav a[aria-current] { color:var(--ink); font-weight:600; }
+.top-right { display:flex; align-items:center; gap:16px; }
+.top-phone { display:flex; flex-direction:column; align-items:flex-end; }
+.top-phone span:first-child { font-size:12px; color:var(--muted-2); }
+.top-phone span:last-child { font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:700; }
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 22px;
+  border-radius:11px; background:var(--ink); color:var(--paper); border:none;
+  font-size:15px; font-weight:600; cursor:pointer; text-decoration:none; font-family:inherit;
+}
+.btn:hover { background:#2A2823; color:var(--paper); }
+.btn-lg { height:56px; padding:0 28px; font-size:17px; border-radius:13px; }
+.btn-ghost { background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+.btn-ghost:hover { background:var(--sand-row); color:var(--ink); }
+
+/* ---- oldalfej ---- */
+.head { padding:64px 0 40px; }
+.head .lead { font-size:19px; line-height:1.55; color:var(--body); max-width:620px; margin-top:16px; }
+.eyebrow {
+  font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:600;
+  color:var(--amber-text); margin-bottom:14px;
+}
+
+/* ---- szekciók ---- */
+.sec { padding:40px 0; }
+.sec.sand { background:var(--sand); border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
+.grid2 { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.card {
+  background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.card.dark { background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.card.dark h3 { color:var(--paper); }
+.card.dark p { color:#A9A296; }
+.card .num { font-family:'Familjen Grotesk',sans-serif; font-size:15px; font-weight:700; color:var(--amber-deep); }
+.card.dark .num { color:var(--amber); }
+.card p:last-child { margin-bottom:0; }
+.note {
+  background:var(--amber-wash); border-radius:14px; padding:20px 22px;
+  font-size:15px; line-height:1.6; color:#6B4A16;
+}
+.note b { color:var(--amber-text); }
+.note p:last-child { margin-bottom:0; }
+.stat { display:flex; flex-direction:column; gap:2px; }
+.stat b { font-family:'Familjen Grotesk',sans-serif; font-size:30px; font-weight:700; letter-spacing:-.03em; }
+.stat span { font-size:13.5px; color:var(--muted); }
+
+/* ---- árlista ---- */
+.price { width:100%; border-collapse:collapse; font-size:15px; background:#fff;
+         border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+.price th {
+  text-align:left; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted-2); font-weight:600; padding:14px 18px; background:var(--sand-row);
+  border-bottom:1px solid var(--line-soft);
+}
+.price td { padding:15px 18px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+.price tr:last-child td { border-bottom:none; }
+.price .amount { font-family:'Familjen Grotesk',sans-serif; font-weight:700; white-space:nowrap; }
+.price .sub { display:block; font-size:13px; color:var(--muted); margin-top:3px; }
+.table-scroll { overflow-x:auto; }
+
+/* ---- placeholder jelölés ---- */
+.ph { position:relative; border-style:dashed; background:var(--sand-row); }
+.ph::after {
+  content:'MINTA'; position:absolute; top:12px; right:12px;
+  font-size:10.5px; letter-spacing:.12em; font-weight:700; color:var(--muted-2);
+  background:#fff; border:1px solid var(--line); border-radius:100px; padding:3px 9px;
+}
+.ph-img { background:#DED6C8; border-radius:12px; aspect-ratio:4/3; }
+
+/* ---- jogi szöveg ---- */
+.legal { max-width:760px; }
+.legal h2 { font-size:24px; margin:36px 0 10px; }
+.legal h3 { font-size:17px; margin:22px 0 6px; }
+.legal p, .legal li { font-size:15.5px; line-height:1.65; color:var(--body); }
+.legal ul, .legal ol { margin:0 0 14px; padding-left:22px; }
+.legal li { margin-bottom:6px; }
+.legal .meta { font-size:14px; color:var(--muted); }
+.legal dl { margin:0 0 14px; }
+.legal dt { font-weight:600; margin-top:12px; }
+.legal dd { margin:2px 0 0; color:var(--body); font-size:15.5px; }
+
+/* ---- CTA sáv ---- */
+.cta { background:var(--ink); color:var(--paper); border-radius:20px; padding:40px; margin:56px 0;
+       display:flex; align-items:center; justify-content:space-between; gap:32px; }
+.cta h2 { color:var(--paper); margin:0 0 6px; }
+.cta p { color:#A9A296; margin:0; }
+.cta .btn { background:var(--amber); color:var(--ink); }
+.cta .btn:hover { background:#F0B255; color:var(--ink); }
+
+/* ---- lábléc ---- */
+.foot { background:var(--ink); color:var(--ink-muted); padding:44px 0; margin-top:64px; }
+.foot .wrap { display:flex; align-items:flex-start; justify-content:space-between; gap:32px; }
+.foot .brand b { color:var(--paper); font-size:19px; }
+.foot .brand b i { color:var(--amber); }
+.foot .brand .mark { fill:var(--amber); }
+.foot small { display:block; font-size:14px; color:var(--ink-muted); margin-top:8px; max-width:420px; line-height:1.6; }
+.foot nav { display:flex; gap:36px; font-size:14px; }
+.foot nav a { color:var(--ink-muted); text-decoration:none; }
+.foot nav a:hover { color:var(--paper); }
+
+@media (max-width:900px) {
+  .wrap { padding:0 20px; }
+  .top .wrap { padding:14px 20px; }
+  .nav, .top-phone { display:none; }
+  h1 { font-size:36px; }
+  h2 { font-size:26px; }
+  .head { padding:36px 0 24px; }
+  .grid2, .grid3, .grid4 { grid-template-columns:1fr; }
+  .cta { flex-direction:column; align-items:flex-start; padding:28px; }
+  .foot .wrap { flex-direction:column; }
+  .foot nav { flex-wrap:wrap; gap:18px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div style="display:flex; align-items:center; gap:40px;">
+      <a class="brand" href="./index.html">
+        <svg class="mark" viewBox="0 0 96 40" aria-hidden="true">
+  <rect x="0" y="16" width="20" height="8" rx="4" opacity=".25"/>
+  <rect x="26" y="16" width="26" height="8" rx="4" opacity=".55"/>
+  <circle cx="76" cy="20" r="12"/>
+</svg>
+        <b>NYOMBAN<i>.</i></b>
+      </a>
+      <nav class="nav"><a href="./szolgaltatasok.html">Szolgáltatások</a><a href="./arak.html">Árak</a><a href="./referenciak.html" aria-current="page">Referenciák</a><a href="./rolunk.html">Rólunk</a></nav>
+    </div>
+    <div class="top-right">
+      <div class="top-phone">
+        <span>Novák Ádám · 7–19 óráig</span>
+        <span>+36 30 254 9290</span>
+      </div>
+      <a class="btn" href="./app.dc.html">Árajánlatot kérek</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="head">
+  <div class="wrap">
+    <div class="eyebrow">Referenciák</div>
+    <h1>Elvégzett munkák,<br>valódi számokkal</h1>
+    <p class="lead">2019 óta 1 140 munkát zártunk le. A számok ezen az oldalon valósak. A munkaleírások és a vélemények viszont egyelőre minták: a helyükre csak olyan tartalom kerül, amit az ügyfél maga írt és jóváhagyott.</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="note">
+      <p><b>Minden „MINTA” jelölésű kártya helyőrző.</b> Nem valódi ügyfél, nem valódi vélemény, nem valódi munkaleírás. Ezeket az indulás előtt cseréljük ki valódi, engedélyezett tartalomra.</p>
+      <p>Vélemény csak az ügyfél kifejezett hozzájárulásával kerül ki, abban a formában, ahogy ő jóváhagyta. Fotót a munkáról vagy az ingatlanról kizárólag külön engedéllyel teszünk ki. A hozzájárulás bármikor visszavonható: ilyenkor a vélemény és a fotó lekerül az oldalról.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec sand">
+  <div class="wrap">
+    <div class="grid4">
+      <div class="card">
+        <div class="stat"><b>1 140</b><span>elvégzett munka 2019 óta</span></div>
+        <p>Lezárt, kiszámlázott munkák száma.</p>
+      </div>
+      <div class="card">
+        <div class="stat"><b>3 év</b><span>garancia</span></div>
+        <p>Minden munkára, a munkadíjra és a beépített anyagra is.</p>
+      </div>
+      <div class="card">
+        <div class="stat"><b>54 mp</b><span>átlagos ajánlatadás</span></div>
+        <p>Ennyi telik el a leírás elküldése és az árbecslés között.</p>
+      </div>
+      <div class="card">
+        <div class="stat"><b>6 900 Ft</b><span>fix kiszállás Szegeden</span></div>
+        <p>Mindig külön tétel, nincs rejtve a munkadíjban.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h2>Munkáink</h2>
+    <p>Hat kártya, hat lezárt munka. Mindegyikbe ez kerül: mit kértek, mit csináltunk, mennyi idő alatt. A fotókat a helyszínen készítjük, és csak akkor tesszük ki, ha az ügyfél engedélyezte.</p>
+    <div class="grid3">
+      <div class="card ph">
+        <div class="ph-img"></div>
+        <h3>[Munkatípus — pl. konnektor és doboz csere]</h3>
+        <p>[Városrész] · [év, hónap]</p>
+        <p>Ide kerül két mondat a munkáról: mi volt a feladat, és mi lett a megoldás. Kitöltendő minta.</p>
+      </div>
+      <div class="card ph">
+        <div class="ph-img"></div>
+        <h3>[Munkatípus — pl. elosztószekrény csere]</h3>
+        <p>[Városrész] · [év, hónap]</p>
+        <p>Ide kerül két mondat a munkáról: mi volt a feladat, és mi lett a megoldás. Kitöltendő minta.</p>
+      </div>
+      <div class="card ph">
+        <div class="ph-img"></div>
+        <h3>[Munkatípus — pl. bojler külön áramkör]</h3>
+        <p>[Városrész] · [év, hónap]</p>
+        <p>Ide kerül két mondat a munkáról: mi volt a feladat, és mi lett a megoldás. Kitöltendő minta.</p>
+      </div>
+      <div class="card ph">
+        <div class="ph-img"></div>
+        <h3>[Munkatípus — pl. lámpatest bekötés]</h3>
+        <p>[Városrész] · [év, hónap]</p>
+        <p>Ide kerül két mondat a munkáról: mi volt a feladat, és mi lett a megoldás. Kitöltendő minta.</p>
+      </div>
+      <div class="card ph">
+        <div class="ph-img"></div>
+        <h3>[Munkatípus — pl. kaputelefon javítás]</h3>
+        <p>[Városrész] · [év, hónap]</p>
+        <p>Ide kerül két mondat a munkáról: mi volt a feladat, és mi lett a megoldás. Kitöltendő minta.</p>
+      </div>
+      <div class="card ph">
+        <div class="ph-img"></div>
+        <h3>[Munkatípus — pl. kültéri, IP44 szerelvény]</h3>
+        <p>[Városrész] · [év, hónap]</p>
+        <p>Ide kerül két mondat a munkáról: mi volt a feladat, és mi lett a megoldás. Kitöltendő minta.</p>
+      </div>
+    </div>
+    <p>A munkatípusok és az áraik az <a href="./arak.html">árlistán</a> szerepelnek, a részletek a <a href="./szolgaltatasok.html">szolgáltatásoknál</a>.</p>
+  </div>
+</section>
+
+<section class="sec sand">
+  <div class="wrap">
+    <h2>Mit mondanak rólunk</h2>
+    <p>Az alábbi négy kártya sablon. A helyükre az ügyfél saját, változtatás nélküli mondatai kerülnek, a hozzájárulása után.</p>
+    <div class="grid2">
+      <div class="card ph">
+        <p>„Ide kerül az ügyfél saját szövege, szerkesztés nélkül. Ez itt kitöltendő mintamondat.”</p>
+        <h3>[Ügyfél neve], [városrész]</h3>
+        <p>[Munkatípus] · [dátum] · Minta, nem valódi vélemény.</p>
+      </div>
+      <div class="card ph">
+        <p>„Ide kerül az ügyfél saját szövege, szerkesztés nélkül. Ez itt kitöltendő mintamondat.”</p>
+        <h3>[Ügyfél neve], [városrész]</h3>
+        <p>[Munkatípus] · [dátum] · Minta, nem valódi vélemény.</p>
+      </div>
+      <div class="card ph">
+        <p>„Ide kerül az ügyfél saját szövege, szerkesztés nélkül. Ez itt kitöltendő mintamondat.”</p>
+        <h3>[Ügyfél neve], [városrész]</h3>
+        <p>[Munkatípus] · [dátum] · Minta, nem valódi vélemény.</p>
+      </div>
+      <div class="card ph">
+        <p>„Ide kerül az ügyfél saját szövege, szerkesztés nélkül. Ez itt kitöltendő mintamondat.”</p>
+        <h3>[Ügyfél neve], [városrész]</h3>
+        <p>[Munkatípus] · [dátum] · Minta, nem valódi vélemény.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h2>Hogyan írhat véleményt</h2>
+    <p>Véleményt csak az írhat, akinél volt lezárt munkánk. Nem vásárolunk értékelést, és nem írunk át egyetlen mondatot sem.</p>
+    <div class="grid3">
+      <div class="card">
+        <span class="num">01</span>
+        <h3>Lezárjuk a munkát</h3>
+        <p>A számla mellé küldünk egy linket SMS-ben vagy e-mailben. Csak a lezárt munkához tartozó cím kap linket.</p>
+      </div>
+      <div class="card">
+        <span class="num">02</span>
+        <h3>Megírja, ahogy gondolja</h3>
+        <p>Néhány mondat és egy értékelés. Regisztráció nincs, és a rossz véleményt is kitesszük.</p>
+      </div>
+      <div class="card dark">
+        <span class="num">03</span>
+        <h3>Ön dönti el, mi jelenik meg</h3>
+        <p>A linken bejelöli, hogy kikerülhet-e az oldalra, és milyen néven: teljes névvel, keresztnévvel vagy kezdőbetűkkel. Fotóra külön kérdés vonatkozik.</p>
+      </div>
+    </div>
+    <div class="note">
+      <p>A linkes véleménykérés a rendszer élesítésével indul. Addig telefonon jelezheti, ha véleményt írna, vagy ha egy korábbi hozzájárulását visszavonná: <b>Novák Ádám, +36 30 254 9290</b>, 7–19 óráig. A kikerülő vélemények kezeléséről az <a href="./adatkezeles.html">adatkezelési tájékoztató</a> szól.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Nézzük meg a saját munkáját</h2>
+        <p>Írja le, mi a baj, töltsön fel legfeljebb 5 fotót. A tételes ársávot azonnal látja, telefonálgatás és helyszíni felmérés nélkül.</p>
+      </div>
+      <a class="btn btn-lg" href="./app.dc.html">Árajánlatot kérek</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <div class="brand"><svg class="mark" viewBox="0 0 96 40" aria-hidden="true">
+  <rect x="0" y="16" width="20" height="8" rx="4" opacity=".25"/>
+  <rect x="26" y="16" width="26" height="8" rx="4" opacity=".55"/>
+  <circle cx="76" cy="20" r="12"/>
+</svg><b>NYOMBAN<i>.</i></b></div>
+      <small>
+        Novák Ádám e.v. · Szeged · Adószám: [kitöltendő]<br>
+        Nyilvántartási szám: [kitöltendő] · E-mail: [kitöltendő]
+      </small>
+    </div>
+    <nav>
+      <a href="./aszf.html">ÁSZF</a>
+      <a href="./adatkezeles.html">Adatkezelés</a>
+      <a href="./arak.html">Árlista</a>
+      <a href="tel:+36302549290">+36 30 254 9290</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

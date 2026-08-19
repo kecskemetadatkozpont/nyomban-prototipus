@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Árak — NYOMBAN</title>
+<meta name="description" content="Kiszállási díj, óradíj, tételes árlista. A közölt ársávot tartjuk.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1B1A17; --ink-soft:#26241F; --ink-line:#33302A; --ink-muted:#8E8779;
+  --amber:#E8A33D; --amber-deep:#C4711A; --amber-text:#8A5A1B; --amber-wash:#F3E7D2;
+  --paper:#FAF7F2; --sand:#F1EDE5; --sand-row:#F6F1E8;
+  --line:#E3DCD1; --line-soft:#EAE4DA;
+  --body:#57534A; --muted:#7A756C; --muted-2:#9A9388;
+  --ok:#3F7D4E; --ok-bg:#E2EDE4;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Instrument Sans',system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.5;
+}
+h1,h2,h3 { font-family:'Familjen Grotesk',system-ui,sans-serif; letter-spacing:-.03em; margin:0; }
+h1 { font-size:52px; line-height:1.02; letter-spacing:-.035em; }
+h2 { font-size:32px; margin:0 0 14px; }
+h3 { font-size:20px; letter-spacing:-.02em; margin:0 0 8px; }
+p { margin:0 0 14px; color:var(--body); }
+a { color:var(--amber-text); }
+a:hover { color:var(--amber-deep); }
+.wrap { max-width:1120px; margin:0 auto; padding:0 40px; }
+
+/* ---- fejléc ---- */
+.top {
+  position:sticky; top:0; z-index:20; background:var(--paper);
+  border-bottom:1px solid var(--line-soft);
+}
+.top .wrap { display:flex; align-items:center; justify-content:space-between; padding:20px 40px; }
+.brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); }
+.brand .mark { width:26px; height:11px; fill:var(--amber-deep); flex:none; }
+.brand b {
+  font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:21px;
+  letter-spacing:-.02em;
+}
+.brand b i { color:var(--amber-deep); font-style:normal; }
+.nav { display:flex; gap:26px; font-size:15px; }
+.nav a { color:var(--body); text-decoration:none; }
+.nav a:hover { color:var(--ink); }
+.nav a[aria-current] { color:var(--ink); font-weight:600; }
+.top-right { display:flex; align-items:center; gap:16px; }
+.top-phone { display:flex; flex-direction:column; align-items:flex-end; }
+.top-phone span:first-child { font-size:12px; color:var(--muted-2); }
+.top-phone span:last-child { font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:700; }
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 22px;
+  border-radius:11px; background:var(--ink); color:var(--paper); border:none;
+  font-size:15px; font-weight:600; cursor:pointer; text-decoration:none; font-family:inherit;
+}
+.btn:hover { background:#2A2823; color:var(--paper); }
+.btn-lg { height:56px; padding:0 28px; font-size:17px; border-radius:13px; }
+.btn-ghost { background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+.btn-ghost:hover { background:var(--sand-row); color:var(--ink); }
+
+/* ---- oldalfej ---- */
+.head { padding:64px 0 40px; }
+.head .lead { font-size:19px; line-height:1.55; color:var(--body); max-width:620px; margin-top:16px; }
+.eyebrow {
+  font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:600;
+  color:var(--amber-text); margin-bottom:14px;
+}
+
+/* ---- szekciók ---- */
+.sec { padding:40px 0; }
+.sec.sand { background:var(--sand); border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
+.grid2 { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.card {
+  background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.card.dark { background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.card.dark h3 { color:var(--paper); }
+.card.dark p { color:#A9A296; }
+.card .num { font-family:'Familjen Grotesk',sans-serif; font-size:15px; font-weight:700; color:var(--amber-deep); }
+.card.dark .num { color:var(--amber); }
+.card p:last-child { margin-bottom:0; }
+.note {
+  background:var(--amber-wash); border-radius:14px; padding:20px 22px;
+  font-size:15px; line-height:1.6; color:#6B4A16;
+}
+.note b { color:var(--amber-text); }
+.note p:last-child { margin-bottom:0; }
+.stat { display:flex; flex-direction:column; gap:2px; }
+.stat b { font-family:'Familjen Grotesk',sans-serif; font-size:30px; font-weight:700; letter-spacing:-.03em; }
+.stat span { font-size:13.5px; color:var(--muted); }
+
+/* ---- árlista ---- */
+.price { width:100%; border-collapse:collapse; font-size:15px; background:#fff;
+         border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+.price th {
+  text-align:left; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted-2); font-weight:600; padding:14px 18px; background:var(--sand-row);
+  border-bottom:1px solid var(--line-soft);
+}
+.price td { padding:15px 18px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+.price tr:last-child td { border-bottom:none; }
+.price .amount { font-family:'Familjen Grotesk',sans-serif; font-weight:700; white-space:nowrap; }
+.price .sub { display:block; font-size:13px; color:var(--muted); margin-top:3px; }
+.table-scroll { overflow-x:auto; }
+
+/* ---- placeholder jelölés ---- */
+.ph { position:relative; border-style:dashed; background:var(--sand-row); }
+.ph::after {
+  content:'MINTA'; position:absolute; top:12px; right:12px;
+  font-size:10.5px; letter-spacing:.12em; font-weight:700; color:var(--muted-2);
+  background:#fff; border:1px solid var(--line); border-radius:100px; padding:3px 9px;
+}
+.ph-img { background:#DED6C8; border-radius:12px; aspect-ratio:4/3; }
+
+/* ---- jogi szöveg ---- */
+.legal { max-width:760px; }
+.legal h2 { font-size:24px; margin:36px 0 10px; }
+.legal h3 { font-size:17px; margin:22px 0 6px; }
+.legal p, .legal li { font-size:15.5px; line-height:1.65; color:var(--body); }
+.legal ul, .legal ol { margin:0 0 14px; padding-left:22px; }
+.legal li { margin-bottom:6px; }
+.legal .meta { font-size:14px; color:var(--muted); }
+.legal dl { margin:0 0 14px; }
+.legal dt { font-weight:600; margin-top:12px; }
+.legal dd { margin:2px 0 0; color:var(--body); font-size:15.5px; }
+
+/* ---- CTA sáv ---- */
+.cta { background:var(--ink); color:var(--paper); border-radius:20px; padding:40px; margin:56px 0;
+       display:flex; align-items:center; justify-content:space-between; gap:32px; }
+.cta h2 { color:var(--paper); margin:0 0 6px; }
+.cta p { color:#A9A296; margin:0; }
+.cta .btn { background:var(--amber); color:var(--ink); }
+.cta .btn:hover { background:#F0B255; color:var(--ink); }
+
+/* ---- lábléc ---- */
+.foot { background:var(--ink); color:var(--ink-muted); padding:44px 0; margin-top:64px; }
+.foot .wrap { display:flex; align-items:flex-start; justify-content:space-between; gap:32px; }
+.foot .brand b { color:var(--paper); font-size:19px; }
+.foot .brand b i { color:var(--amber); }
+.foot .brand .mark { fill:var(--amber); }
+.foot small { display:block; font-size:14px; color:var(--ink-muted); margin-top:8px; max-width:420px; line-height:1.6; }
+.foot nav { display:flex; gap:36px; font-size:14px; }
+.foot nav a { color:var(--ink-muted); text-decoration:none; }
+.foot nav a:hover { color:var(--paper); }
+
+@media (max-width:900px) {
+  .wrap { padding:0 20px; }
+  .top .wrap { padding:14px 20px; }
+  .nav, .top-phone { display:none; }
+  h1 { font-size:36px; }
+  h2 { font-size:26px; }
+  .head { padding:36px 0 24px; }
+  .grid2, .grid3, .grid4 { grid-template-columns:1fr; }
+  .cta { flex-direction:column; align-items:flex-start; padding:28px; }
+  .foot .wrap { flex-direction:column; }
+  .foot nav { flex-wrap:wrap; gap:18px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div style="display:flex; align-items:center; gap:40px;">
+      <a class="brand" href="./index.html">
+        <svg class="mark" viewBox="0 0 96 40" aria-hidden="true">
+  <rect x="0" y="16" width="20" height="8" rx="4" opacity=".25"/>
+  <rect x="26" y="16" width="26" height="8" rx="4" opacity=".55"/>
+  <circle cx="76" cy="20" r="12"/>
+</svg>
+        <b>NYOMBAN<i>.</i></b>
+      </a>
+      <nav class="nav"><a href="./szolgaltatasok.html">Szolgáltatások</a><a href="./arak.html" aria-current="page">Árak</a><a href="./referenciak.html">Referenciák</a><a href="./rolunk.html">Rólunk</a></nav>
+    </div>
+    <div class="top-right">
+      <div class="top-phone">
+        <span>Novák Ádám · 7–19 óráig</span>
+        <span>+36 30 254 9290</span>
+      </div>
+      <a class="btn" href="./app.dc.html">Árajánlatot kérek</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="head">
+  <div class="wrap">
+    <div class="eyebrow">Árak</div>
+    <h1>Árak, amiket tartunk</h1>
+    <p class="lead">Itt látja a díjainkat és a leggyakoribb munkák árait. Amit az online árbecslésben megkap, az nem tájékoztató jellegű: a sávot tartjuk. Ha a végleges összeg a sáv fölé menne, azt előbb Önnek kell jóváhagynia.</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h2>Alapdíjak</h2>
+    <div class="grid4">
+      <div class="card">
+        <div class="stat"><b>6&nbsp;900&nbsp;Ft</b><span>kiszállási díj</span></div>
+        <p>Szegeden belül fix összeg. Mindig külön tételként szerepel az ajánlatban, nem építjük bele a munkadíjba.</p>
+      </div>
+      <div class="card">
+        <div class="stat"><b>9&nbsp;900&nbsp;Ft</b><span>óradíj</span></div>
+        <p>A helyszínen ledolgozott munkaóra díja. A tételes áras munkáknál a munkadíj már benne van a feltüntetett sávban.</p>
+      </div>
+      <div class="card">
+        <div class="stat"><b>12&nbsp;000&nbsp;Ft</b><span>minimum munkadíj</span></div>
+        <p>A legrövidebb munkánál sem számolunk ennél kevesebb munkadíjat. A kiszállási díj ezen felül jön.</p>
+      </div>
+      <div class="card">
+        <div class="stat"><b>30%</b><span>sürgősségi felár</span></div>
+        <p>Ha 24 órán belüli időpontot kér, ennyivel nő a munkadíj. Az ajánlatban külön soron látja, mielőtt megrendeli.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sand">
+  <div class="wrap">
+    <h2>Munkatételek</h2>
+    <p>A leggyakoribb villanyszerelési munkák bruttó árai. Ahol sáv szerepel, ott a beépített anyag ára már benne van; a kiszállási díj minden esetben külön tétel. A saját feladatára pontosabb becslést kap, ha leírja és lefotózza.</p>
+<div class="table-scroll"><table class="price">
+  <thead><tr><th>Munkatétel</th><th>Mit tartalmaz</th><th>Ár</th></tr></thead>
+  <tbody>
+    <tr><td>Hibafeltárás, érintésvédelmi mérés</td><td>1 óra · jegyzőkönyvvel</td><td class="amount">9900 Ft</td></tr>
+    <tr><td>Konnektor + doboz csere</td><td>db-onként, anyaggal</td><td class="amount">7200 Ft – 9600 Ft</td></tr>
+    <tr><td>Bojler külön áramkör</td><td>16A kismegszakítóval, vezetékhossztól függ</td><td class="amount">18 000 Ft – 24 000 Ft</td></tr>
+    <tr><td>Lámpatest felszerelés, bekötés</td><td>db-onként, gipszkartonnál felár</td><td class="amount">8500 Ft – 12 000 Ft</td></tr>
+    <tr><td>Elosztószekrény bővítés / csere</td><td>FI-relével, sorkapcsokkal</td><td class="amount">62 000 Ft – 96 000 Ft</td></tr>
+    <tr><td>Kaputelefon hibakeresés, javítás</td><td>beltéri egység cseréje külön</td><td class="amount">16 000 Ft – 26 000 Ft</td></tr>
+    <tr><td>Vezetékhálózat felújítás</td><td>pontonként, falhoronnyal</td><td class="amount">120 000 Ft – 210 000 Ft</td></tr>
+    <tr><td>Kültéri / IP44 szerelvény</td><td>terasz, kert, nedves tér</td><td class="amount">11 000 Ft – 18 000 Ft</td></tr>
+    <tr><td>Kiszállás Szegeden belül</td><td>fix díj, minden munkánál külön tétel</td><td class="amount">6900 Ft</td></tr>
+  </tbody>
+</table></div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h2>Hogyan áll össze az ár</h2>
+    <div class="grid3">
+      <div class="card">
+        <span class="num">01</span>
+        <h3>Anyag, munkadíj, kiszállás</h3>
+        <p>Minden ajánlat ebből a három részből áll. A tételes sávokban az anyag és a munkadíj is benne van, a 6 900 Ft-os kiszállás pedig külön soron szerepel. Így látja, miért annyi az összeg, amennyi.</p>
+      </div>
+      <div class="card dark">
+        <span class="num">02</span>
+        <h3>Miért sáv, és nem egy szám</h3>
+        <p>A leírásból és a fotókból a munka jellege pontosan látszik, de minden nem: a fal mögötti nyomvonal, a régi vezeték állapota, a doboz mérete. A sáv alsó széle a tiszta esetre vonatkozik, a felső a nehezebbre. A végleges összeg ezen belül marad.</p>
+      </div>
+      <div class="card">
+        <span class="num">03</span>
+        <h3>Mikor lesz a sáv teteje</h3>
+        <p>Ha bontás után rejtett hiba kerül elő, ha új nyomvonalat kell vésni, vagy ha a meglévő szerelvényekből többet kell cserélni, mint amennyi a fotón látszott. Ezt a kollégánk a helyszínen megmutatja Önnek.</p>
+      </div>
+    </div>
+    <div class="note">
+      <p><b>A közölt sáv fölé csak az Ön írásos jóváhagyásával mehetünk.</b> Ha a helyszínen kiderül, hogy a munka többe kerül a sáv tetejénél, a kollégánk megáll, megmutatja, mi az, ami többlet, és megírja az új összeget.</p>
+      <p>Amíg Ön ezt írásban el nem fogadja, nem dolgozunk tovább, és a többletet nem számlázzuk ki. Ha nem hagyja jóvá a többletet, a munkát lezárjuk, és kizárólag a 6 900 Ft-os kiszállási díjat számlázzuk — munkadíjat nem.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec sand">
+  <div class="wrap">
+    <h2>Gyakori kérdések az árakról</h2>
+    <div class="grid3">
+      <div class="card">
+        <h3>Fizethetek utalással?</h3>
+        <p>Elfogadott fizetési módok: [kitöltendő]. A számlát minden munkáról kiállítjuk.</p>
+      </div>
+      <div class="card">
+        <h3>Kapok számlát?</h3>
+        <p>Minden elvégzett munkáról számlát adunk. Ha céges névre kéri, a nevet és az adószámot a megrendeléskor adja meg.</p>
+      </div>
+      <div class="card">
+        <h3>Mi van, ha nem sikerül megjavítani?</h3>
+        <p>Ilyenkor a kiszállási díjat és a helyszínen ténylegesen ráfordított időt számoljuk fel — a 9 900 Ft-os hibafeltárás tételárát számoljuk fel. A 12 000 Ft-os minimum munkadíj az óradíjas elszámolású munkákra vonatkozik, a tételáras munkákra a tételár érvényes.</p>
+      </div>
+      <div class="card">
+        <h3>Hétvégén is jönnek?</h3>
+        <p>Hétvégi időpontra is tud jelentkezni, a visszaigazolás a szabad kapacitástól függ. [kitöltendő: a hétvégi kiszállás feltételei és esetleges felára.]</p>
+      </div>
+      <div class="card">
+        <h3>Mennyibe kerül a kiszállás, ha végül nem kérem a munkát?</h3>
+        <p>Ha a kollégánk már kiért, a 6 900 Ft-os kiszállási díjat akkor is felszámoljuk, más költsége nincs. Ha az időpont előtt lemondja, nem fizet semmit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Nézze meg, mennyi lesz a magáé</h2>
+        <p>Írja le, mi a baj, töltsön fel legfeljebb 5 fotót, és megkapja a tételes ársávot. Átlagos ajánlatadási időnk 54 másodperc.</p>
+      </div>
+      <a class="btn btn-lg" href="./app.dc.html">Árbecslést kérek</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <div class="brand"><svg class="mark" viewBox="0 0 96 40" aria-hidden="true">
+  <rect x="0" y="16" width="20" height="8" rx="4" opacity=".25"/>
+  <rect x="26" y="16" width="26" height="8" rx="4" opacity=".55"/>
+  <circle cx="76" cy="20" r="12"/>
+</svg><b>NYOMBAN<i>.</i></b></div>
+      <small>
+        Novák Ádám e.v. · Szeged · Adószám: [kitöltendő]<br>
+        Nyilvántartási szám: [kitöltendő] · E-mail: [kitöltendő]
+      </small>
+    </div>
+    <nav>
+      <a href="./aszf.html">ÁSZF</a>
+      <a href="./adatkezeles.html">Adatkezelés</a>
+      <a href="./arak.html">Árlista</a>
+      <a href="tel:+36302549290">+36 30 254 9290</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

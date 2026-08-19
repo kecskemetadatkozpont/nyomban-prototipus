@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ÁSZF — NYOMBAN</title>
+<meta name="description" content="A NYOMBAN szolgáltatás igénybevételének általános szerződési feltételei.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1B1A17; --ink-soft:#26241F; --ink-line:#33302A; --ink-muted:#8E8779;
+  --amber:#E8A33D; --amber-deep:#C4711A; --amber-text:#8A5A1B; --amber-wash:#F3E7D2;
+  --paper:#FAF7F2; --sand:#F1EDE5; --sand-row:#F6F1E8;
+  --line:#E3DCD1; --line-soft:#EAE4DA;
+  --body:#57534A; --muted:#7A756C; --muted-2:#9A9388;
+  --ok:#3F7D4E; --ok-bg:#E2EDE4;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Instrument Sans',system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.5;
+}
+h1,h2,h3 { font-family:'Familjen Grotesk',system-ui,sans-serif; letter-spacing:-.03em; margin:0; }
+h1 { font-size:52px; line-height:1.02; letter-spacing:-.035em; }
+h2 { font-size:32px; margin:0 0 14px; }
+h3 { font-size:20px; letter-spacing:-.02em; margin:0 0 8px; }
+p { margin:0 0 14px; color:var(--body); }
+a { color:var(--amber-text); }
+a:hover { color:var(--amber-deep); }
+.wrap { max-width:1120px; margin:0 auto; padding:0 40px; }
+
+/* ---- fejléc ---- */
+.top {
+  position:sticky; top:0; z-index:20; background:var(--paper);
+  border-bottom:1px solid var(--line-soft);
+}
+.top .wrap { display:flex; align-items:center; justify-content:space-between; padding:20px 40px; }
+.brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); }
+.brand .mark { width:26px; height:11px; fill:var(--amber-deep); flex:none; }
+.brand b {
+  font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:21px;
+  letter-spacing:-.02em;
+}
+.brand b i { color:var(--amber-deep); font-style:normal; }
+.nav { display:flex; gap:26px; font-size:15px; }
+.nav a { color:var(--body); text-decoration:none; }
+.nav a:hover { color:var(--ink); }
+.nav a[aria-current] { color:var(--ink); font-weight:600; }
+.top-right { display:flex; align-items:center; gap:16px; }
+.top-phone { display:flex; flex-direction:column; align-items:flex-end; }
+.top-phone span:first-child { font-size:12px; color:var(--muted-2); }
+.top-phone span:last-child { font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:700; }
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 22px;
+  border-radius:11px; background:var(--ink); color:var(--paper); border:none;
+  font-size:15px; font-weight:600; cursor:pointer; text-decoration:none; font-family:inherit;
+}
+.btn:hover { background:#2A2823; color:var(--paper); }
+.btn-lg { height:56px; padding:0 28px; font-size:17px; border-radius:13px; }
+.btn-ghost { background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+.btn-ghost:hover { background:var(--sand-row); color:var(--ink); }
+
+/* ---- oldalfej ---- */
+.head { padding:64px 0 40px; }
+.head .lead { font-size:19px; line-height:1.55; color:var(--body); max-width:620px; margin-top:16px; }
+.eyebrow {
+  font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:600;
+  color:var(--amber-text); margin-bottom:14px;
+}
+
+/* ---- szekciók ---- */
+.sec { padding:40px 0; }
+.sec.sand { background:var(--sand); border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
+.grid2 { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.card {
+  background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.card.dark { background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.card.dark h3 { color:var(--paper); }
+.card.dark p { color:#A9A296; }
+.card .num { font-family:'Familjen Grotesk',sans-serif; font-size:15px; font-weight:700; color:var(--amber-deep); }
+.card.dark .num { color:var(--amber); }
+.card p:last-child { margin-bottom:0; }
+.note {
+  background:var(--amber-wash); border-radius:14px; padding:20px 22px;
+  font-size:15px; line-height:1.6; color:#6B4A16;
+}
+.note b { color:var(--amber-text); }
+.note p:last-child { margin-bottom:0; }
+.stat { display:flex; flex-direction:column; gap:2px; }
+.stat b { font-family:'Familjen Grotesk',sans-serif; font-size:30px; font-weight:700; letter-spacing:-.03em; }
+.stat span { font-size:13.5px; color:var(--muted); }
+
+/* ---- árlista ---- */
+.price { width:100%; border-collapse:collapse; font-size:15px; background:#fff;
+         border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+.price th {
+  text-align:left; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted-2); font-weight:600; padding:14px 18px; background:var(--sand-row);
+  border-bottom:1px solid var(--line-soft);
+}
+.price td { padding:15px 18px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+.price tr:last-child td { border-bottom:none; }
+.price .amount { font-family:'Familjen Grotesk',sans-serif; font-weight:700; white-space:nowrap; }
+.price .sub { display:block; font-size:13px; color:var(--muted); margin-top:3px; }
+.table-scroll { overflow-x:auto; }
+
+/* ---- placeholder jelölés ---- */
+.ph { position:relative; border-style:dashed; background:var(--sand-row); }
+.ph::after {
+  content:'MINTA'; position:absolute; top:12px; right:12px;
+  font-size:10.5px; letter-spacing:.12em; font-weight:700; color:var(--muted-2);
+  background:#fff; border:1px solid var(--line); border-radius:100px; padding:3px 9px;
+}
+.ph-img { background:#DED6C8; border-radius:12px; aspect-ratio:4/3; }
+
+/* ---- jogi szöveg ---- */
+.legal { max-width:760px; }
+.legal h2 { font-size:24px; margin:36px 0 10px; }
+.legal h3 { font-size:17px; margin:22px 0 6px; }
+.legal p, .legal li { font-size:15.5px; line-height:1.65; color:var(--body); }
+.legal ul, .legal ol { margin:0 0 14px; padding-left:22px; }
+.legal li { margin-bottom:6px; }
+.legal .meta { font-size:14px; color:var(--muted); }
+.legal dl { margin:0 0 14px; }
+.legal dt { font-weight:600; margin-top:12px; }
+.legal dd { margin:2px 0 0; color:var(--body); font-size:15.5px; }
+
+/* ---- CTA sáv ---- */
+.cta { background:var(--ink); color:var(--paper); border-radius:20px; padding:40px; margin:56px 0;
+       display:flex; align-items:center; justify-content:space-between; gap:32px; }
+.cta h2 { color:var(--paper); margin:0 0 6px; }
+.cta p { color:#A9A296; margin:0; }
+.cta .btn { background:var(--amber); color:var(--ink); }
+.cta .btn:hover { background:#F0B255; color:var(--ink); }
+
+/* ---- lábléc ---- */
+.foot { background:var(--ink); color:var(--ink-muted); padding:44px 0; margin-top:64px; }
+.foot .wrap { display:flex; align-items:flex-start; justify-content:space-between; gap:32px; }
+.foot .brand b { color:var(--paper); font-size:19px; }
+.foot .brand b i { color:var(--amber); }
+.foot .brand .mark { fill:var(--amber); }
+.foot small { display:block; font-size:14px; color:var(--ink-muted); margin-top:8px; max-width:420px; line-height:1.6; }
+.foot nav { display:flex; gap:36px; font-size:14px; }
+.foot nav a { color:var(--ink-muted); text-decoration:none; }
+.foot nav a:hover { color:var(--paper); }
+
+@media (max-width:900px) {
+  .wrap { padding:0 20px; }
+  .top .wrap { padding:14px 20px; }
+  .nav, .top-phone { display:none; }
+  h1 { font-size:36px; }
+  h2 { font-size:26px; }
+  .head { padding:36px 0 24px; }
+  .grid2, .grid3, .grid4 { grid-template-columns:1fr; }
+  .cta { flex-direction:column; align-items:flex-start; padding:28px; }
+  .foot .wrap { flex-direction:column; }
+  .foot nav { flex-wrap:wrap; gap:18px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div style="display:flex; align-items:center; gap:40px;">
+      <a class="brand" href="./index.html">
+        <svg class="mark" viewBox="0 0 96 40" aria-hidden="true">
+  <rect x="0" y="16" width="20" height="8" rx="4" opacity=".25"/>
+  <rect x="26" y="16" width="26" height="8" rx="4" opacity=".55"/>
+  <circle cx="76" cy="20" r="12"/>
+</svg>
+        <b>NYOMBAN<i>.</i></b>
+      </a>
+      <nav class="nav"><a href="./szolgaltatasok.html">Szolgáltatások</a><a href="./arak.html">Árak</a><a href="./referenciak.html">Referenciák</a><a href="./rolunk.html">Rólunk</a></nav>
+    </div>
+    <div class="top-right">
+      <div class="top-phone">
+        <span>Novák Ádám · 7–19 óráig</span>
+        <span>+36 30 254 9290</span>
+      </div>
+      <a class="btn" href="./app.dc.html">Árajánlatot kérek</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="head"><div class="wrap">
+<div class="eyebrow">jogi dokumentum</div>
+<h1>Általános Szerződési Feltételek</h1>
+<p class="lead">A NYOMBAN online ajánlatkérési, időpontfoglalási és kivitelezési szolgáltatás igénybevételének feltételei. Kérjük, megrendelés előtt olvassa el.</p>
+</div></section>
+
+<section class="sec"><div class="wrap">
+<div class="legal">
+
+<div class="note">
+<p><b>Figyelem: ez a dokumentum TERVEZET.</b> A szöveget ügyvéd nem nézte át, jogilag nem ellenőrzött, és jelen formájában éles, üzleti használatra nem alkalmas. Semmilyen jogi tanácsnak nem minősül.</p>
+<p>A <b>[szögletes zárójelben]</b> szereplő helyeket a vállalkozás tényleges adataival kell kitölteni, a teljes szöveget pedig hatályba léptetés előtt jogi szakemberrel kell átnézetni és a valós működéshez igazítani.</p>
+</div>
+
+<h2>1. A szolgáltató adatai</h2>
+<p>Jelen Általános Szerződési Feltételek (a továbbiakban: ÁSZF) az alábbi vállalkozás (a továbbiakban: Szolgáltató) szolgáltatásaira vonatkoznak.</p>
+<dl>
+<dt>A vállalkozás neve</dt>
+<dd>[kitöltendő: cégnév / egyéni vállalkozó neve]</dd>
+<dt>Székhely</dt>
+<dd>[kitöltendő: irányítószám, település, utca, házszám]</dd>
+<dt>Levelezési cím</dt>
+<dd>[kitöltendő]</dd>
+<dt>Nyilvántartási szám</dt>
+<dd>[kitöltendő: cégjegyzékszám / egyéni vállalkozói nyilvántartási szám és a nyilvántartó szerv]</dd>
+<dt>Adószám</dt>
+<dd>[kitöltendő]</dd>
+<dt>Villanyszerelési tevékenység nyilvántartása</dt>
+<dd>[kitöltendő: MKEH / kereskedelmi hatósági regisztráció száma]</dd>
+<dt>E-mail</dt>
+<dd>[kitöltendő]</dd>
+<dt>Telefon</dt>
+<dd>[kitöltendő] — a jelenleg közzétett kapcsolattartási szám: Novák Ádám, +36 30 254 9290, 7–19 óráig</dd>
+<dt>Tárhelyszolgáltató neve</dt>
+<dd>[kitöltendő]</dd>
+<dt>Tárhelyszolgáltató székhelye és elérhetősége</dt>
+<dd>[kitöltendő: cím, e-mail]</dd>
+<dt>A szerződés nyelve</dt>
+<dd>magyar</dd>
+</dl>
+
+<h2>2. Az ÁSZF hatálya, elfogadása és módosítása</h2>
+
+<h3>2.1 Hatály</h3>
+<p>Jelen ÁSZF a Szolgáltató weboldalán keresztül leadott ajánlatkérésekre, időpontfoglalásokra és az ezek alapján létrejövő kivitelezési szerződésekre vonatkozik. Az ÁSZF hatálya kiterjed minden olyan felhasználóra, aki a weboldalt használja vagy a Szolgáltató szolgáltatását megrendeli (a továbbiakban: Ügyfél).</p>
+<p>Fogyasztónak a Polgári Törvénykönyv szerint a szakmája, önálló foglalkozása vagy üzleti tevékenysége körén kívül eljáró természetes személy minősül. Az ÁSZF fogyasztókra vonatkozó rendelkezései kizárólag ilyen Ügyfelekre alkalmazandók.</p>
+
+<h3>2.2 Elfogadás</h3>
+<p>A megrendelés véglegesítése előtt az Ügyfélnek jelölőnégyzet kipipálásával kifejezetten nyilatkoznia kell arról, hogy jelen ÁSZF-et és az <a href="./adatkezeles.html">adatkezelési tájékoztatót</a> megismerte és elfogadja. A jelölőnégyzet bejelölése nélkül a megrendelés nem küldhető el.</p>
+<p>Az így létrejövő szerződés írásba foglalt szerződésnek nem minősül, elektronikus úton jön létre, a Szolgáltató iktatja, és utólag [kitöltendő: időtartam] ideig hozzáférhető.</p>
+
+<h3>2.3 Módosítás</h3>
+<p>A Szolgáltató jogosult az ÁSZF-et egyoldalúan módosítani. A módosítás a weboldalon való közzététellel lép hatályba, és a hatálybalépést követően leadott megrendelésekre alkalmazandó. A már visszaigazolt megrendelésekre minden esetben a megrendelés időpontjában hatályos ÁSZF irányadó.</p>
+
+<h2>3. A szolgáltatás leírása</h2>
+<p>A Szolgáltató online felületet üzemeltet, amelyen az Ügyfél telefonálgatás és előzetes helyszíni felmérés nélkül kérhet árbecslést és foglalhat időpontot. A folyamat lépései:</p>
+<ol>
+<li><b>Ajánlatkérés.</b> Az Ügyfél leírja a feladatot, és kérésenként legfeljebb 5 fényképet tölt fel.</li>
+<li><b>Becsült ársáv.</b> A rendszer a megadott leírás és fényképek alapján tételes, becsült árat közöl, alsó és felső értékkel megadott sávban (a továbbiakban: ársáv).</li>
+<li><b>Időpontfoglalás.</b> Az Ügyfél három alkalmas időpontot jelöl meg, amelyek közül a Szolgáltató egyet visszaigazol.</li>
+<li><b>Kivitelezés.</b> A szakember a visszaigazolt időpontban a helyszínre érkezik, elvégzi a munkát, majd a Szolgáltató számlát állít ki.</li>
+</ol>
+<p>Az ajánlatkérés önmagában nem hoz létre szerződést, és nem jár fizetési kötelezettséggel. Szerződés a Szolgáltató időpont-visszaigazolásával jön létre.</p>
+<p>A weboldalon feltüntetett tételek elvégzését a Szolgáltató a szakmai és biztonságtechnikai szabályok betartása mellett vállalja. A Szolgáltató jogosult a megrendelést indokolással visszautasítani, különösen, ha a munka szakmailag nem végezhető el biztonságosan, ha a kapacitás nem elegendő, vagy ha a leírás alapján a feladat nem tartozik a vállalt körbe.</p>
+<p>A weboldal használatára rendszerszintű korlátok vonatkoznak: böngészőnként naponta legfeljebb 5, óránként legfeljebb 3 árbecslés kérhető. Ez visszaélés- és túlterhelés-védelmi célt szolgál.</p>
+
+<h2>4. Az ársáv jogi természete</h2>
+
+<h3>4.1 Az ársáv becslés, a felső érték viszont kötelezettségvállalás</h3>
+<p>Az online közölt ársáv az Ügyfél által megadott leírás és fényképek alapján készült <b>becslés</b>. A Szolgáltató a helyszínt előzetesen nem látja, ezért az ársáv pontossága az Ügyfél által megadott adatok valóságtartalmán múlik.</p>
+<p>Ha az Ügyfél által megadott adatok a valóságnak megfelelnek, a Szolgáltató a közölt ársávot tartja: a végszámla összege az ársáv felső értékét nem haladhatja meg. Az ársáv felső értéke ebben az értelemben a Szolgáltatóra nézve kötelezettségvállalás, nem tájékoztató adat.</p>
+<p>Az ársáv a benne megjelölt munkatételekre és a hozzájuk tartozó, szokásos anyagokra vonatkozik, és tartalmazza az általános forgalmi adót. A kiszállási díj ettől elkülönülten, mindig külön tételként jelenik meg.</p>
+<p>Az ársáv érvényességi ideje az ajánlat kiállításától számított [kitöltendő: pl. 14] nap.</p>
+
+<h3>4.2 Ha a helyszínen többletmunka merül fel</h3>
+<p>Az elektromos hálózat egy része falban, burkolat vagy szerelvény mögött fut. Előfordulhat, hogy a helyszíni bontás, feltárás vagy mérés után derül ki olyan körülmény, amely a megrendeléskor nem volt ismert és nem is volt felismerhető (például korábbi, szabálytalan kötés, sérült vagy alulméretezett vezeték, eltérő falszerkezet).</p>
+<p>Ebben az esetben a következő eljárás alkalmazandó:</p>
+<ol>
+<li>A szakember a munkát <b>felfüggeszti</b>, és a helyszínen bemutatja, mit talált.</li>
+<li>Az Ügyfél tételes tájékoztatást kap arról, hogy mi a szükséges többletmunka, és ez mennyivel emeli a végösszeget.</li>
+<li>Ha a várható végösszeg az ársáv felső értékét meghaladná, a munka <b>nem folytatható</b> az Ügyfél előzetes, kifejezett és <b>írásos</b> jóváhagyása nélkül. Írásosnak minősül az SMS-ben vagy e-mailben adott jóváhagyás.</li>
+<li>Szóban, utólag vagy ráutaló magatartással adott hozzájárulás nem elegendő. Írásos jóváhagyás hiányában elvégzett munka díját a Szolgáltató nem számlázhatja ki.</li>
+</ol>
+<p>Az olyan munka, amely a megrendelt eredmény létrehozásához szükséges, de az ársávon belül marad, nem igényel külön jóváhagyást; annak díja az ársávban benne foglaltatik.</p>
+
+<h3>4.3 Ha az Ügyfél nem hagyja jóvá a többletet</h3>
+<p>Az Ügyfél nem köteles a többletmunkát jóváhagyni. Ha nem hagyja jóvá, a szerződés a jóváhagyás megtagadásával megszűnik, és az Ügyfelet <b>kizárólag a kiszállási díj</b> megfizetése terheli. A Szolgáltató ilyen esetben munkadíjat, minimum munkadíjat vagy egyéb költséget nem számít fel.</p>
+<p>A Szolgáltató ilyenkor is köteles a helyszínt biztonságos, feszültségmentes vagy szakszerűen visszaállított állapotban hagyni, és erről az Ügyfelet tájékoztatni.</p>
+
+<h3>4.4 Ha az adatok nem feleltek meg a valóságnak</h3>
+<p>Ha a helyszínen az derül ki, hogy az Ügyfél által megadott leírás vagy fényképek lényeges pontban nem feleltek meg a valóságnak (például más mennyiség, más helyszín, más műszaki tartalom), az ársáv nem köti a Szolgáltatót. Ebben az esetben a Szolgáltató új ajánlatot ad, amelyet az Ügyfél elfogadhat vagy elutasíthat; elutasítás esetén a 4.3 pont szerinti kiszállási díj fizetendő.</p>
+
+<h2>5. Időpontfoglalás, visszaigazolás, lemondás</h2>
+
+<h3>5.1 Foglalás és visszaigazolás</h3>
+<p>Az Ügyfél három alkalmas időpontot jelöl meg. A Szolgáltató a megjelölt időpontok közül lehetőség szerint egyet visszaigazol. A visszaigazolás a foglalás beérkezésétől számított 2 órán belül megtörténik, a 7 és 19 óra közötti időszakban. A 19 óra után beérkezett foglalásokat a Szolgáltató a következő nap reggelén igazolja vissza.</p>
+<p>Ha az Ügyfél a visszaigazolást nem kapja meg, mentesül az ajánlati kötöttség alól. A szerződés a visszaigazolás megérkezésével jön létre.</p>
+
+<h3>5.2 Lemondás, módosítás</h3>
+<p>Az Ügyfél a visszaigazolt időpontot díjmentesen lemondhatja vagy módosíthatja legkésőbb az időpontot megelőző [kitöltendő: pl. 4] órával, a megadott telefonszámon vagy e-mail címen.</p>
+<p>Ha az Ügyfél a lemondást elmulasztja, és a szakember a helyszínen nem tud a munkához hozzáfogni (például senki nem tartózkodik a helyszínen, vagy a hozzáférés nem biztosított), a Szolgáltató jogosult a kiszállási díjat kiszámlázni.</p>
+<p>A Szolgáltató a visszaigazolt időpont elmaradásáról vagy csúszásáról az Ügyfelet haladéktalanul értesíti, és új időpontot ajánl. Ha a Szolgáltatónak felróható okból marad el a munka, az Ügyfelet díjfizetési kötelezettség nem terheli.</p>
+
+<h2>6. A fogyasztót megillető elállási jog</h2>
+
+<h3>6.1 A 14 napos elállási jog</h3>
+<p>Ha az Ügyfél fogyasztó, a fogyasztó és a vállalkozás közötti szerződések részletes szabályairól szóló <b>45/2014. (II. 26.) Korm. rendelet</b> alapján a távollévők között kötött szerződéstől <b>14 napon belül indokolás nélkül elállhat</b>. Szolgáltatásnyújtásra irányuló szerződés esetén ez a határidő a szerződés megkötésének napjától kezdődik.</p>
+<p>Az elállási jog gyakorolható a hivatkozott rendelet 2. mellékletében szereplő nyilatkozatminta felhasználásával, vagy bármely más, erre vonatkozó egyértelmű nyilatkozattal. A nyilatkozatot a 14 napos határidőn belül el kell küldeni a Szolgáltató 1. pontban megadott e-mail vagy postai címére. A határidő betartásának bizonyítása az Ügyfelet terheli.</p>
+
+<h3>6.2 Ha az Ügyfél kifejezetten kéri a szolgáltatás azonnali megkezdését</h3>
+<p>A NYOMBAN szolgáltatás lényege a gyorsaság, ezért a visszaigazolt időpont gyakran a 14 napos elállási határidőn belülre esik. Erre az esetre a következők irányadók.</p>
+<ul>
+<li>Ha a fogyasztó azt kéri, hogy a teljesítés a 14 napos elállási határidőn belül kezdődjön meg, erről a megrendeléskor <b>kifejezett, előzetes nyilatkozatot</b> kell tennie. A megrendelő felületen ezt külön jelölőnégyzet szolgálja.</li>
+<li>Ha a fogyasztó a határidőn belül eláll, de a teljesítés az ő kifejezett kérésére már megkezdődött, köteles megtéríteni a Szolgáltatónak az elállás közléséig <b>arányosan elvégzett szolgáltatás</b> ellenértékét. Ezt az összeget a szerződésben meghatározott teljes díj alapján, a ténylegesen teljesített rész arányában kell megállapítani.</li>
+<li>Ha a szolgáltatás a fogyasztó kifejezett, előzetes kérésére megkezdett teljesítés eredményeként <b>egészében teljesült</b>, a fogyasztó az elállási jogát <b>elveszíti</b>. Erről a Szolgáltató a teljesítés megkezdése előtt tájékoztatja, és a fogyasztó ezt a tudomásulvételt nyilatkozatával megerősíti.</li>
+</ul>
+<p>Az arányos díj számítása során a kiszállási díj, valamint a fogyasztó kérésére beszerzett és beépített anyagok költsége elszámolható.</p>
+
+<h3>6.3 Amire az elállási jog nem terjed ki</h3>
+<p>Az elállási jog nem érinti a hibás teljesítésből eredő, 8. pont szerinti jogokat. Az elállási jog gyakorlása nem érinti a már beépített, az Ügyfél kifejezett kérésére, egyedileg beszerzett anyagok elszámolását.</p>
+<p>[ügyvédi átnézés szükséges: a 45/2014. (II. 26.) Korm. rendelet 20., 25., 26. és 29. §-ainak pontos, a tényleges megrendelési folyamathoz igazított átvezetése, valamint az elállási nyilatkozatminta mellékletként való csatolása.]</p>
+
+<h2>7. Díjak, fizetés, számlázás</h2>
+
+<h3>7.1 Díjtételek</h3>
+<p>A weboldalon feltüntetett árak bruttó, forintban meghatározott árak. A jelenleg alkalmazott díjak:</p>
+<ul>
+<li><b>Kiszállási díj Szegeden belül:</b> 6 900 Ft — fix összeg, minden esetben külön tételként szerepel.</li>
+<li><b>Kiszállási díj Szeged közigazgatási határán kívül:</b> [kitöltendő: Ft/km vagy zónadíj].</li>
+<li><b>Óradíj:</b> 9 900 Ft.</li>
+<li><b>Minimum munkadíj:</b> 12 000 Ft — ennél kisebb munkadíjat a Szolgáltató akkor sem számláz, ha a munka rövidebb ideig tart.</li>
+<li><b>Sürgősségi felár:</b> a munkadíj 30%-a, ha a kivitelezés a megrendeléstől számított 24 órán belül történik.</li>
+<li><b>Anyagköltség:</b> a beépített anyagok díja, tételesen, a számlán elkülönítve.</li>
+</ul>
+<p>A Szolgáltató jogosult a díjtételeket a jövőre nézve módosítani. A módosítás a már visszaigazolt megrendeléseket nem érinti.</p>
+
+<h3>7.2 Fizetés és számlázás</h3>
+<p>A díj a munka elvégzését és átadását követően esedékes. Elfogadott fizetési módok: [kitöltendő: készpénz / bankkártya a helyszínen / banki átutalás, fizetési határidő].</p>
+<p>A Szolgáltató a teljesítésről számlát állít ki, amelyet elektronikus úton, az Ügyfél által megadott e-mail címre küld meg. Az Ügyfél az elektronikus számlát elfogadja.</p>
+<p>Áfa tekintetében a Szolgáltató [kitöltendő: áfa-alany / alanyi adómentes] besorolású.</p>
+<p>Késedelmes fizetés esetén a Szolgáltató a Polgári Törvénykönyv szerinti késedelmi kamatra jogosult.</p>
+
+<h2>8. Garancia, jótállás, szavatosság</h2>
+
+<h3>8.1 Szerződéses garancia a munkára</h3>
+<p>A Szolgáltató az általa elvégzett munkára <b>3 év garanciát</b> vállal. Ez szerződéses többletvállalás, amely a jogszabályon alapuló jogokat nem korlátozza, hanem kiegészíti. A garancia a szakszerű kivitelezésre vonatkozik: ha a hiba a Szolgáltató munkájára vezethető vissza, a javítás díjmentes.</p>
+
+<h3>8.2 Jogszabályon alapuló jogok</h3>
+<p>A hibás teljesítésért a Szolgáltató a Polgári Törvénykönyv szerint <b>kellékszavatossággal</b> tartozik. A fogyasztó a teljesítéstől számított két éven belül érvényesítheti kellékszavatossági igényét; kérhet kijavítást vagy kicserélést, ennek hiányában árleszállítást vagy — végső esetben — elállhat a szerződéstől.</p>
+<p>A beépített termékek gyártójával szemben az Ügyfél <b>termékszavatossági</b> igényt is érvényesíthet.</p>
+<p>Az egyes javító-karbantartó szolgáltatásokra a hatályos jogszabály (249/2004. (VIII. 27.) Korm. rendelet) kötelező <b>jótállást</b> ír elő, ha a szolgáltatás díja meghaladja a rendeletben meghatározott összeghatárt. Az ennek hatálya alá tartozó munkákra a jótállás a rendeletben meghatározott időtartamban és feltételekkel áll fenn. [ügyvédi átnézés szükséges: a rendelet hatálya, összeghatára és a jótállási idő pontos, hatályos szövegének átvezetése.]</p>
+
+<h3>8.3 Mire nem terjed ki a garancia</h3>
+<p>A garancia és a jótállás nem terjed ki különösen az alábbiakra:</p>
+<ul>
+<li>rendeltetésellenes vagy szakszerűtlen használat, túlterhelés miatti hiba;</li>
+<li>harmadik személy — más szerelő vagy az Ügyfél — által a munkán utóbb végzett beavatkozás;</li>
+<li>az Ügyfél által biztosított vagy általa kifejezetten előírt, nem megfelelő minőségű anyag miatti hiba;</li>
+<li>a meglévő, korábbi hálózat olyan hibája, amelyet a megrendelés nem érintett, és amelyre a Szolgáltató a munka során írásban felhívta a figyelmet;</li>
+<li>elemi kár, villámcsapás, hálózati túlfeszültség, áztatás, rágcsálókár;</li>
+<li>természetes elhasználódás, valamint a fényforrások és egyéb fogyóeszközök élettartama;</li>
+<li>ha az Ügyfél a Szolgáltató által javasolt, biztonsági szempontból szükséges munkát írásban elutasította.</li>
+</ul>
+<p>A garanciális igényt az Ügyfél a hiba felfedezése után késedelem nélkül köteles bejelenteni a Szolgáltató 1. pontban megadott elérhetőségén.</p>
+
+<h2>9. Az Ügyfél kötelezettségei</h2>
+<p>Az Ügyfél köteles:</p>
+<ul>
+<li><b>valós adatokat megadni</b> — a feladat leírásának, a feltöltött fényképeknek, a címnek és az elérhetőségnek a valóságnak kell megfelelnie, mert az ársáv ezeken alapul;</li>
+<li><b>a helyszínhez való hozzáférést biztosítani</b> a visszaigazolt időpontban, és gondoskodni arról, hogy a munkaterület megközelíthető, a munkavégzéshez szükséges mértékben szabaddá tett és megvilágítható legyen;</li>
+<li>jelezni minden ismert körülményt, amely a munkát befolyásolja (például korábbi átépítés, rejtett vezetékszakasz, padlófűtés, vizes helyiség, riasztó- vagy okosotthon-rendszer);</li>
+<li>bérlemény, társasházi közös tulajdon vagy más tulajdonában álló ingatlan esetén a tulajdonosi, illetve közösségi <b>hozzájárulást beszerezni</b>; ennek hiányáért a Szolgáltató nem felel;</li>
+<li>gondoskodni arról, hogy a munkavégzés ideje alatt gyermek és háziállat ne tartózkodjon a munkaterületen;</li>
+<li>lehetővé tenni az érintett áramkör feszültségmentesítését;</li>
+<li>a munka befejezése után az elvégzett munkát megtekinteni, és az esetleges kifogást a helyszínen jelezni.</li>
+</ul>
+<p>Ha az Ügyfél e kötelezettségeit megszegi, és emiatt a munka nem vagy csak késedelmesen végezhető el, a Szolgáltató jogosult a kiszállási díjat kiszámlázni, illetve új időpontot kitűzni.</p>
+
+<h2>10. Felelősség, vis maior</h2>
+
+<h3>10.1 A felelősség köre</h3>
+<p>A Szolgáltató az általa elvégzett munkáért és az ennek során okozott károkért a jogszabályok szerint felel. A Szolgáltató felelősségbiztosítással rendelkezik: [kitöltendő: biztosító neve, kötvényszám, kárösszeghatár].</p>
+<p>A Szolgáltató nem felel:</p>
+<ul>
+<li>a meglévő hálózat olyan rejtett hibájáért, amely a munkától függetlenül állt fenn, és amelynek felmérésére a megrendelés nem terjedt ki;</li>
+<li>az Ügyfél által megadott hibás vagy hiányos adatokból eredő következményekért;</li>
+<li>az Ügyfél vagy harmadik személy által biztosított anyag hibájáért;</li>
+<li>a munka elvégzéséhez szükséges, előre nem látható bontásból eredő, szakszerű helyreállítást meghaladó esztétikai következményekért (például falfelület festése, burkolat pótlása), kivéve, ha erre a felek külön megállapodtak.</li>
+</ul>
+<p>A Szolgáltató a jogszabály által megengedett keretek között nem felel közvetett károkért, elmaradt haszonért. Fogyasztóval szemben semmis az a kikötés, amely a szándékosan okozott, továbbá az emberi életet, testi épséget vagy egészséget megkárosító szerződésszegésért való felelősséget korlátozza vagy kizárja; e körben jelen pont nem alkalmazandó.</p>
+
+<h3>10.2 Vis maior</h3>
+<p>Egyik fél sem felel a szerződés teljesítésének elmaradásáért, ha azt olyan, ellenőrzési körén kívül eső, előre nem látható és elháríthatatlan körülmény okozta, mint például természeti katasztrófa, tartós áramszünet, hatósági intézkedés, járványügyi korlátozás, sztrájk vagy háborús cselekmény. A vis maior esetéről az érintett fél a másikat haladéktalanul értesíti, és a felek új időpontban állapodnak meg.</p>
+
+<h3>10.3 A weboldal működése</h3>
+<p>A Szolgáltató törekszik a weboldal folyamatos elérhetőségére, de nem vállal felelősséget az internetes hálózat hibájából, karbantartásból vagy üzemzavarból eredő kimaradásért, és az emiatt elmaradt ajánlatkérésekért.</p>
+
+<h2>11. Panaszkezelés, jogérvényesítés</h2>
+
+<h3>11.1 Panasz a Szolgáltatónál</h3>
+<p>Az Ügyfél panaszát szóban (telefonon) vagy írásban (e-mailben, postai úton) terjesztheti elő a Szolgáltató 1. pontban megadott elérhetőségein. A szóbeli panaszt a Szolgáltató lehetőség szerint azonnal orvosolja; ha ez nem lehetséges, jegyzőkönyvet vesz fel. Az írásbeli panaszra a Szolgáltató a beérkezéstől számított 30 napon belül írásban, indokolással ellátott választ ad.</p>
+
+<h3>11.2 Békéltető testület</h3>
+<p>A fogyasztó a fogyasztói jogvita bírósági eljáráson kívüli rendezése érdekében békéltető testülethez fordulhat. A Szolgáltató székhelye szerint illetékes testület:</p>
+<dl>
+<dt>Csongrád-Csanád Vármegyei Békéltető Testület</dt>
+<dd>Cím: [kitöltendő]</dd>
+<dd>Telefon: [kitöltendő]</dd>
+<dd>E-mail: [kitöltendő]</dd>
+</dl>
+<p>A fogyasztó a lakóhelye vagy tartózkodási helye szerinti békéltető testülethez is fordulhat. A Szolgáltatót a békéltető testületi eljárásban együttműködési kötelezettség terheli.</p>
+
+<h3>11.3 Fogyasztóvédelmi hatóság</h3>
+<p>Fogyasztóvédelmi eljárás a fogyasztó lakóhelye szerint illetékes, fogyasztóvédelmi hatáskörben eljáró vármegyei kormányhivatalnál kezdeményezhető:</p>
+<dl>
+<dt>Csongrád-Csanád Vármegyei Kormányhivatal (fogyasztóvédelmi hatáskörben)</dt>
+<dd>Cím: [kitöltendő]</dd>
+<dd>Telefon / e-mail: [kitöltendő]</dd>
+</dl>
+
+<h3>11.4 Online vitarendezés</h3>
+<p>Az Európai Bizottság korábbi online vitarendezési (ODR) platformja a vonatkozó uniós szabályozás módosítása nyomán megszűnt, ezért a Szolgáltató oda mutató hivatkozást nem tart fenn. Online úton indított jogérvényesítésre a békéltető testületi eljárás áll rendelkezésre, amely elektronikus úton is kezdeményezhető. [ügyvédi átnézés szükséges: e pont hatályos állapotának ellenőrzése a közzététel napján.]</p>
+
+<h3>11.5 Bírósági út</h3>
+<p>Az Ügyfél igényét bíróság előtt is érvényesítheti. Az eljárásra a magyar jog és a hatályos polgári perjogi szabályok irányadók.</p>
+
+<h2>12. Adatkezelés</h2>
+<p>A megrendeléssel és az ajánlatkéréssel összefüggő személyes adatok kezeléséről — ideértve a feltöltött fényképek kezelését, a tárolás helyét és az esetleges adattovábbításokat — a külön <a href="./adatkezeles.html">adatkezelési tájékoztató</a> rendelkezik. Jelen ÁSZF elfogadása nem minősül adatkezelési hozzájárulásnak; ahol a jogszabály hozzájárulást kíván meg, azt az Ügyfél külön adja meg.</p>
+
+<h2>13. Záró rendelkezések</h2>
+<ul>
+<li>Jelen ÁSZF-re és a Szolgáltató és az Ügyfél közötti szerződésre a magyar jog irányadó, különösen a Polgári Törvénykönyvről szóló 2013. évi V. törvény, az elektronikus kereskedelmi szolgáltatásokról szóló 2001. évi CVIII. törvény, a fogyasztóvédelemről szóló 1997. évi CLV. törvény és a 45/2014. (II. 26.) Korm. rendelet.</li>
+<li>Ha az ÁSZF valamely rendelkezése érvénytelenné válik, az a többi rendelkezés érvényességét nem érinti.</li>
+<li>Az ÁSZF mindenkor hatályos szövege a weboldalon folyamatosan elérhető, onnan letölthető és kinyomtatható.</li>
+<li>Jelen ÁSZF hatálybalépésének napja: [kitöltendő: dátum]. A korábbi ÁSZF ezzel egyidejűleg hatályát veszti.</li>
+</ul>
+
+<p class="meta">Hatályos: [dátum] · Verzió: [x]</p>
+
+</div>
+</div></section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <div class="brand"><svg class="mark" viewBox="0 0 96 40" aria-hidden="true">
+  <rect x="0" y="16" width="20" height="8" rx="4" opacity=".25"/>
+  <rect x="26" y="16" width="26" height="8" rx="4" opacity=".55"/>
+  <circle cx="76" cy="20" r="12"/>
+</svg><b>NYOMBAN<i>.</i></b></div>
+      <small>
+        Novák Ádám e.v. · Szeged · Adószám: [kitöltendő]<br>
+        Nyilvántartási szám: [kitöltendő] · E-mail: [kitöltendő]
+      </small>
+    </div>
+    <nav>
+      <a href="./aszf.html">ÁSZF</a>
+      <a href="./adatkezeles.html">Adatkezelés</a>
+      <a href="./arak.html">Árlista</a>
+      <a href="tel:+36302549290">+36 30 254 9290</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

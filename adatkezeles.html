@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adatkezelési tájékoztató — NYOMBAN</title>
+<meta name="description" content="Milyen adatot kezelünk, mire, meddig, és kinek adjuk tovább.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1B1A17; --ink-soft:#26241F; --ink-line:#33302A; --ink-muted:#8E8779;
+  --amber:#E8A33D; --amber-deep:#C4711A; --amber-text:#8A5A1B; --amber-wash:#F3E7D2;
+  --paper:#FAF7F2; --sand:#F1EDE5; --sand-row:#F6F1E8;
+  --line:#E3DCD1; --line-soft:#EAE4DA;
+  --body:#57534A; --muted:#7A756C; --muted-2:#9A9388;
+  --ok:#3F7D4E; --ok-bg:#E2EDE4;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Instrument Sans',system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.5;
+}
+h1,h2,h3 { font-family:'Familjen Grotesk',system-ui,sans-serif; letter-spacing:-.03em; margin:0; }
+h1 { font-size:52px; line-height:1.02; letter-spacing:-.035em; }
+h2 { font-size:32px; margin:0 0 14px; }
+h3 { font-size:20px; letter-spacing:-.02em; margin:0 0 8px; }
+p { margin:0 0 14px; color:var(--body); }
+a { color:var(--amber-text); }
+a:hover { color:var(--amber-deep); }
+.wrap { max-width:1120px; margin:0 auto; padding:0 40px; }
+
+/* ---- fejléc ---- */
+.top {
+  position:sticky; top:0; z-index:20; background:var(--paper);
+  border-bottom:1px solid var(--line-soft);
+}
+.top .wrap { display:flex; align-items:center; justify-content:space-between; padding:20px 40px; }
+.brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); }
+.brand .mark { width:26px; height:11px; fill:var(--amber-deep); flex:none; }
+.brand b {
+  font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:21px;
+  letter-spacing:-.02em;
+}
+.brand b i { color:var(--amber-deep); font-style:normal; }
+.nav { display:flex; gap:26px; font-size:15px; }
+.nav a { color:var(--body); text-decoration:none; }
+.nav a:hover { color:var(--ink); }
+.nav a[aria-current] { color:var(--ink); font-weight:600; }
+.top-right { display:flex; align-items:center; gap:16px; }
+.top-phone { display:flex; flex-direction:column; align-items:flex-end; }
+.top-phone span:first-child { font-size:12px; color:var(--muted-2); }
+.top-phone span:last-child { font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:700; }
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 22px;
+  border-radius:11px; background:var(--ink); color:var(--paper); border:none;
+  font-size:15px; font-weight:600; cursor:pointer; text-decoration:none; font-family:inherit;
+}
+.btn:hover { background:#2A2823; color:var(--paper); }
+.btn-lg { height:56px; padding:0 28px; font-size:17px; border-radius:13px; }
+.btn-ghost { background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+.btn-ghost:hover { background:var(--sand-row); color:var(--ink); }
+
+/* ---- oldalfej ---- */
+.head { padding:64px 0 40px; }
+.head .lead { font-size:19px; line-height:1.55; color:var(--body); max-width:620px; margin-top:16px; }
+.eyebrow {
+  font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:600;
+  color:var(--amber-text); margin-bottom:14px;
+}
+
+/* ---- szekciók ---- */
+.sec { padding:40px 0; }
+.sec.sand { background:var(--sand); border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
+.grid2 { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.card {
+  background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.card.dark { background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.card.dark h3 { color:var(--paper); }
+.card.dark p { color:#A9A296; }
+.card .num { font-family:'Familjen Grotesk',sans-serif; font-size:15px; font-weight:700; color:var(--amber-deep); }
+.card.dark .num { color:var(--amber); }
+.card p:last-child { margin-bottom:0; }
+.note {
+  background:var(--amber-wash); border-radius:14px; padding:20px 22px;
+  font-size:15px; line-height:1.6; color:#6B4A16;
+}
+.note b { color:var(--amber-text); }
+.note p:last-child { margin-bottom:0; }
+.stat { display:flex; flex-direction:column; gap:2px; }
+.stat b { font-family:'Familjen Grotesk',sans-serif; font-size:30px; font-weight:700; letter-spacing:-.03em; }
+.stat span { font-size:13.5px; color:var(--muted); }
+
+/* ---- árlista ---- */
+.price { width:100%; border-collapse:collapse; font-size:15px; background:#fff;
+         border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+.price th {
+  text-align:left; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted-2); font-weight:600; padding:14px 18px; background:var(--sand-row);
+  border-bottom:1px solid var(--line-soft);
+}
+.price td { padding:15px 18px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+.price tr:last-child td { border-bottom:none; }
+.price .amount { font-family:'Familjen Grotesk',sans-serif; font-weight:700; white-space:nowrap; }
+.price .sub { display:block; font-size:13px; color:var(--muted); margin-top:3px; }
+.table-scroll { overflow-x:auto; }
+
+/* ---- placeholder jelölés ---- */
+.ph { position:relative; border-style:dashed; background:var(--sand-row); }
+.ph::after {
+  content:'MINTA'; position:absolute; top:12px; right:12px;
+  font-size:10.5px; letter-spacing:.12em; font-weight:700; color:var(--muted-2);
+  background:#fff; border:1px solid var(--line); border-radius:100px; padding:3px 9px;
+}
+.ph-img { background:#DED6C8; border-radius:12px; aspect-ratio:4/3; }
+
+/* ---- jogi szöveg ---- */
+.legal { max-width:760px; }
+.legal h2 { font-size:24px; margin:36px 0 10px; }
+.legal h3 { font-size:17px; margin:22px 0 6px; }
+.legal p, .legal li { font-size:15.5px; line-height:1.65; color:var(--body); }
+.legal ul, .legal ol { margin:0 0 14px; padding-left:22px; }
+.legal li { margin-bottom:6px; }
+.legal .meta { font-size:14px; color:var(--muted); }
+.legal dl { margin:0 0 14px; }
+.legal dt { font-weight:600; margin-top:12px; }
+.legal dd { margin:2px 0 0; color:var(--body); font-size:15.5px; }
+
+/* ---- CTA sáv ---- */
+.cta { background:var(--ink); color:var(--paper); border-radius:20px; padding:40px; margin:56px 0;
+       display:flex; align-items:center; justify-content:space-between; gap:32px; }
+.cta h2 { color:var(--paper); margin:0 0 6px; }
+.cta p { color:#A9A296; margin:0; }
+.cta .btn { background:var(--amber); color:var(--ink); }
+.cta .btn:hover { background:#F0B255; color:var(--ink); }
+
+/* ---- lábléc ---- */
+.foot { background:var(--ink); color:var(--ink-muted); padding:44px 0; margin-top:64px; }
+.foot .wrap { display:flex; align-items:flex-start; justify-content:space-between; gap:32px; }
+.foot .brand b { color:var(--paper); font-size:19px; }
+.foot .brand b i { color:var(--amber); }
+.foot .brand .mark { fill:var(--amber); }
+.foot small { display:block; font-size:14px; color:var(--ink-muted); margin-top:8px; max-width:420px; line-height:1.6; }
+.foot nav { display:flex; gap:36px; font-size:14px; }
+.foot nav a { color:var(--ink-muted); text-decoration:none; }
+.foot nav a:hover { color:var(--paper); }
+
+@media (max-width:900px) {
+  .wrap { padding:0 20px; }
+  .top .wrap { padding:14px 20px; }
+  .nav, .top-phone { display:none; }
+  h1 { font-size:36px; }
+  h2 { font-size:26px; }
+  .head { padding:36px 0 24px; }
+  .grid2, .grid3, .grid4 { grid-template-columns:1fr; }
+  .cta { flex-direction:column; align-items:flex-start; padding:28px; }
+  .foot .wrap { flex-direction:column; }
+  .foot nav { flex-wrap:wrap; gap:18px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div style="display:flex; align-items:center; gap:40px;">
+      <a class="brand" href="./index.html">
+        <svg class="mark" viewBox="0 0 96 40" aria-hidden="true">
+  <rect x="0" y="16" width="20" height="8" rx="4" opacity=".25"/>
+  <rect x="26" y="16" width="26" height="8" rx="4" opacity=".55"/>
+  <circle cx="76" cy="20" r="12"/>
+</svg>
+        <b>NYOMBAN<i>.</i></b>
+      </a>
+      <nav class="nav"><a href="./szolgaltatasok.html">Szolgáltatások</a><a href="./arak.html">Árak</a><a href="./referenciak.html">Referenciák</a><a href="./rolunk.html">Rólunk</a></nav>
+    </div>
+    <div class="top-right">
+      <div class="top-phone">
+        <span>Novák Ádám · 7–19 óráig</span>
+        <span>+36 30 254 9290</span>
+      </div>
+      <a class="btn" href="./app.dc.html">Árajánlatot kérek</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="head">
+  <div class="wrap">
+    <div class="eyebrow">Adatkezelés</div>
+    <h1>Adatkezelési tájékoztató</h1>
+    <p class="lead">Ez a tájékoztató azt írja le, milyen adatot kérünk Öntől az árbecsléshez és a
+    megrendeléshez, mit csinálunk velük, kinek adjuk tovább, és meddig őrizzük meg őket.</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+
+    <div class="legal">
+<div class="note">
+      <p><b>Figyelem: ez a szöveg tervezet.</b> A tájékoztató a rendszer tervezett működése alapján
+      készült, nem véglegesített jogi dokumentum. Élesítés előtt ügyvédi, illetve adatvédelmi
+      szakértői átnézés szükséges.</p>
+      <p>A <b>[szögletes zárójeles]</b> részek kitöltendők: cégadatok, elérhetőségek, a
+      szerződött szolgáltatók neve és a pontos megőrzési idők. Kitöltés és átnézés nélkül a
+      tájékoztató nem tekinthető hatályosnak.</p>
+    </div>
+
+    
+
+      <h2>1. Az adatkezelő adatai</h2>
+      <p>Az adatkezelő az a vállalkozás, amely az Ön adatairól dönt, és amelyhez az adatokkal
+      kapcsolatos kéréseit intézheti.</p>
+      <dl>
+        <dt>Az adatkezelő neve</dt>
+        <dd>[kitöltendő — a vállalkozás teljes neve]</dd>
+        <dt>Székhely</dt>
+        <dd>[kitöltendő — cím]</dd>
+        <dt>Adószám</dt>
+        <dd>[kitöltendő]</dd>
+        <dt>Nyilvántartási szám</dt>
+        <dd>[kitöltendő — egyéni vállalkozói nyilvántartási vagy cégjegyzékszám]</dd>
+        <dt>Kapcsolattartó</dt>
+        <dd>Novák Ádám · +36 30 254 9290 · 7–19 óráig hívható</dd>
+        <dt>E-mail</dt>
+        <dd>[kitöltendő — adatvédelmi ügyekben használt e-mail-cím]</dd>
+        <dt>A weboldal címe</dt>
+        <dd>[kitöltendő — domain]</dd>
+        <dt>Adatvédelmi tisztviselő</dt>
+        <dd>[kitöltendő — a vállalkozás tevékenysége alapján várhatóan nem kötelező kijelölni;
+        ezt a jogi átnézésnek kell megerősítenie]</dd>
+      </dl>
+      <p>A tájékoztató a weboldal használatára, az árbecslés kérésére és a megrendelésekre
+      vonatkozik. A szolgáltatás feltételeit külön dokumentum, az
+      <a href="./aszf.html">ÁSZF</a> tartalmazza.</p>
+
+      <h2>2. Milyen adatot kezelünk</h2>
+      <p>Csak azt kérjük, ami az ajánlathoz és a munka elvégzéséhez kell. Az alábbi adatokat
+      kezeljük:</p>
+      <dl>
+        <dt>Név</dt>
+        <dd>A megszólításhoz, a szerződéshez és a számlához.</dd>
+        <dt>Telefonszám</dt>
+        <dd>Az időpont egyeztetéséhez és a helyszínen való egyeztetéshez.</dd>
+        <dt>E-mail-cím</dt>
+        <dd>Az ajánlat és a visszaigazolás megküldéséhez.</dd>
+        <dt>A munkavégzés címe</dt>
+        <dd>A kiszállás megszervezéséhez és a kiszállási díj megállapításához.</dd>
+        <dt>A hiba vagy a feladat leírása</dt>
+        <dd>Az Ön által beírt szöveg, amely alapján az árbecslés készül.</dd>
+        <dt>Feltöltött fényképek</dt>
+        <dd>Kérésenként legfeljebb 5 fotó a hibáról vagy a helyszínről. Részletek a 4. fejezetben.</dd>
+        <dt>A megjelölt időpontok</dt>
+        <dd>Az Ön által megadott három alkalmas időpont.</dd>
+        <dt>A megrendelés adatai</dt>
+        <dd>A megrendelt tételek, a közölt ársáv, a végleges összeg, a munka elvégzésének
+        időpontja, az esetleges garanciális bejelentés.</dd>
+        <dt>Számlázási adatok</dt>
+        <dd>Számlázási név és cím, a fizetés módja, a számla adatai.</dd>
+        <dt>Technikai adatok</dt>
+        <dd>A kérés időpontja, a böngésző által küldött technikai adatok (például IP-cím,
+        böngészőazonosító), valamint a visszaélés-védelemhez használt kérésszámlálók.</dd>
+      </dl>
+      <p><b>Fontos, hogy a mai állapotot is lássa.</b> A weboldal jelenleg statikus, bemutató
+      változatban működik: amit beír vagy feltölt, az a saját böngészőjében marad
+      (localStorage), szerverre nem kerül fel. Az alább leírt adatkezelés — adatbázis, fotótárolás,
+      automatikus elemzés — a tervezett éles rendszerre vonatkozik. [kitöltendő: a tájékoztatót
+      az éles indulás napjával kell hatályosítani.]</p>
+
+      <h2>3. Mire és milyen jogalapon kezeljük az adatokat</h2>
+
+      <h3>3.1. Ajánlatadás és a szerződés teljesítése</h3>
+      <dl>
+        <dt>Cél</dt>
+        <dd>Az árbecslés elkészítése, az időpont egyeztetése, a munka elvégzése, a kapcsolattartás
+        és a garanciális ügyintézés.</dd>
+        <dt>Kezelt adatok</dt>
+        <dd>Név, telefonszám, e-mail-cím, a munkavégzés címe, a hiba leírása, a fotók, a megjelölt
+        időpontok, a megrendelés adatai.</dd>
+        <dt>Jogalap</dt>
+        <dd>GDPR 6. cikk (1) bekezdés b) pont — a szerződés teljesítése, illetve a szerződés
+        megkötését megelőzően az Ön kérésére tett lépések. Ezek nélkül az adatok nélkül nem tudunk
+        ajánlatot adni.</dd>
+      </dl>
+
+      <h3>3.2. Számlázás és a bizonylatok megőrzése</h3>
+      <dl>
+        <dt>Cél</dt>
+        <dd>A számla kiállítása, a könyvelés, az adójogszabályok teljesítése.</dd>
+        <dt>Kezelt adatok</dt>
+        <dd>Számlázási név és cím, a teljesítés adatai, a fizetett összeg.</dd>
+        <dt>Jogalap</dt>
+        <dd>GDPR 6. cikk (1) bekezdés c) pont — jogi kötelezettség teljesítése. A számviteli
+        törvény szerint a bizonylatokat 8 évig meg kell őriznünk, ezeket tehát az Ön kérésére sem
+        törölhetjük a határidő előtt.</dd>
+      </dl>
+
+      <h3>3.3. Visszaélés- és költségvédelem</h3>
+      <dl>
+        <dt>Cél</dt>
+        <dd>Az automatikus árbecslés védelme a tömeges, gépi vagy rosszhiszemű kérésektől, a
+        szolgáltatás működőképességének és költségeinek védelme. Ezért böngészőnként naponta 5 és
+        óránként 3 árbecslés kérhető.</dd>
+        <dt>Kezelt adatok</dt>
+        <dd>Technikai adatok, a kérések időpontja és száma.</dd>
+        <dt>Jogalap</dt>
+        <dd>GDPR 6. cikk (1) bekezdés f) pont — jogos érdek. Az érdekmérlegelés lényege: az
+        adatkezelés kevés adatot érint, rövid ideig tart, és nélküle a szolgáltatás bárki számára
+        használhatatlanná tehető. [kitöltendő: az írásos érdekmérlegelési teszt elkészítendő, és
+        kérésre elérhetővé teendő.]</dd>
+      </dl>
+
+      <h3>3.4. Marketing</h3>
+      <dl>
+        <dt>Cél</dt>
+        <dd>Hírlevél, akciók, emlékeztető az időszakos érintésvédelmi mérésre.</dd>
+        <dt>Jogalap</dt>
+        <dd>GDPR 6. cikk (1) bekezdés a) pont — kizárólag az Ön külön, előzetes hozzájárulásával.
+        A hozzájárulás megtagadása nem érinti az ajánlatadást és a munka elvégzését, és a
+        hozzájárulást bármikor, indokolás nélkül visszavonhatja.</dd>
+      </dl>
+
+      <h2>4. A feltöltött fényképek</h2>
+      <p>A fotók a szolgáltatás lényegi részei: ezek alapján tudunk helyszíni felmérés nélkül
+      árat becsülni. Ezért külön is elmondjuk, mi történik velük.</p>
+      <ul>
+        <li>Kérésenként legfeljebb <b>5 fotót</b> tölthet fel. A böngésző a képeket feltöltés előtt
+        kicsinyíti.</li>
+        <li>A feltöltött fotókat <b>automatizált elemzés dolgozza fel</b> az árbecsléshez: a
+        rendszer a képek és a leírás alapján állapítja meg a valószínű munkatételeket és az ársávot.</li>
+        <li>Az elemzéshez a képek és a leírás <b>továbbításra kerülnek a Google felé (Gemini API)</b>,
+        amely ebben adatfeldolgozóként jár el. Ez azt jelenti, hogy a képek elhagyják a mi
+        rendszerünket, és a Google szolgáltatásában is feldolgozásra kerülnek.</li>
+        <li>A fotók <b>nem nyilvánosak</b>: nem jelennek meg a weboldalon, nem kerülnek közösségi
+        médiába, keresők nem indexelik őket. Csak a munkatársaink és a fenti adatfeldolgozók férnek
+        hozzájuk, kizárólag az Ön kérésének teljesítése érdekében. Referenciaként csak akkor
+        használjuk fel őket, ha ahhoz Ön külön, előzetesen hozzájárul.</li>
+      </ul>
+      <div class="note">
+        <p><b>Kérjük, ne töltsön fel olyan képet, amelyen más személy felismerhető</b> — se
+        családtag, se szomszéd, se járókelő. Ugyanígy kérjük, ne legyen a képen irat, személyi
+        okmány, bankkártya, kulcs, riasztókód, jelszó vagy más érzékeny információ.</p>
+        <p>A képet a feltöltés előtt érdemes megnézni. A hibás konnektorról, a kapcsolószekrényről
+        vagy a lámpahelyről készült fotó elég az ajánlathoz — más nem kell hozzá.</p>
+      </div>
+      <p>Ha véletlenül olyan képet töltött fel, amelyet nem szeretne nálunk hagyni, jelezze a
+      kapcsolattartónál, és törüljük.</p>
+
+      <h2>5. Automatizált döntéshozatal</h2>
+      <p>Az ár becslése automatizált: a leírás és a fotók alapján a rendszer emberi közreműködés
+      nélkül állítja össze a tételeket és az ársávot. Ezt nyíltan megmondjuk, mert Önnek joga van
+      tudni róla.</p>
+      <p>Ez az automatizmus azonban <b>nem jár Önre nézve joghatással, és hasonlóan jelentős
+      mértékben sem érinti Önt</b>: a becslés csak ajánlat. Ön szabadon eldöntheti, elfogadja-e,
+      és semmilyen hátrány nem éri, ha nem fogadja el.</p>
+      <ul>
+        <li><b>Emberi felülvizsgálat kérhető.</b> Ha a becslést tévesnek tartja, hívja a
+        kapcsolattartót a +36 30 254 9290 számon, és munkatársunk átnézi a kérést.</li>
+        <li>A közölt ársáv szerződéses ígéret: ha a végleges összeg a sáv fölé menne, azt előbb
+        Önnek jóvá kell hagynia.</li>
+        <li>A megrendelés elfogadásáról és a munka elvégzéséről minden esetben ember dönt.</li>
+      </ul>
+
+      <h2>6. Adatfeldolgozók</h2>
+      <p>Az adatfeldolgozó a mi megbízásunkból, a mi utasításaink szerint kezel adatot, önálló
+      célja nincs. A tervezett éles rendszerben az alábbi szolgáltatókat vesszük igénybe.</p>
+      <ul>
+        <li><b>[Tárhely: GitHub Inc. (GitHub Pages), Egyesült Államok]</b> — a weboldal statikus
+        fájljainak kiszolgálása. A látogatás technikai adatai (például IP-cím) itt keletkeznek.</li>
+        <li><b>[Supabase]</b> — adatbázis és fotótárolás. A megrendelések, az ajánlatkérések és a
+        feltöltött képek tárolása. Tárolási régió: EU. [kitöltendő: a szolgáltató pontos neve,
+        székhelye és a szerződés adatai.]</li>
+        <li><b>[Google — Gemini API]</b> — a fotók és a leírás automatizált elemzése az árbecsléshez.
+        [kitöltendő: a szolgáltató pontos neve, a feldolgozás régiója és az adatfeldolgozói
+        szerződés hivatkozása.]</li>
+        <li><b>[Számlázó program: kitöltendő]</b> — a számla kiállítása és tárolása.</li>
+        <li><b>[SMS- és e-mail-küldő szolgáltató: kitöltendő]</b> — a visszaigazolások, az
+        ajánlatok és az időpont-emlékeztetők kiküldése.</li>
+      </ul>
+      <h3>Adattovábbítás harmadik országba</h3>
+      <p>A fenti szolgáltatók egy része az Európai Gazdasági Térségen kívül, jellemzően az
+      Egyesült Államokban is végez adatkezelést. Ilyen esetben az adattovábbítás csak a GDPR V.
+      fejezete szerinti garanciák mellett történhet: az Európai Bizottság megfelelőségi
+      határozata, illetve általános szerződési feltételek (SCC) alapján.</p>
+      <p>[kitöltendő: szolgáltatónként rögzíteni kell, melyik garancia alapján történik a
+      továbbítás, és hol érhetők el ezek a dokumentumok. Ezt a pontot jogi átnézés nélkül ne
+      tekintse véglegesnek.]</p>
+
+      <h2>7. Meddig őrizzük meg az adatokat</h2>
+      <dl>
+        <dt>Ajánlatkérés, amelyből nem lett megrendelés</dt>
+        <dd>[kitöltendő — javasolt: a kérés napjától számított 90 nap, majd törlés.]</dd>
+        <dt>Megrendelések és a munka adatai</dt>
+        <dd>[kitöltendő — javasolt: a munka elvégzésétől számított 5 év, a polgári jogi elévülési
+        idő végéig. A 3 év garancia miatt a garanciális ügyintézéshez szükséges adatokat legalább
+        a garancia lejártáig őrizzük.]</dd>
+        <dt>Számlák és számviteli bizonylatok</dt>
+        <dd>8 év, a számviteli törvény alapján. Ez kötelező, ettől kérésre sem térhetünk el.</dd>
+        <dt>Feltöltött fényképek</dt>
+        <dd>[kitöltendő — javasolt: megrendelés hiányában az ajánlatkéréssel együtt törölve;
+        megrendelés esetén a munka lezárását követő [x] évig, a garanciális igények kezeléséhez.]
+        A fotókat ennél korábban is töröljük, ha Ön kéri, és nincs jogi akadálya.</dd>
+        <dt>Visszaélés-védelmi technikai adatok</dt>
+        <dd>[kitöltendő — javasolt: legfeljebb 30 nap.]</dd>
+        <dt>Marketing hozzájárulás</dt>
+        <dd>A hozzájárulás visszavonásáig, illetve [kitöltendő] időtartamig.</dd>
+        <dt>A böngészőjében tárolt adat</dt>
+        <dd>Amíg Ön nem törli. Ez az Ön eszközén marad, a böngésző adatainak törlésével bármikor
+        eltávolítható.</dd>
+      </dl>
+
+      <h2>8. Az Ön jogai</h2>
+      <p>Az adatkezeléssel kapcsolatban Önt az alábbi jogok illetik meg.</p>
+      <ul>
+        <li><b>Hozzáférés</b> — tájékoztatást kérhet arról, kezelünk-e Önről adatot, és ha igen,
+        milyet, milyen célból, kinek adjuk tovább, meddig őrizzük. Az adatokról másolatot kérhet.</li>
+        <li><b>Helyesbítés</b> — kérheti a pontatlan adat javítását és a hiányos adat kiegészítését.</li>
+        <li><b>Törlés</b> — kérheti az adatai törlését, ha már nincs szükség rájuk, vagy ha a
+        hozzájárulását visszavonta. A törlésnek korlátja a jogszabályi megőrzési kötelezettség: a
+        számlákat 8 évig nem törölhetjük.</li>
+        <li><b>Az adatkezelés korlátozása</b> — kérheti, hogy az adatokat csak tároljuk, de ne
+        használjuk, például amíg egy vitatott adat pontosságát ellenőrizzük.</li>
+        <li><b>Tiltakozás</b> — tiltakozhat a jogos érdeken alapuló adatkezelés ellen. Közvetlen
+        üzletszerzés esetén a tiltakozás után az adatkezelést azonnal megszüntetjük.</li>
+        <li><b>Adathordozhatóság</b> — a hozzájárulás vagy szerződés alapján kezelt, Ön által
+        megadott adatokat tagolt, géppel olvasható formában kérheti, illetve kérheti azok
+        továbbítását másik adatkezelőhöz.</li>
+        <li><b>A hozzájárulás visszavonása</b> — a hozzájáruláson alapuló adatkezeléshez adott
+        hozzájárulását bármikor visszavonhatja. Ez nem érinti a visszavonás előtti adatkezelés
+        jogszerűségét.</li>
+      </ul>
+      <h3>Hogyan élhet ezekkel a jogokkal</h3>
+      <p>Írjon a [kitöltendő] e-mail-címre, vagy hívja a +36 30 254 9290 számot 7 és 19 óra között.
+      Postai úton is fordulhat hozzánk: [kitöltendő — postázási cím].</p>
+      <p>A kérését legkésőbb <b>egy hónapon belül</b> teljesítjük. Ha a kérés összetett, ez a
+      határidő további két hónappal meghosszabbítható — erről a kérés beérkezésétől számított egy
+      hónapon belül tájékoztatjuk. A kérések teljesítése díjmentes. Ha megalapozott kétségünk
+      támad az Ön személyazonossága felől, további adatot kérhetünk az azonosításhoz — ezzel Önt
+      védjük attól, hogy más férjen hozzá az adataihoz.</p>
+
+      <h2>9. Jogorvoslat</h2>
+      <p>Ha úgy érzi, hogy az adatkezeléssel jogsértést követtünk el, először érdemes közvetlenül
+      hozzánk fordulni: a legtöbb ügy néhány napon belül rendezhető. Ettől függetlenül Önt az
+      alábbi jogorvoslatok illetik meg.</p>
+      <h3>Panasz a felügyeleti hatóságnál</h3>
+      <dl>
+        <dt>Hatóság</dt>
+        <dd>Nemzeti Adatvédelmi és Információszabadság Hatóság (NAIH)</dd>
+        <dt>Cím</dt>
+        <dd>1055 Budapest, Falk Miksa utca 9-11.</dd>
+        <dt>Honlap</dt>
+        <dd><a href="https://naih.hu">naih.hu</a></dd>
+      </dl>
+      <h3>Bírósági út</h3>
+      <p>Bírósághoz is fordulhat. A per az adatkezelő székhelye szerinti törvényszék előtt, de az
+      Ön választása szerint a lakóhelye vagy tartózkodási helye szerinti törvényszék előtt is
+      megindítható. A bíróság az ügyben soron kívül jár el.</p>
+
+      <h2>10. Sütik és a böngészőben tárolt adatok</h2>
+      <p>A bemutató oldal jelenleg <b>nem használ analitikai vagy marketingsütit</b>, és nem követi
+      Önt más oldalakon.</p>
+      <p>A weboldal a böngészője <b>localStorage</b> tárolójában őriz állapotot: a megkezdett
+      ajánlatkérést, a megadott adatokat és a kérésszámlálókat. Ez az Ön eszközén marad, hozzánk
+      nem kerül fel, és a böngésző adatainak törlésével bármikor eltávolítható. Ez a tárolás a
+      szolgáltatás működéséhez szükséges, ezért nem igényel külön hozzájárulást.</p>
+      <p>Ha később analitikai vagy marketingcélú mérés kerül az oldalra, azt csak az Ön előzetes
+      hozzájárulásával indítjuk el, és ez a tájékoztató is kiegészül a részletekkel.</p>
+
+      <h2>11. Adatbiztonság</h2>
+      <ul>
+        <li>A weboldal titkosított kapcsolaton (HTTPS) érhető el, az adatok továbbítása titkosítva
+        történik.</li>
+        <li>Az adatokhoz csak azok férnek hozzá, akiknek a munkájukhoz szükséges;
+        a hozzáféréseket korlátozzuk és nyilvántartjuk.</li>
+        <li>A feltöltött fotók nem nyilvánosak, nem érhetők el nyilvános hivatkozáson keresztül.</li>
+        <li>Az adatbázis és a fotótár a szolgáltató EU-s régiójában, biztonsági mentéssel működik.</li>
+        <li>[kitöltendő: a jelszókezelés, a kétlépcsős azonosítás és az adatvédelmi incidensek
+        kezelésének rendje — incidens esetén a hatóság tájékoztatása 72 órán belül.]</li>
+      </ul>
+
+      <h2>12. A tájékoztató módosítása</h2>
+      <p>A tájékoztatót módosíthatjuk, ha a szolgáltatás vagy a jogszabályi környezet változik —
+      például új adatfeldolgozó lép be, vagy analitika kerül az oldalra. A mindenkor hatályos
+      változat ezen az oldalon érhető el, a lap alján a hatálybalépés dátumával és a
+      verziószámmal.</p>
+      <p>Ha a módosítás lényegesen érinti az Ön jogait, arról a megadott elérhetőségén előzetesen
+      tájékoztatjuk. Hozzájáruláson alapuló adatkezelés esetén a módosítás csak az Ön új
+      hozzájárulásával lép hatályba.</p>
+
+      <p class="meta">Hatályos: [dátum] · Verzió: [x]</p>
+
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <div class="brand"><svg class="mark" viewBox="0 0 96 40" aria-hidden="true">
+  <rect x="0" y="16" width="20" height="8" rx="4" opacity=".25"/>
+  <rect x="26" y="16" width="26" height="8" rx="4" opacity=".55"/>
+  <circle cx="76" cy="20" r="12"/>
+</svg><b>NYOMBAN<i>.</i></b></div>
+      <small>
+        Novák Ádám e.v. · Szeged · Adószám: [kitöltendő]<br>
+        Nyilvántartási szám: [kitöltendő] · E-mail: [kitöltendő]
+      </small>
+    </div>
+    <nav>
+      <a href="./aszf.html">ÁSZF</a>
+      <a href="./adatkezeles.html">Adatkezelés</a>
+      <a href="./arak.html">Árlista</a>
+      <a href="tel:+36302549290">+36 30 254 9290</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
