@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>VOLT.SZEGED — kattintható prototípus</title>
+<style>
+  body { margin:0; background:#FAF7F2; color:#1B1A17;
+         font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+         display:flex; min-height:100vh; align-items:center; justify-content:center; padding:24px; }
+  .wrap { max-width:560px; width:100%; }
+  h1 { font-size:32px; letter-spacing:-.02em; margin:0 0 6px; }
+  h1 i { color:#C4711A; font-style:normal; }
+  .sub { color:#6B655C; margin:0 0 26px; font-size:15px; }
+  .note { background:#F4EEE2; border:1px solid #E6DCC8; border-left:4px solid #E8A33D;
+          border-radius:12px; padding:16px 18px; font-size:14.5px; line-height:1.6; margin:0 0 26px; }
+  .note b { color:#8A5A1B; }
+  a.card { display:block; background:#1B1A17; color:#FAF7F2; text-decoration:none;
+           border-radius:14px; padding:18px 20px; margin-bottom:12px; font-size:17px; font-weight:600; }
+  a.card span { display:block; color:#B5AFA4; font-size:13.5px; font-weight:400; margin-top:4px; }
+  a.card:hover { background:#2A2823; }
+  footer { margin-top:22px; font-size:13px; color:#9A9388; }
+  footer a { color:#8A5A1B; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>VOLT<i>.</i>SZEGED</h1>
+  <p class="sub">Ügyfélportál — kattintható prototípus</p>
+
+  <div class="note">
+    <b>DEMÓ.</b> Ez nem éles rendszer. Az árakat egyelőre a böngészőben futó,
+    kulcsszavas árazómotor számolja — a Gemini AI árbecslés és a fotóelemzés
+    még nincs bekötve. Amit itt megad, kizárólag ebben a böngészőben tárolódik,
+    szerverre semmi nem kerül fel.
+  </div>
+
+  <a class="card" href="./app.dc.html">
+    Árajánlatot kérek
+    <span>A teljes ügyfélfolyamat: leírás → tételes ajánlat → 3 időpont → visszaigazolás.</span>
+  </a>
+
+  <footer>Tesztelési forgatókönyv: <a href="./TESTING.md">TESTING.md</a></footer>
+</div>
+</body>
+</html>

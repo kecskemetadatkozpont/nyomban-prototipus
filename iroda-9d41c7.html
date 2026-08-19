@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>VOLT.SZEGED — iroda</title>
+<script>window.__resources={"https://unpkg.com/react@18.3.1/umd/react.production.min.js":"./vendor/react.production.min.js","https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js":"./vendor/react-dom.production.min.js"};</script>
+<script src="./config.js"></script>
+<script src="./support.js"></script>
+<style>
+  body { margin:0; background:#1B1A17; color:#FAF7F2;
+         font-family:'Instrument Sans',system-ui,-apple-system,sans-serif;
+         min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  body.booted { display:block; padding:0; background:#FAF7F2; }
+  #gate { width:100%; max-width:360px; }
+  #gate.hidden { display:none; }
+  .mark { font-family:'Familjen Grotesk',system-ui,sans-serif; font-weight:700; font-size:21px;
+          letter-spacing:-.02em; margin-bottom:26px; }
+  .mark i { color:#E8A33D; font-style:normal; }
+  label { display:block; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+          color:#8E8779; font-weight:600; margin:0 0 7px; }
+  input { width:100%; box-sizing:border-box; height:46px; border-radius:11px; border:1.5px solid #33302A;
+          background:#26241F; color:#FAF7F2; padding:0 14px; font-size:16px; margin-bottom:16px; }
+  input:focus { outline:2px solid #E8A33D; outline-offset:1px; }
+  button { width:100%; height:48px; border-radius:11px; border:none; background:#E8A33D; color:#1B1A17;
+           font-size:16px; font-weight:600; cursor:pointer; font-family:inherit; }
+  button[disabled] { opacity:.5; cursor:progress; }
+  .err { min-height:20px; margin-top:14px; font-size:13.5px; color:#E8A33D; }
+  .foot { margin-top:26px; font-size:12.5px; color:#6B655C; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="mark">VOLT<i>.</i>SZEGED</div>
+  <form id="f" autocomplete="off">
+    <label for="u">Felhasználónév</label>
+    <input id="u" name="u" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+    <label for="p">Jelszó</label>
+    <input id="p" name="p" type="password" required>
+    <button id="go" type="submit">Belépés</button>
+    <div class="err" id="err"></div>
+  </form>
+  <div class="foot">
+    Ez a felület a megrendeléseket, az ügyféladatokat és az árazási szabályokat kezeli.
+    A tartalom titkosítva tárolódik — helyes jelszó nélkül nem olvasható.
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var f = document.getElementById('f'), u = document.getElementById('u'),
+      p = document.getElementById('p'), go = document.getElementById('go'),
+      err = document.getElementById('err'), gate = document.getElementById('gate');
+
+  var fails = 0;
+
+  function b64(s) {
+    var bin = atob(s), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  // A dc-runtime aszinkron tölti a Reactot; a __dcBoot csak utána létezik.
+  function waitForRuntime() {
+    return new Promise(function (resolve, reject) {
+      var t0 = Date.now();
+      (function poll() {
+        if (typeof window.__dcBoot === 'function') return resolve();
+        if (Date.now() - t0 > 15000) return reject(new Error('runtime timeout'));
+        setTimeout(poll, 50);
+      })();
+    });
+  }
+
+  async function unlock(user, pass) {
+    var res = await fetch('./admin.enc', { cache: 'no-store' });
+    if (!res.ok) throw new Error('bundle ' + res.status);
+    var box = await res.json();
+
+    var enc = new TextEncoder();
+    var base = await crypto.subtle.importKey(
+      'raw', enc.encode(user + '\n' + pass), 'PBKDF2', false, ['deriveKey']
+    );
+    var key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: b64(box.salt), iterations: box.iter, hash: 'SHA-256' },
+      base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+    );
+    // Rossz jelszónál a GCM hitelesítő címke nem stimmel → itt dob.
+    var plain = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: b64(box.iv) }, key, b64(box.ct)
+    );
+    return new TextDecoder().decode(plain);
+  }
+
+  function mount(html) {
+    var holder = document.createElement('div');
+    holder.innerHTML = html;
+    while (holder.firstChild) document.body.appendChild(holder.firstChild);
+    gate.classList.add('hidden');
+    document.body.classList.add('booted');
+    window.__dcBoot();
+
+    // Kilépés: a visszafejtett tartalom csak a memóriában van, újratöltésre eltűnik.
+    var out = document.createElement('button');
+    out.textContent = 'Kilépés';
+    out.style.cssText = 'position:fixed; right:18px; top:18px; z-index:70; height:34px; padding:0 14px;'
+      + 'border-radius:9px; border:1.5px solid #E3DCD1; background:#fff; color:#1B1A17;'
+      + 'font-size:13.5px; font-weight:600; cursor:pointer; width:auto;';
+    out.onclick = function () { location.reload(); };
+    document.body.appendChild(out);
+  }
+
+  f.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    err.textContent = '';
+    go.disabled = true;
+    go.textContent = 'Ellenőrzés…';
+    try {
+      await waitForRuntime();
+      var html = await unlock(u.value.trim(), p.value);
+      mount(html);
+    } catch (ex) {
+      fails++;
+      // Növekvő késleltetés — a próbálgatás így lassú marad.
+      await sleep(Math.min(8000, 600 * fails * fails));
+      err.textContent = (ex && ex.message === 'runtime timeout')
+        ? 'Nem sikerült betölteni a felületet. Frissítse az oldalt.'
+        : 'Hibás felhasználónév vagy jelszó.';
+      go.disabled = false;
+      go.textContent = 'Belépés';
+      p.value = '';
+      p.focus();
+    }
+  });
+
+  u.focus();
+})();
+</script>
+
+</body>
+</html>

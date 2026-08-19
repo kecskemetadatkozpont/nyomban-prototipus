@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VOLT.SZEGED — árajánlat 3 perc alatt</title>
+<meta name="robots" content="noindex, nofollow">
+<script>window.__resources={"https://unpkg.com/react@18.3.1/umd/react.production.min.js":"./vendor/react.production.min.js","https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js":"./vendor/react-dom.production.min.js"};</script>
+<script src="./config.js"></script>
+<script src="./pricing-demo.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#FAF7F2; }
+  a { color:#8A5A1B; text-decoration:none; }
+  a:hover { color:#B8791F; }
+  input, textarea, button { font-family:'Instrument Sans',system-ui,sans-serif; }
+  textarea:focus, input:focus { outline:2px solid #E8A33D; outline-offset:1px; }
+  @keyframes vsPulse { 0%,100%{opacity:.35} 50%{opacity:1} }
+</style>
+</helmet>
+
+<div style="min-height:100vh; background:#FAF7F2; font-family:'Instrument Sans',system-ui,sans-serif; color:#1B1A17; overflow-x:auto;">
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 40px; border-bottom:1px solid #EAE4DA; position:sticky; top:0; background:#FAF7F2; z-index:20;">
+      <div style="display:flex; align-items:center; gap:40px;">
+        <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:21px; letter-spacing:-.02em;">VOLT<span style="color:#C4711A;">.</span>SZEGED</div>
+        <div style="display:flex; gap:26px; font-size:15px; color:#57534A;"><span>Szolgáltatások</span><span>Árak</span><span>Referenciák</span><span>Rólunk</span></div>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div style="display:flex; flex-direction:column; align-items:flex-end;">
+          <span style="font-size:12px; color:#9A9388;">{{ contactName }} · 7–19 óráig</span>
+          <span style="font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:700;">{{ contactPhone }}</span>
+        </div>
+        <button type="button" onClick="{{ startFlow }}" style="height:44px; padding:0 22px; border-radius:11px; background:#1B1A17; color:#FAF7F2; border:none; font-size:15px; font-weight:600; cursor:pointer;">Árajánlatot kérek</button>
+      </div>
+    </div>
+
+    <div style="max-width:1320px; margin:0 auto; display:grid; grid-template-columns:1.05fr .95fr; gap:56px; padding:64px 40px; align-items:center;">
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div style="display:inline-flex; align-self:flex-start; align-items:center; gap:9px; padding:8px 14px; border-radius:100px; background:#F3E7D2; color:#8A5A1B; font-size:13.5px; font-weight:600;"><span style="width:7px; height:7px; border-radius:50%; background:#C4711A; animation:vsPulse 2s infinite;"></span>2 szerelő szabad ma Szegeden</div>
+        <h1 style="margin:0; font-family:'Familjen Grotesk',sans-serif; font-size:66px; line-height:.98; letter-spacing:-.035em;">Árajánlat<br>3 perc alatt,<br>kiszállás nélkül.</h1>
+        <p style="margin:0; font-size:19px; line-height:1.5; color:#57534A; max-width:520px; text-wrap:pretty;">Írja le, mi a baj, töltsön fel pár fotót — az árat és a szabad időpontokat azonnal látja. Ha jó, egy kattintással lefoglalja.</p>
+        <div style="display:flex; gap:12px; margin-top:6px;">
+          <button type="button" onClick="{{ startFlow }}" style="height:58px; padding:0 30px; border-radius:13px; background:#1B1A17; color:#FAF7F2; border:none; font-size:17px; font-weight:600; cursor:pointer;">Kérek árajánlatot →</button>
+          <a href="{{ telHref }}" style="height:58px; padding:0 26px; border-radius:13px; border:1.5px solid #E3DCD1; background:#fff; color:#1B1A17; display:flex; align-items:center; font-size:17px; font-weight:600;">Sürgős hiba? Hívjon</a>
+        </div>
+        <div style="display:flex; gap:34px; margin-top:14px; padding-top:22px; border-top:1px solid #EAE4DA;">
+          <div style="display:flex; flex-direction:column; gap:2px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:26px; font-weight:700;">{{ calloutLabel }}</span><span style="font-size:13.5px; color:#7A756C;">fix kiszállás a városban</span></div>
+          <div style="display:flex; flex-direction:column; gap:2px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:26px; font-weight:700;">3 év</span><span style="font-size:13.5px; color:#7A756C;">garancia minden munkára</span></div>
+          <div style="display:flex; flex-direction:column; gap:2px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:26px; font-weight:700;">1 140</span><span style="font-size:13.5px; color:#7A756C;">elvégzett munka 2019 óta</span></div>
+        </div>
+      </div>
+      <div style="border-radius:20px; background:#1B1A17; padding:32px; display:flex; flex-direction:column; gap:18px;">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <span style="font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#E8A33D; font-weight:600;">Kezdje itt</span>
+          <span style="font-size:13px; color:#8E8779;">1 / 3</span>
+        </div>
+        <span style="font-size:15px; color:#A9A296;">Mi a feladat?</span>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <sc-for list="{{ cats }}" as="c" hint-placeholder-count="5">
+            <button type="button" onClick="{{ c.pickAndStart }}" style="{{ c.darkStyle }}">{{ c.name }}</button>
+          </sc-for>
+        </div>
+        <div style="height:1px; background:#33302A; margin-top:4px;"></div>
+        <div style="display:flex; align-items:flex-end; justify-content:space-between;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span style="font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#8E8779; font-weight:600;">Tipikus ársáv</span>
+            <span style="font-family:'Familjen Grotesk',sans-serif; font-size:34px; line-height:1; letter-spacing:-.03em; color:#FAF7F2;">{{ teaserRange }}</span>
+          </div>
+          <button type="button" onClick="{{ startFlow }}" style="height:48px; padding:0 24px; border-radius:12px; background:#FAF7F2; color:#1B1A17; border:none; font-size:15.5px; font-weight:600; cursor:pointer;">Tovább →</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#F1EDE5; padding:56px 40px;">
+      <div style="max-width:1320px; margin:0 auto;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:32px;">
+          <h2 style="margin:0; font-family:'Familjen Grotesk',sans-serif; font-size:34px; letter-spacing:-.025em;">Így megy — telefonálgatás nélkül</h2>
+          <span style="font-size:15px; color:#7A756C;">Átlagos ajánlatadási idő: 54 másodperc</span>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
+          <div style="padding:26px; border-radius:16px; background:#FAF7F2; display:flex; flex-direction:column; gap:10px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:15px; font-weight:700; color:#C4711A;">01</span><span style="font-family:'Familjen Grotesk',sans-serif; font-size:20px; font-weight:600;">Leírja, mi a baj</span><span style="font-size:14.5px; line-height:1.5; color:#57534A;">Pár mondat és 1–3 fotó elég. Nem kell szakszavakat használni.</span></div>
+          <div style="padding:26px; border-radius:16px; background:#FAF7F2; display:flex; flex-direction:column; gap:10px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:15px; font-weight:700; color:#C4711A;">02</span><span style="font-family:'Familjen Grotesk',sans-serif; font-size:20px; font-weight:600;">Azonnal lát egy ársávot</span><span style="font-size:14.5px; line-height:1.5; color:#57534A;">Tételesen, anyaggal, bruttóban. Nincs rejtett költség.</span></div>
+          <div style="padding:26px; border-radius:16px; background:#FAF7F2; display:flex; flex-direction:column; gap:10px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:15px; font-weight:700; color:#C4711A;">03</span><span style="font-family:'Familjen Grotesk',sans-serif; font-size:20px; font-weight:600;">Megjelöl 3 időpontot</span><span style="font-size:14.5px; line-height:1.5; color:#57534A;">A szabad sávokból választ hármat, amikor Önnek jó.</span></div>
+          <div style="padding:26px; border-radius:16px; background:#1B1A17; display:flex; flex-direction:column; gap:10px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:15px; font-weight:700; color:#E8A33D;">04</span><span style="font-family:'Familjen Grotesk',sans-serif; font-size:20px; font-weight:600; color:#FAF7F2;">{{ contactFirst }} visszaigazol</span><span style="font-size:14.5px; line-height:1.5; color:#A9A296;">2 órán belül SMS-ben és e-mailben, a három sáv egyikére.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="max-width:1320px; margin:0 auto; padding:56px 40px;">
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px; padding:32px; border-radius:18px; background:#F1EDE5;">
+        <div style="display:flex; flex-direction:column; gap:7px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:600;">MKEH regisztráció</span><span style="font-size:14px; line-height:1.5; color:#57534A;">Nyilvántartott villanyszerelő, érintésvédelmi mérési jogosultsággal.</span></div>
+        <div style="display:flex; flex-direction:column; gap:7px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:600;">3 év garancia</span><span style="font-size:14px; line-height:1.5; color:#57534A;">Munkára és beépített anyagra egyaránt, írásban.</span></div>
+        <div style="display:flex; flex-direction:column; gap:7px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:600;">Fix kiszállás</span><span style="font-size:14px; line-height:1.5; color:#57534A;">{{ calloutLabel }} Szegeden belül, 25 km-en belül +180 Ft/km.</span></div>
+        <div style="display:flex; flex-direction:column; gap:7px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:600;">Számla, e-számla</span><span style="font-size:14px; line-height:1.5; color:#57534A;">Társasházaknak és cégeknek átutalással is.</span></div>
+      </div>
+    </div>
+
+    <div style="padding:44px 40px; background:#1B1A17; display:flex; align-items:center; justify-content:space-between;">
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:19px; color:#FAF7F2; letter-spacing:-.02em;">VOLT<span style="color:#E8A33D;">.</span>SZEGED</div>
+        <span style="font-size:14px; color:#8E8779;">{{ contactName }} e.v. · Szeged, Kossuth Lajos sgt. · Adószám: 12345678-1-06</span>
+      </div>
+      <div style="display:flex; gap:36px; font-size:14px; color:#8E8779;"><span>ÁSZF</span><span>Adatkezelés</span><span>Árlista</span><span>{{ contactPhone }}</span></div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isWizard }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh; display:flex; flex-direction:column;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 40px; border-bottom:1px solid #EAE4DA;">
+      <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:20px; letter-spacing:-.02em;">VOLT<span style="color:#C4711A;">.</span>SZEGED</div>
+      <div style="display:flex; align-items:center; gap:18px;">
+        <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st1 }}">1</span><span style="font-size:14.5px; color:#57534A;">Feladat</span></div>
+        <span style="width:36px; height:1.5px; background:#E3DCD1;"></span>
+        <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st2 }}">2</span><span style="font-size:14.5px; color:#57534A;">Ajánlat</span></div>
+        <span style="width:36px; height:1.5px; background:#E3DCD1;"></span>
+        <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st3 }}">3</span><span style="font-size:14.5px; color:#57534A;">Időpont</span></div>
+      </div>
+      <button type="button" onClick="{{ goHome }}" style="height:38px; padding:0 14px; border-radius:10px; border:1.5px solid #E3DCD1; background:#fff; font-size:14px; color:#57534A; cursor:pointer;">Mégse</button>
+    </div>
+
+    <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1; display:grid; grid-template-columns:1fr 420px;">
+      <div style="padding:40px 48px; display:flex; flex-direction:column; gap:26px; max-width:820px;">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <h2 style="margin:0; font-family:'Familjen Grotesk',sans-serif; font-size:38px; letter-spacing:-.03em;">Mi a feladat?</h2>
+          <p style="margin:0; font-size:16px; color:#57534A;">Minél pontosabban írja le, annál szűkebb lesz az ársáv.</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <span style="font-size:14px; font-weight:600;">Munka típusa</span>
+          <div style="display:flex; flex-wrap:wrap; gap:9px;">
+            <sc-for list="{{ cats }}" as="c" hint-placeholder-count="6">
+              <button type="button" onClick="{{ c.pick }}" style="{{ c.lightStyle }}">{{ c.name }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <span style="font-size:14px; font-weight:600;">Leírás</span>
+          <textarea onChange="{{ setDesc }}" placeholder="Pl. A fürdőszobában lecsapja a kismegszakítót, ha bekapcsolom a bojlert…" style="border:1.5px solid #E3DCD1; border-radius:15px; background:#fff; padding:16px 18px; height:120px; font-size:16px; line-height:1.55; color:#1B1A17; resize:none;">{{ desc }}</textarea>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:#9A9388;"><span>{{ descHint }}</span><span>{{ descLen }}</span></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <div style="display:flex; align-items:baseline; gap:10px;"><span style="font-size:14px; font-weight:600;">Fotók</span><span style="font-size:13.5px; color:#9A9388;">{{ photoHint }}</span></div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <sc-for list="{{ photos }}" as="p" hint-placeholder-count="0">
+              <div style="{{ p.thumbStyle }}">
+                <button type="button" onClick="{{ p.remove }}" style="position:absolute; top:7px; right:7px; width:24px; height:24px; border-radius:50%; background:#1B1A17; color:#fff; border:none; font-size:13px; cursor:pointer;">×</button>
+              </div>
+            </sc-for>
+            <label style="width:180px; height:110px; border-radius:13px; border:1.5px dashed #D3CABB; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; color:#8A5A1B; cursor:pointer;">
+              <span style="font-size:22px;">+</span>
+              <span style="font-size:14px; font-weight:600;">Fotó hozzáadása</span>
+              <input type="file" accept="image/*" multiple="{{ true }}" onChange="{{ addPhotos }}" style="display:none;">
+            </label>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:16px;">
+          <div style="display:flex; flex-direction:column; gap:11px;">
+            <span style="font-size:14px; font-weight:600;">Helyszín</span>
+            <input type="text" onChange="{{ setAddr }}" value="{{ address }}" placeholder="Szeged, utca, házszám" style="height:52px; border:1.5px solid #E3DCD1; border-radius:13px; background:#fff; padding:0 16px; font-size:16px; color:#1B1A17;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:11px;">
+            <span style="font-size:14px; font-weight:600;">Sürgősség</span>
+            <div style="display:flex; gap:9px;">
+              <button type="button" onClick="{{ urgWeek }}" style="{{ urgWeekStyle }}">Ezen a héten</button>
+              <button type="button" onClick="{{ urgToday }}" style="{{ urgTodayStyle }}">Ma / holnap</button>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div style="display:flex; flex-direction:column; gap:11px;">
+            <span style="font-size:14px; font-weight:600;">Az Ön neve</span>
+            <input type="text" onChange="{{ setName }}" value="{{ custName }}" placeholder="Kovács Anita" style="height:52px; border:1.5px solid #E3DCD1; border-radius:13px; background:#fff; padding:0 16px; font-size:16px; color:#1B1A17;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:11px;">
+            <span style="font-size:14px; font-weight:600;">Telefonszám</span>
+            <input type="tel" onChange="{{ setPhone }}" value="{{ custPhone }}" placeholder="+36 20 000 0000" style="height:52px; border:1.5px solid #E3DCD1; border-radius:13px; background:#fff; padding:0 16px; font-size:16px; color:#1B1A17;">
+          </div>
+        </div>
+      </div>
+      <div style="background:#F1EDE5; border-left:1px solid #EAE4DA; padding:40px 32px; display:flex; flex-direction:column; gap:20px;">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <span style="font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#8A5A1B; font-weight:600;">⌁ Élő becslés</span>
+          <span style="font-family:'Familjen Grotesk',sans-serif; font-size:40px; line-height:1; letter-spacing:-.03em;">{{ liveRange }}</span>
+          <span style="font-size:14px; line-height:1.5; color:#57534A;">Anyaggal, bruttóban. A sáv szűkül, ahogy több információt ad meg.</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:7px;">
+          <div style="height:8px; border-radius:4px; background:#E0D8CA; overflow:hidden;"><div style="height:8px; background:#E8A33D; border-radius:4px; transition:width .4s ease; width:{{ accPct }}%;"></div></div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:#7A756C;"><span>{{ accLabel }}</span><span>{{ accPctLabel }}</span></div>
+        </div>
+        <div style="height:1px; background:#E0D8CA;"></div>
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <span style="font-size:13.5px; font-weight:600;">Mivel lehetne pontosabb?</span>
+          <sc-for list="{{ tips }}" as="t" hint-placeholder-count="3">
+            <div style="display:flex; gap:10px; padding:13px 15px; border-radius:12px; background:#FAF7F2;"><span style="color:#C4711A; font-size:14px;">+</span><span style="font-size:14px; line-height:1.45; color:#57534A;">{{ t.text }}</span></div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto; display:flex; flex-direction:column; gap:12px;">
+          <div style="padding:14px 16px; border-radius:12px; background:#FAF7F2; font-size:13px; line-height:1.5; color:#7A756C;">A fotókat titkosítva tároljuk, kizárólag az ajánlatadáshoz használjuk.</div>
+          <button type="button" onClick="{{ toOffer }}" style="{{ nextBtn }}">{{ nextLabel }}</button>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1; display:grid; grid-template-columns:1fr 1fr;">
+      <div style="padding:36px 40px 36px 48px; display:flex; flex-direction:column; gap:20px;">
+        <div style="padding:26px; border-radius:18px; background:#1B1A17; display:flex; flex-direction:column; gap:10px;">
+          <span style="font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#E8A33D; font-weight:600;">{{ estHeading }}</span>
+          <span style="font-family:'Familjen Grotesk',sans-serif; font-size:48px; line-height:1; letter-spacing:-.035em; color:#FAF7F2;">{{ offerRange }}</span>
+          <span style="font-size:15px; line-height:1.5; color:#A9A296;">Anyaggal együtt, bruttó. A végleges ár a helyszíni bontás után derül ki — de a sávot tartjuk, kivéve ha új nyomvonal kell (előtte szólunk).</span>
+        </div>
+        <div style="display:flex; flex-direction:column;">
+          <span style="font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#9A9388; font-weight:600; margin-bottom:6px;">Tételek</span>
+          <sc-for list="{{ offerItems }}" as="it" hint-placeholder-count="4">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid #EAE4DA;">
+              <div style="display:flex; flex-direction:column; gap:2px;"><span style="font-size:16px; font-weight:500;">{{ it.label }}</span><span style="font-size:13.5px; color:#9A9388;">{{ it.note }}</span></div>
+              <span style="font-size:16px; font-weight:600; white-space:nowrap;">{{ it.price }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding:18px 20px; border-radius:14px; border:1.5px solid #E3DCD1; background:#fff; display:flex; flex-direction:column; gap:7px;">
+          <span style="font-size:14.5px; font-weight:600;">Mit vett figyelembe a becslés?</span>
+          <span style="font-size:14px; line-height:1.5; color:#57534A;">{{ reasoning }}</span>
+        </div>
+        <div style="margin-top:auto; display:flex; align-items:center; gap:12px;">
+          <button type="button" onClick="{{ backToStep1 }}" style="height:48px; padding:0 20px; border-radius:12px; border:1.5px solid #E3DCD1; background:#fff; font-size:15px; font-weight:600; color:#1B1A17; cursor:pointer;">← Módosítom a leírást</button>
+          <span style="font-size:14px; color:#7A756C; margin-left:auto;">Az ajánlat 7 napig érvényes.</span>
+        </div>
+      </div>
+      <div style="background:#F1EDE5; border-left:1px solid #EAE4DA; padding:36px 48px 36px 40px; display:flex; flex-direction:column; gap:18px;">
+        <div style="display:flex; flex-direction:column; gap:5px;">
+          <h3 style="margin:0; font-family:'Familjen Grotesk',sans-serif; font-size:28px; letter-spacing:-.025em;">Az Ön kérése</h3>
+          <p style="margin:0; font-size:15px; line-height:1.5; color:#57534A;">Ezt küldjük át {{ contactFirst }}nak az ajánlattal együtt.</p>
+        </div>
+        <div style="padding:18px; border-radius:14px; background:#FAF7F2; font-size:15px; line-height:1.55;">{{ descPreview }}</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <sc-for list="{{ photos }}" as="p" hint-placeholder-count="0">
+            <div style="{{ p.previewStyle }}"></div>
+          </sc-for>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:11px; padding:18px; border-radius:14px; background:#FAF7F2;">
+          <div style="display:flex; justify-content:space-between;"><span style="font-size:14px; color:#7A756C;">Munka típusa</span><span style="font-size:14px; font-weight:600;">{{ cat }}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="font-size:14px; color:#7A756C;">Helyszín</span><span style="font-size:14px; font-weight:600;">{{ addressLabel }}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="font-size:14px; color:#7A756C;">Sürgősség</span><span style="font-size:14px; font-weight:600;">{{ urgencyLabel }}</span></div>
+        </div>
+        <div style="margin-top:auto; display:flex; flex-direction:column; gap:11px;">
+          <button type="button" onClick="{{ toSchedule }}" style="height:58px; border-radius:13px; background:#1B1A17; color:#FAF7F2; border:none; font-size:16.5px; font-weight:600; cursor:pointer;">Időpontot választok →</button>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1; display:grid; grid-template-columns:1fr 460px;">
+      <div style="padding:36px 48px; display:flex; flex-direction:column; gap:20px;">
+        <div style="display:flex; flex-direction:column; gap:5px;">
+          <h3 style="margin:0; font-family:'Familjen Grotesk',sans-serif; font-size:34px; letter-spacing:-.03em;">Mikor jó Önnek?</h3>
+          <p style="margin:0; font-size:16px; line-height:1.5; color:#57534A;">{{ slotInstruction }}</p>
+        </div>
+        <div style="display:flex; gap:9px; flex-wrap:wrap;">
+          <sc-for list="{{ days }}" as="d" hint-placeholder-count="8">
+            <button type="button" onClick="{{ d.pick }}" style="{{ d.style }}">
+              <span style="font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; opacity:.72;">{{ d.dow }}</span>
+              <span style="font-family:'Familjen Grotesk',sans-serif; font-size:19px; font-weight:700;">{{ d.num }}</span>
+              <span style="font-size:11px; opacity:.6;">{{ d.freeLabel }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <span style="font-size:15px; font-weight:600;">{{ dayTitle }}</span>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; max-width:620px;">
+            <sc-for list="{{ slots }}" as="s" hint-placeholder-count="4">
+              <button type="button" onClick="{{ s.toggle }}" style="{{ s.style }}">
+                <span style="{{ s.badgeStyle }}">{{ s.badge }}</span>
+                <span>{{ s.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="background:#F1EDE5; border-left:1px solid #EAE4DA; padding:36px 40px; display:flex; flex-direction:column; gap:18px;">
+        <span style="font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#8A5A1B; font-weight:600;">Kiválasztott sávok · {{ pickedCount }}</span>
+        <div style="display:flex; flex-direction:column; gap:9px;">
+          <sc-for list="{{ picked }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:11px; padding:14px 15px; border-radius:13px; background:#FAF7F2;">
+              <span style="width:24px; height:24px; border-radius:7px; background:#E8A33D; color:#1B1A17; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:700;">{{ p.n }}</span>
+              <span style="font-size:15px; flex:1;">{{ p.label }}</span>
+              <button type="button" onClick="{{ p.remove }}" style="border:none; background:none; color:#9A9388; font-size:16px; cursor:pointer;">×</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{ nonePicked }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:22px 16px; border-radius:13px; border:1.5px dashed #D8D0C3; font-size:14px; color:#9A9388; text-align:center;">Válasszon a bal oldali sávokból.</div>
+          </sc-if>
+        </div>
+        <div style="padding:18px; border-radius:14px; background:#FAF7F2; display:flex; flex-direction:column; gap:11px;">
+          <div style="display:flex; justify-content:space-between;"><span style="font-size:14px; color:#7A756C;">Elfogadandó ársáv</span><span style="font-size:14px; font-weight:600;">{{ offerRange }}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="font-size:14px; color:#7A756C;">Helyszín</span><span style="font-size:14px; font-weight:600;">{{ addressLabel }}</span></div>
+        </div>
+        <div style="margin-top:auto; display:flex; flex-direction:column; gap:12px;">
+          <label style="display:flex; align-items:flex-start; gap:10px; font-size:14px; line-height:1.45; color:#57534A; cursor:pointer;">
+            <input type="checkbox" checked="{{ terms }}" onChange="{{ toggleTerms }}" style="width:18px; height:18px; margin-top:1px; accent-color:#1B1A17;">
+            <span>Elfogadom az ársávot és az ÁSZF-et.</span>
+          </label>
+          <button type="button" onClick="{{ acceptOffer }}" style="{{ acceptBtn }}">{{ acceptLabel }}</button>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh; background:#1B1A17; display:flex; flex-direction:column;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 40px; border-bottom:1px solid #2E2B25;">
+      <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:20px; color:#FAF7F2; letter-spacing:-.02em;">VOLT<span style="color:#E8A33D;">.</span>SZEGED</div>
+      <span style="font-size:14px; color:#8E8779;">{{ doneRef }}</span>
+    </div>
+    <div style="flex:1; max-width:1180px; margin:0 auto; width:100%; display:grid; grid-template-columns:1.1fr .9fr; gap:56px; padding:56px 40px;">
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div style="width:64px; height:64px; border-radius:20px; background:#E8A33D; color:#1B1A17; display:flex; align-items:center; justify-content:center; font-size:30px;">✓</div>
+        <h2 style="margin:0; font-family:'Familjen Grotesk',sans-serif; font-size:48px; line-height:1.02; letter-spacing:-.035em; color:#FAF7F2;">Megvan!<br>Elfogadta az ajánlatot.</h2>
+        <p style="margin:0; font-size:18px; line-height:1.55; color:#A9A296; max-width:520px;">{{ doneLead }}</p>
+        <div style="display:flex; flex-direction:column; padding-left:6px; margin-top:4px;">
+          <div style="display:flex; gap:18px;"><div style="display:flex; flex-direction:column; align-items:center;"><span style="width:15px; height:15px; border-radius:50%; background:#E8A33D;"></span><span style="width:2px; flex:1; background:#E8A33D;"></span></div><div style="padding-bottom:24px; display:flex; flex-direction:column; gap:3px;"><span style="font-size:16.5px; font-weight:600; color:#FAF7F2;">Ajánlat elfogadva</span><span style="font-size:14px; color:#8E8779;">{{ doneTime }}</span></div></div>
+          <div style="display:flex; gap:18px;"><div style="display:flex; flex-direction:column; align-items:center;"><span style="width:15px; height:15px; border-radius:50%; border:2.5px solid #E8A33D; background:#1B1A17;"></span><span style="width:2px; flex:1; background:#33302A;"></span></div><div style="padding-bottom:24px; display:flex; flex-direction:column; gap:3px;"><span style="font-size:16.5px; font-weight:600; color:#FAF7F2;">Időpont megerősítése</span><span style="font-size:14px; color:#E8A33D;">folyamatban · max. 2 óra</span></div></div>
+          <div style="display:flex; gap:18px;"><div style="display:flex; flex-direction:column; align-items:center;"><span style="width:15px; height:15px; border-radius:50%; border:2.5px solid #33302A;"></span><span style="width:2px; flex:1; background:#33302A;"></span></div><div style="padding-bottom:24px; display:flex; flex-direction:column; gap:3px;"><span style="font-size:16.5px; color:#8E8779;">Szerelő úton</span><span style="font-size:14px; color:#6B6559;">értesítés indulás előtt</span></div></div>
+          <div style="display:flex; gap:18px;"><div style="display:flex; flex-direction:column; align-items:center;"><span style="width:15px; height:15px; border-radius:50%; border:2.5px solid #33302A;"></span></div><div style="display:flex; flex-direction:column; gap:3px;"><span style="font-size:16.5px; color:#8E8779;">Elvégezve &amp; számlázva</span><span style="font-size:14px; color:#6B6559;">e-számla e-mailben</span></div></div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="padding:24px; border-radius:18px; background:#26241F; display:flex; flex-direction:column; gap:14px;">
+          <div style="display:flex; justify-content:space-between;"><span style="font-size:14.5px; color:#8E8779;">Munkaszám</span><span style="font-size:14.5px; color:#FAF7F2; font-weight:600;">{{ doneRef }}</span></div>
+          <div style="height:1px; background:#33302A;"></div>
+          <div style="display:flex; justify-content:space-between;"><span style="font-size:14.5px; color:#8E8779;">Elfogadott ársáv</span><span style="font-size:14.5px; color:#FAF7F2; font-weight:600;">{{ offerRange }}</span></div>
+          <div style="height:1px; background:#33302A;"></div>
+          <div style="display:flex; justify-content:space-between;"><span style="font-size:14.5px; color:#8E8779;">Helyszín</span><span style="font-size:14.5px; color:#FAF7F2; font-weight:600;">{{ addressLabel }}</span></div>
+          <div style="height:1px; background:#33302A;"></div>
+          <div style="display:flex; justify-content:space-between;"><span style="font-size:14.5px; color:#8E8779;">Kapcsolattartó</span><span style="font-size:14.5px; color:#FAF7F2; font-weight:600;">{{ contactName }}</span></div>
+        </div>
+        <div style="padding:24px; border-radius:18px; background:#26241F; display:flex; flex-direction:column; gap:13px;">
+          <span style="font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#8E8779; font-weight:600;">Megjelölt sávok</span>
+          <sc-for list="{{ picked }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:12px;"><span style="width:24px; height:24px; border-radius:7px; background:#3D392F; color:#E8A33D; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:700;">{{ p.n }}</span><span style="font-size:15px; color:#C9C2B4;">{{ p.label }}</span></div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto; display:flex; gap:12px;">
+          <button type="button" onClick="{{ newRequest }}" style="flex:1; height:54px; border-radius:13px; border:1.5px solid #3D392F; background:none; color:#FAF7F2; font-size:16px; font-weight:600; cursor:pointer;">Új ajánlatkérés</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; left:50%; bottom:26px; transform:translateX(-50%); z-index:60; padding:14px 22px; border-radius:12px; background:#1B1A17; color:#FAF7F2; font-size:15px; font-weight:500; box-shadow:0 14px 40px rgba(27,26,23,.35);">{{ toast }}</div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;contactName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Novák Ádám&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cégadatok&quot;},&quot;contactPhone&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;+36 30 254 9290&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cégadatok&quot;},&quot;calloutFee&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6900,&quot;min&quot;:0,&quot;max&quot;:20000,&quot;step&quot;:100,&quot;unit&quot;:&quot;Ft&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Árazás&quot;},&quot;urgencySurcharge&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:30,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Árazás&quot;},&quot;requireThreeSlots&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Foglalás&quot;}}">
+const CFG = Object.assign({
+  quoteEndpoint: null, maxPhotos: 5, photoMaxEdge: 1600,
+  quotesPerDay: 5, quotesPerHour: 3, minGapSeconds: 25
+}, window.VOLT_CONFIG || {});
+
+// --- kliensoldali kérés-korlát -------------------------------------------
+// Ez NEM biztonsági határ (a böngésző tárolója üríthető) — a célja az, hogy a
+// véletlen és a lusta visszaélés ne generáljon API-hívást. A valódi limit a
+// szerveren van, lásd RATE_LIMIT.md.
+const RLKEY = 'voltszeged.rl.v1';
+function rlRead() {
+  try { const r = JSON.parse(localStorage.getItem(RLKEY) || '{}'); return { day: r.day || '', count: +r.count || 0, hour: r.hour || '', hcount: +r.hcount || 0, last: +r.last || 0 }; }
+  catch (e) { return { day: '', count: 0, hour: '', hcount: 0, last: 0 }; }
+}
+function rlWrite(r) { try { localStorage.setItem(RLKEY, JSON.stringify(r)); } catch (e) {} }
+function rlStamp() { const d = new Date(); return { day: d.toISOString().slice(0, 10), hour: d.toISOString().slice(0, 13) }; }
+function rlCheck() {
+  const now = Date.now(), st = rlStamp(), r = rlRead();
+  if (r.day !== st.day) { r.count = 0; r.day = st.day; }
+  if (r.hour !== st.hour) { r.hcount = 0; r.hour = st.hour; }
+  const gap = CFG.minGapSeconds * 1000 - (now - r.last);
+  if (r.last && gap > 0) return { ok: false, msg: 'Egy pillanat — ' + Math.ceil(gap / 1000) + ' másodperc múlva kérhet új becslést.' };
+  if (r.count >= CFG.quotesPerDay) return { ok: false, msg: 'Ma már ' + CFG.quotesPerDay + ' árbecslést kért. Ha továbbra is segítségre van szüksége, hívjon minket.' };
+  if (r.hcount >= CFG.quotesPerHour) return { ok: false, msg: 'Rövid időn belül több becslést kért. Próbálja újra egy óra múlva, vagy hívjon minket.' };
+  return { ok: true, msg: '' };
+}
+function rlBump() {
+  const st = rlStamp(), r = rlRead();
+  if (r.day !== st.day) { r.count = 0; r.day = st.day; }
+  if (r.hour !== st.hour) { r.hcount = 0; r.hour = st.hour; }
+  rlWrite({ day: st.day, count: r.count + 1, hour: st.hour, hcount: r.hcount + 1, last: Date.now() });
+}
+
+const CATS = ['Hibaelhárítás','Konnektor / kapcsoló','Lámpa felszerelés','Felújítás','Elosztószekrény','Kaputelefon'];
+const DOW = ['Vas','Hét','Kedd','Sze','Csüt','Pén','Szo'];
+const DOWLONG = ['vasárnap','hétfő','kedd','szerda','csütörtök','péntek','szombat'];
+const MON = ['jan.','febr.','márc.','ápr.','máj.','jún.','júl.','aug.','szept.','okt.','nov.','dec.'];
+const TIMES = ['8:00–10:00','10:00–12:00','13:00–15:00','15:00–17:00'];
+const STATUS = [
+  { key:'uj', label:'Új ajánlat', bg:'#F3E7D2', fg:'#8A5A1B' },
+  { key:'elfogadva', label:'Elfogadva', bg:'#E2EDE4', fg:'#3F7D4E' },
+  { key:'kesz', label:'Kész', bg:'#E9E4DA', fg:'#57534A' },
+  { key:'szamlazva', label:'Számlázva', bg:'#1B1A17', fg:'#FAF7F2' }
+];
+const KEY = 'voltszeged.orders.v1';
+const PKEY = 'voltszeged.pricing.v1';
+
+const DEFAULT_RULES = (window.VOLT_PRICING && window.VOLT_PRICING.rules) || [];
+const DEFAULT_GLOB = (window.VOLT_PRICING && window.VOLT_PRICING.glob) || { callout:0, hourly:0, urgency:0, materialPct:0, minFee:0 };
+const GLOB_META = [];
+
+function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
+function ft(n) { return Math.round(n).toLocaleString('hu-HU').replace(/,/g, ' ') + ' Ft'; }
+function rng(a, b) { return a === b ? ft(a) : ft(a) + ' – ' + ft(b); }
+function iso(d) { return d.toISOString().slice(0, 10); }
+
+class Component extends DCLogic {
+  state = {
+    view: 'home', step: 1,
+    cat: 'Hibaelhárítás', desc: '', photos: [], address: '', urgency: 'week',
+    custName: '', custPhone: '',
+    est: null, estimating: false, aiUsed: false,
+    daySel: 0, picked: [], terms: false,
+    orders: [], curId: null, filter: 'mind', search: '', noteDraft: '', toast: '', doneRef: '', doneTime: '',
+    rules: DEFAULT_RULES, glob: DEFAULT_GLOB
+  };
+
+  componentDidMount() {
+    this.days = this.buildDays();
+    let orders = [];
+    try { orders = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { orders = []; }
+    if (!Array.isArray(orders) || !orders.length) orders = this.seed();
+    let rules = DEFAULT_RULES, glob = Object.assign({}, DEFAULT_GLOB, {
+      callout: this.props.calloutFee ?? DEFAULT_GLOB.callout,
+      urgency: this.props.urgencySurcharge ?? DEFAULT_GLOB.urgency
+    });
+    try {
+      const p = JSON.parse(localStorage.getItem(PKEY) || 'null');
+      if (p && Array.isArray(p.rules) && p.rules.length) { rules = p.rules; glob = Object.assign(glob, p.glob || {}); }
+    } catch (e) {}
+    this.setState({ orders, rules, glob });
+  }
+
+  savePricing(rules, glob) {
+    this.setState({ rules, glob });
+    try { localStorage.setItem(PKEY, JSON.stringify({ rules, glob })); } catch (e) {}
+  }
+
+  // ---------- naptár ----------
+  buildDays() {
+    const out = []; const base = new Date(); base.setHours(0, 0, 0, 0);
+    for (let i = 1; out.length < 10; i++) {
+      const d = new Date(base.getTime() + i * 86400000);
+      if (d.getDay() === 0) continue;
+      const key = iso(d);
+      const slots = TIMES.map((t, k) => ({ id: key + '|' + k, time: t, free: hash(key + k) % 5 !== 0 }));
+      out.push({ iso: key, date: d, dow: DOW[d.getDay()], long: DOWLONG[d.getDay()], num: d.getDate(), mon: MON[d.getMonth()], slots });
+    }
+    return out;
+  }
+  slotLabel(id) {
+    const [k, i] = id.split('|');
+    const d = this.days.find(x => x.iso === k);
+    if (!d) return id;
+    return d.mon + ' ' + d.num + '. ' + d.long + ' · ' + TIMES[+i];
+  }
+
+  // ---------- árbecslés ----------
+  glob() { return this.state.glob || DEFAULT_GLOB; }
+  callout() { return this.glob().callout; }
+
+  matchRules(text) {
+    const t = (text || '').toLowerCase();
+    const g = this.glob();
+    const m = 1 + (+g.materialPct || 0) / 100;
+    const out = [];
+    (this.state.rules || []).forEach(r => {
+      if (!r.active) return;
+      const kws = String(r.keywords || '').split(',').map(x => x.trim().toLowerCase()).filter(Boolean);
+      if (!kws.some(k => t.indexOf(k) >= 0)) return;
+      out.push({ label: r.label, note: r.note || '', min: Math.round((+r.min || 0) * m), max: Math.round((+(r.max || r.min) || 0) * m) });
+    });
+    return out;
+  }
+
+  estimateFor(text, urgency) {
+    const g = this.glob();
+    const items = this.matchRules(text);
+    const matched = items.length;
+    if (!matched) items.push({ label: 'Helyszíni felmérés, hibafeltárás', note: '1 óra · a leírás alapján még pontosítjuk', min: g.hourly, max: Math.round(g.hourly * 1.5) });
+    items.push({ label: 'Kiszállás Szegeden belül', note: 'fix díj', min: g.callout, max: g.callout });
+    let min = items.reduce((a, i) => a + i.min, 0);
+    let max = items.reduce((a, i) => a + i.max, 0);
+    if (max === min) max = Math.round(min * 1.18);
+    if (min < g.minFee) { min = g.minFee; if (max < min) max = Math.round(min * 1.18); }
+    if (urgency === 'today') {
+      const s = 1 + (+g.urgency || 0) / 100;
+      min = Math.round(min * s); max = Math.round(max * s);
+      items.push({ label: 'Sürgősségi felár (' + g.urgency + '%)', note: '24 órán belüli kiszállás', min: 0, max: 0, surcharge: true });
+    }
+    return { items, min, max, matched };
+  }
+
+  localEstimate() {
+    const t = (this.state.desc + ' ' + this.state.cat).toLowerCase();
+    const has = w => t.indexOf(w) >= 0;
+    const r = this.estimateFor(t, this.state.urgency);
+    const items = r.items; let min = r.min, max = r.max;
+    const bits = [];
+    if (this.state.photos.length) bits.push(this.state.photos.length + ' feltöltött fotó');
+    if (has('40 éves') || has('régi') || has('alumínium')) bits.push('régi, feltehetően alumínium vezeték');
+    if (has('barnult') || has('megégett') || has('szikráz')) bits.push('hőterhelés nyoma a szerelvénynél');
+    if (has('bojler')) bits.push('a bojler valószínűleg megosztott áramkörön van');
+    const reasoning = bits.length
+      ? 'Figyelembe vettük: ' + bits.join(' · ') + '. A végleges ár a helyszíni bontás után pontosítható.'
+      : 'A becslés a megadott leírás és a kategória tipikus munkaidő- és anyagigénye alapján készült. Fotókkal jelentősen pontosítható.';
+    return { items, min, max, reasoning, confidence: this.accuracy() / 100 };
+  }
+  accuracy() {
+    let a = 22;
+    a += Math.min(34, Math.round(this.state.desc.trim().length / 5));
+    a += Math.min(30, this.state.photos.length * 15);
+    if (this.state.address.trim().length > 6) a += 8;
+    if (this.state.cat) a += 6;
+    return Math.max(12, Math.min(96, a));
+  }
+
+  async runAI() {
+    // A pontosított (AI) becslés kizárólag szerveroldalon fut. Amíg nincs
+    // beállítva végpont, a kulcsszavas motor eredménye marad érvényben —
+    // ez a tervezett fallback, a felhasználó nem lát hibát.
+    const base = this.localEstimate();
+    const url = CFG.quoteEndpoint;
+    if (!url) { this.setState({ est: base, estimating: false, aiUsed: false }); return; }
+    this.setState({ est: base, estimating: true, aiUsed: false });
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000);
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: ctrl.signal,
+        body: JSON.stringify({
+          cat: this.state.cat,
+          desc: this.state.desc,
+          urgency: this.state.urgency,
+          address: this.state.address,
+          phone: this.state.custPhone,
+          photos: this.state.photos,
+          token: (window.VOLT_TURNSTILE_TOKEN || null)
+        })
+      });
+      if (!res.ok) throw new Error('http ' + res.status);
+      const p = await res.json();
+      if (!p || !Array.isArray(p.items) || !p.items.length) throw new Error('üres');
+      const items = p.items.map(i => ({ label: String(i.label || 'Tétel'), note: String(i.note || ''), min: +i.min || 0, max: +i.max || +i.min || 0 }));
+      let min = items.reduce((a, i) => a + i.min, 0);
+      let max = items.reduce((a, i) => a + i.max, 0);
+      if (max <= min) max = Math.round(min * 1.18);
+      this.setState({ est: { items, min, max, reasoning: p.reasoning || base.reasoning, confidence: this.accuracy() / 100 }, estimating: false, aiUsed: true });
+    } catch (e) {
+      this.setState({ estimating: false });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  // ---------- perzisztencia ----------
+  save(orders) {
+    try { localStorage.setItem(KEY, JSON.stringify(orders)); }
+    catch (e) { this.flash('A böngésző tárhelye betelt — ezt a lépést nem sikerült elmenteni.'); }
+    this.setState({ orders });
+  }
+  seed() { return []; }
+
+  weekDays() {
+    const base = new Date(); base.setHours(0, 0, 0, 0);
+    const dow = base.getDay() === 0 ? 7 : base.getDay();
+    const mon = new Date(base.getTime() - (dow - 1) * 86400000 + this.state.calWeek * 7 * 86400000);
+    const out = [];
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(mon.getTime() + i * 86400000);
+      out.push({ iso: iso(d), date: d, dow: DOW[d.getDay()], num: d.getDate(), mon: MON[d.getMonth()], isToday: iso(d) === iso(base) });
+    }
+    return out;
+  }
+  slotBookings(slotId) {
+    const conf = this.state.orders.find(o => o.confirmed === slotId);
+    const pend = this.state.orders.filter(o => !o.confirmed && (o.slots || []).indexOf(slotId) >= 0);
+    return { conf, pend };
+  }
+
+  cur() { return this.state.orders.find(o => o.id === this.state.curId) || null; }
+  patch(fn) {
+    const orders = this.state.orders.map(o => (o.id === this.state.curId ? fn(Object.assign({}, o)) : o));
+    this.save(orders);
+  }
+  flash(msg) { this.setState({ toast: msg }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: '' }), 2600); }
+
+  renderVals() {
+    const s = this.state;
+    if (!this.days) this.days = this.buildDays();
+    const contactName = this.props.contactName ?? 'Novák Ádám';
+    const contactPhone = this.props.contactPhone ?? '+36 30 254 9290';
+    const contactFirst = contactName.split(' ').slice(-1)[0];
+    const initials = contactName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const needThree = this.props.requireThreeSlots ?? true;
+    const minSlots = needThree ? 3 : 1;
+
+    const chipDark = a => 'padding:9px 15px; border-radius:100px; border:none; cursor:pointer; font-size:14px; font-weight:' + (a ? '600' : '400') + '; background:' + (a ? '#E8A33D' : '#2E2B25') + '; color:' + (a ? '#1B1A17' : '#C9C2B4') + ';';
+    const chipLight = a => 'padding:11px 18px; border-radius:100px; cursor:pointer; font-size:15px; font-weight:' + (a ? '600' : '400') + '; background:' + (a ? '#1B1A17' : 'transparent') + '; color:' + (a ? '#FAF7F2' : '#57534A') + '; border:1.5px solid ' + (a ? '#1B1A17' : '#E3DCD1') + ';';
+    const stepDot = a => 'width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:700; background:' + (a ? '#1B1A17' : 'transparent') + '; color:' + (a ? '#FAF7F2' : '#9A9388') + '; border:1.5px solid ' + (a ? '#1B1A17' : '#D8D0C3') + ';';
+    const sw = a => 'padding:9px 15px; border-radius:9px; border:none; cursor:pointer; font-size:13.5px; font-weight:600; background:' + (a ? '#E8A33D' : 'transparent') + '; color:' + (a ? '#1B1A17' : '#8E8779') + ';';
+
+    const est = s.est || this.localEstimate();
+    const live = this.localEstimate();
+    const acc = this.accuracy();
+
+    const tips = [];
+    if (s.photos.length < 2) tips.push({ text: 'Töltsön fel még egy fotót — pl. a biztosítéktábláról' });
+    if (s.desc.trim().length < 60) tips.push({ text: 'Írja le, mióta és milyen gyakran jelentkezik a hiba' });
+    if (!s.address.trim()) tips.push({ text: 'Adja meg a pontos címet a kiszállási díjhoz' });
+    if (!tips.length) tips.push({ text: 'Minden megvan — az ársáv ennél pontosabb már csak a helyszínen lesz' });
+
+    const day = this.days[s.daySel] || this.days[0];
+    const picked = s.picked.map((id, i) => ({ n: i + 1, label: this.slotLabel(id), remove: () => this.setState({ picked: s.picked.filter(x => x !== id) }) }));
+
+    // CRM
+    const rowsAll = s.orders;
+    const q = s.search.trim().toLowerCase();
+    const filtered = rowsAll.filter(o => (s.filter === 'mind' || o.status === s.filter) &&
+      (!q || (o.name + ' ' + o.address + ' ' + o.desc + ' ' + o.ref).toLowerCase().indexOf(q) >= 0));
+    const totalOf = o => o.items.reduce((a, i) => a + (i.final != null ? +i.final : i.min), 0);
+    const aiMin = o => o.items.reduce((a, i) => a + i.min, 0);
+    const aiMax = o => o.items.reduce((a, i) => a + (i.max || i.min), 0);
+    const badge = k => { const st = STATUS.find(x => x.key === k) || STATUS[0]; return { st, style: 'justify-self:start; padding:5px 11px; border-radius:100px; font-size:12.5px; font-weight:600; background:' + st.bg + '; color:' + st.fg + ';' }; };
+
+    const rows = filtered.map(o => {
+      const b = badge(o.status);
+      const conf = o.confirmed ? this.slotLabel(o.confirmed) : null;
+      return {
+        ref: o.ref.replace('VS-2026-', 'VS-'), name: o.name, phone: o.phone,
+        work: o.desc.length > 64 ? o.desc.slice(0, 62) + '…' : o.desc,
+        addr: o.address.replace('Szeged, ', ''),
+        when: conf ? conf.split(' · ')[0] : (o.slots.length ? o.slots.length + ' sáv megjelölve' : '—'),
+        whenSub: conf ? 'megerősítve' : (o.slots.length ? 'visszaigazolásra vár' : 'nincs időpont'),
+        whenSubStyle: 'font-size:12.5px; font-weight:600; color:' + (conf ? '#3F7D4E' : '#C4711A') + ';',
+        value: o.status === 'uj' ? rng(aiMin(o), aiMax(o)) : ft(totalOf(o)),
+        valueSub: o.status === 'uj' ? 'AI becslés' : 'véglegesítve',
+        status: b.st.label, badgeStyle: b.style,
+        rowStyle: 'display:grid; grid-template-columns:110px 1.4fr 1.7fr 150px 150px 130px 110px; padding:16px 28px; border-bottom:1px solid #EFEAE1; align-items:center; cursor:pointer; background:' + (o.status === 'uj' ? '#F6F1E8' : 'transparent') + ';',
+        open: () => this.setState({ view: 'crmDetail', curId: o.id })
+      };
+    });
+
+    const cur = this.cur();
+    let d = {};
+    if (cur) {
+      const b = badge(cur.status);
+      const fin = totalOf(cur);
+      const over = fin > aiMax(cur);
+      const under = fin < aiMin(cur);
+      d = {
+        dTitle: cur.ref + ' · ' + cur.name,
+        dStatus: b.st.label, dBadgeStyle: 'padding:5px 11px; border-radius:100px; font-size:12.5px; font-weight:600; background:' + b.st.bg + '; color:' + b.st.fg + ';',
+        dSub: cur.phone + ' · beérkezett ' + cur.created,
+        dDesc: '„' + cur.desc + '”',
+        dPhotoLabel: cur.photos.length ? 'Fotók (' + cur.photos.length + ')' : 'Nem töltött fel fotót',
+        dPhotos: cur.photos.map((u, i) => ({ i, thumbStyle: 'width:118px; height:96px; border-radius:12px; background:#E4DFD3 center/cover no-repeat url(' + u + ');' })),
+        dReasoning: cur.reasoning,
+        dConfidence: 'megbízhatóság ' + (cur.confidence != null ? cur.confidence.toFixed(2) : '0.74') + ' · ' + (cur.photos.length || 0) + ' fotó alapján',
+        dAddress: cur.address,
+        dAiRange: rng(aiMin(cur), aiMax(cur)),
+        dFinalTotal: ft(fin),
+        dItems: cur.items.map((it, idx) => ({
+          label: it.label, ai: it.max && it.max !== it.min ? ft(it.min) + '–' + ft(it.max) : ft(it.min),
+          final: it.final != null ? it.final : it.min,
+          rowStyle: 'display:grid; grid-template-columns:1fr 110px 130px; padding:11px 16px; border-top:1px solid #EFEAE1; align-items:center;',
+          inputStyle: 'width:112px; height:34px; border-radius:8px; padding:0 10px; font-size:14px; font-weight:600; color:#1B1A17; background:#fff; border:1.5px solid ' + ((it.final != null && it.final !== it.min) ? '#E8A33D' : '#E3DCD1') + ';',
+          change: e => { const v = +e.target.value || 0; this.patch(o => { o.items = o.items.map((x, i) => (i === idx ? Object.assign({}, x, { final: v }) : x)); return o; }); }
+        })),
+        dDeltaBoxStyle: 'padding:14px 16px; border-radius:13px; display:flex; flex-direction:column; gap:10px; background:' + (over ? '#F3E7D2' : '#F1EDE5') + ';',
+        dDeltaText: over
+          ? 'A végösszeg ' + ft(fin - aiMax(cur)) + '-tal a közölt ársáv felett van — az ügyfélnek jóvá kell hagynia a módosítást.'
+          : (under ? 'A végösszeg a sáv alatt van, az ügyfél kedvezőbb árat kap. Nem szükséges jóváhagyás.' : 'A végösszeg a közölt ársávon belül van — mehet a munka jóváhagyás nélkül.'),
+        dLearnNote: 'A javítás visszatanul: a módosított tételárak bekerülnek a jövőbeli becslések alapadatai közé.',
+        dSlots: cur.slots.map((id, i) => {
+          const chosen = cur.confirmed === id;
+          const free = hash(id) % 7 !== 0;
+          return { n: i + 1, label: this.slotLabel(id),
+            style: 'display:flex; align-items:center; gap:11px; padding:13px 14px; border-radius:12px; cursor:pointer; background:' + (chosen ? '#fff' : 'transparent') + '; border:1.5px solid ' + (chosen ? '#1B1A17' : '#E3DCD1') + ';',
+            numStyle: 'width:21px; height:21px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; background:' + (chosen ? '#E8A33D' : '#EDE7DC') + '; color:' + (chosen ? '#1B1A17' : '#57534A') + ';',
+            tag: chosen ? 'megerősítve' : (free ? 'szabad' : 'ütközés'),
+            tagStyle: 'font-size:12.5px; font-weight:600; color:' + (chosen ? '#1B1A17' : (free ? '#3F7D4E' : '#C4711A')) + ';',
+            choose: () => { this.patch(o => { o.confirmed = id; if (o.status === 'uj') o.status = 'elfogadva'; return o; }); this.flash('Időpont megerősítve · értesítés kiküldve'); } };
+        }),
+        dNotes: (cur.notes || []).map(n => ({ ini: n.ini, text: n.text, meta: n.meta })),
+        confirmBtnLabel: cur.confirmed ? 'Időpont megerősítve ✓' : (cur.slots.length ? '1. sáv megerősítése' : 'Nincs megjelölt időpont'),
+        confirmBtnStyle: 'height:40px; padding:0 16px; border-radius:10px; border:none; font-size:14px; font-weight:600; cursor:' + (cur.slots.length ? 'pointer' : 'not-allowed') + '; background:' + (cur.confirmed ? '#E2EDE4' : '#1B1A17') + '; color:' + (cur.confirmed ? '#3F7D4E' : '#FAF7F2') + '; opacity:' + (cur.slots.length ? '1' : '.5') + ';'
+      };
+    }
+
+    const canAccept = s.picked.length >= minSlots && s.terms;
+
+    return Object.assign({
+      contactName, contactPhone, contactFirst, contactInitials: initials,
+      telHref: 'tel:' + contactPhone.replace(/\s/g, ''),
+      calloutLabel: ft(this.callout()),
+      teaserRange: rng(live.min, live.max),
+
+      isHome: s.view === 'home', isWizard: s.view === 'wizard', isDone: s.view === 'done',
+      isStep1: s.step === 1, isStep2: s.step === 2, isStep3: s.step === 3,
+      st1: stepDot(s.step >= 1), st2: stepDot(s.step >= 2), st3: stepDot(s.step >= 3),
+      swPublic: sw(s.view !== 'crm' && s.view !== 'crmDetail'), swCrm: sw(s.view === 'crm' || s.view === 'crmDetail'),
+
+      cats: CATS.map(name => ({ name, darkStyle: chipDark(name === s.cat), lightStyle: chipLight(name === s.cat),
+        pick: () => this.setState({ cat: name }), pickAndStart: () => this.setState({ cat: name, view: 'wizard', step: 1 }) })),
+
+      goHome: () => this.setState({ view: 'home' }),
+      goPublic: () => this.setState({ view: s.doneRef ? 'done' : 'home' }),
+      goCrm: () => this.setState({ view: 'crm' }),
+      startFlow: () => this.setState({ view: 'wizard', step: 1 }),
+      newRequest: () => this.setState({ view: 'wizard', step: 1, desc: '', photos: [], picked: [], terms: false, est: null, doneRef: '', custName: '', custPhone: '', address: '', cat: CATS[0], urgency: 'week', aiUsed: false, daySel: 0 }),
+
+      desc: s.desc, descLen: s.desc.length + ' karakter',
+      descHint: s.desc.trim().length < 40 ? 'Minél részletesebb, annál pontosabb az ár' : 'Szép — ez már elég a becsléshez',
+      descPreview: s.desc.trim() ? '„' + s.desc.trim() + '”' : 'Nem adott meg leírást.',
+      setDesc: e => this.setState({ desc: e.target.value }),
+      address: s.address, addressLabel: s.address.trim() || 'Szeged (pontosítandó)',
+      setAddr: e => this.setState({ address: e.target.value }),
+      custName: s.custName, setName: e => this.setState({ custName: e.target.value }),
+      custPhone: s.custPhone, setPhone: e => this.setState({ custPhone: e.target.value }),
+      cat: s.cat,
+      urgencyLabel: s.urgency === 'today' ? 'Ma / holnap (+' + (this.props.urgencySurcharge ?? 30) + '%)' : 'Ezen a héten',
+      urgWeek: () => this.setState({ urgency: 'week' }), urgToday: () => this.setState({ urgency: 'today' }),
+      urgWeekStyle: 'flex:1; height:52px; border-radius:13px; cursor:pointer; font-size:15px; font-weight:600; border:1.5px solid ' + (s.urgency === 'week' ? '#1B1A17' : '#E3DCD1') + '; background:' + (s.urgency === 'week' ? '#1B1A17' : '#fff') + '; color:' + (s.urgency === 'week' ? '#FAF7F2' : '#57534A') + ';',
+      urgTodayStyle: 'flex:1; height:52px; border-radius:13px; cursor:pointer; font-size:15px; font-weight:600; border:1.5px solid ' + (s.urgency === 'today' ? '#1B1A17' : '#E3DCD1') + '; background:' + (s.urgency === 'today' ? '#1B1A17' : '#fff') + '; color:' + (s.urgency === 'today' ? '#FAF7F2' : '#57534A') + ';',
+
+      photos: s.photos.map((url, i) => ({
+        thumbStyle: 'width:140px; height:110px; border-radius:13px; position:relative; overflow:hidden; background:#EDE7DC center/cover no-repeat url(' + url + ');',
+        previewStyle: 'width:112px; height:88px; border-radius:11px; background:#EDE7DC center/cover no-repeat url(' + url + ');',
+        remove: () => this.setState({ photos: s.photos.filter((_, k) => k !== i) })
+      })),
+      photoHint: s.photos.length ? s.photos.length + ' feltöltve · minél több szög, annál pontosabb' : 'Még nincs fotó · a becslés pontosságát nagyban javítja',
+      addPhotos: e => {
+        const room = Math.max(0, CFG.maxPhotos - s.photos.length);
+        const all = Array.from(e.target.files || []);
+        const files = all.slice(0, room);
+        if (all.length > files.length) this.flash('Legfeljebb ' + CFG.maxPhotos + ' fotót tölthet fel.');
+        files.forEach(f => {
+          if (!/^image\//.test(f.type)) return this.flash('Csak képfájlt lehet feltölteni.');
+          const r = new FileReader();
+          r.onload = () => {
+            const img = new Image();
+            img.onload = () => {
+              const max = CFG.photoMaxEdge, sc = Math.min(1, max / Math.max(img.width, img.height));
+              const cv = document.createElement('canvas');
+              cv.width = Math.max(1, Math.round(img.width * sc));
+              cv.height = Math.max(1, Math.round(img.height * sc));
+              cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+              let out; try { out = cv.toDataURL('image/jpeg', 0.7); } catch (err) { out = r.result; }
+              this.setState(st => ({ photos: st.photos.concat([out]).slice(0, CFG.maxPhotos) }));
+            };
+            img.onerror = () => this.setState(st => ({ photos: st.photos.concat([r.result]).slice(0, CFG.maxPhotos) }));
+            img.src = r.result;
+          };
+          r.readAsDataURL(f);
+        });
+        e.target.value = '';
+      },
+
+      liveRange: rng(live.min, live.max),
+      accPct: acc, accPctLabel: acc + '%',
+      accLabel: acc < 45 ? 'Pontosság: alacsony' : (acc < 75 ? 'Pontosság: közepes' : 'Pontosság: magas'),
+      tips,
+      nextLabel: s.desc.trim().length < 10 ? 'Írjon pár szót a hibáról' : 'Részletes ajánlat →',
+      nextBtn: 'height:56px; border-radius:13px; border:none; font-size:16.5px; font-weight:600; background:#1B1A17; color:#FAF7F2; cursor:' + (s.desc.trim().length < 10 ? 'not-allowed' : 'pointer') + '; opacity:' + (s.desc.trim().length < 10 ? '.45' : '1') + ';',
+      toOffer: () => {
+        if (s.desc.trim().length < 10) return this.flash('Írjon pár szót arról, mi a feladat.');
+        const rl = rlCheck();
+        if (!rl.ok) return this.flash(rl.msg);
+        rlBump();
+        this.setState({ step: 2 });
+        this.runAI();
+      },
+      backToStep1: () => this.setState({ step: 1 }),
+
+      estHeading: s.estimating ? '⌁ AI elemzés folyamatban…' : (s.aiUsed ? '⌁ AI becsült ár' : '⌁ Becsült ár'),
+      offerRange: s.estimating ? 'Számoljuk…' : rng(est.min, est.max),
+      offerItems: est.items.filter(i => !i.surcharge).map(i => ({ label: i.label, note: i.note, price: i.max && i.max !== i.min ? ft(i.min) + ' – ' + ft(i.max) : ft(i.min) })),
+      reasoning: est.reasoning,
+      toSchedule: () => this.setState({ step: 3 }),
+
+      slotInstruction: needThree ? 'Jelöljön meg 3 alkalmas sávot — ' + contactFirst + ' ezek közül erősít meg egyet 2 órán belül.' : 'Válasszon egy Önnek megfelelő sávot.',
+      days: this.days.map((dd, i) => ({
+        dow: dd.dow, num: dd.num, freeLabel: dd.slots.filter(x => x.free).length + ' sáv',
+        style: 'display:flex; flex-direction:column; align-items:center; gap:1px; width:74px; padding:11px 0; border-radius:13px; cursor:pointer; border:1.5px solid ' + (i === s.daySel ? '#1B1A17' : '#E3DCD1') + '; background:' + (i === s.daySel ? '#1B1A17' : '#fff') + '; color:' + (i === s.daySel ? '#FAF7F2' : '#1B1A17') + ';',
+        pick: () => this.setState({ daySel: i })
+      })),
+      dayTitle: day.num + '. ' + day.long + ' — válasszon sávot',
+      slots: day.slots.map(sl => {
+        const idx = s.picked.indexOf(sl.id);
+        const on = idx >= 0;
+        return { label: sl.time, badge: on ? String(idx + 1) : '',
+          badgeStyle: on ? 'width:22px; height:22px; border-radius:6px; background:#E8A33D; color:#1B1A17; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;' : 'display:none;',
+          style: 'display:flex; align-items:center; justify-content:center; gap:9px; height:56px; border-radius:12px; font-size:15.5px; font-weight:' + (on ? '600' : '400') + '; cursor:' + (sl.free ? 'pointer' : 'not-allowed') + '; border:1.5px solid ' + (on ? '#1B1A17' : '#E3DCD1') + '; background:' + (on ? '#1B1A17' : (sl.free ? '#fff' : '#E8E1D6')) + '; color:' + (on ? '#FAF7F2' : (sl.free ? '#1B1A17' : '#B4ADA2')) + ';',
+          toggle: () => {
+            if (!sl.free) return this.flash('Ez a sáv már betelt.');
+            if (on) return this.setState({ picked: s.picked.filter(x => x !== sl.id) });
+            if (s.picked.length >= minSlots) return this.flash('Már ' + minSlots + ' sávot megjelölt — vegyen ki egyet.');
+            this.setState({ picked: s.picked.concat([sl.id]) });
+          } };
+      }),
+      picked, nonePicked: picked.length === 0,
+      pickedCount: s.picked.length + ' / ' + minSlots,
+      terms: s.terms, toggleTerms: () => this.setState({ terms: !s.terms }),
+      acceptLabel: s.picked.length < minSlots ? 'Válasszon még ' + (minSlots - s.picked.length) + ' sávot' : (s.terms ? 'Ajánlat elfogadása' : 'Fogadja el az ÁSZF-et'),
+      acceptBtn: 'height:58px; border-radius:13px; border:none; font-size:16.5px; font-weight:600; background:#1B1A17; color:#FAF7F2; cursor:' + (canAccept ? 'pointer' : 'not-allowed') + '; opacity:' + (canAccept ? '1' : '.45') + ';',
+      acceptOffer: () => {
+        if (!canAccept) return this.flash('Jelöljön meg ' + minSlots + ' sávot és fogadja el az ÁSZF-et.');
+        const n = 420 + s.orders.length;
+        const ref = 'VS-2026-0' + n;
+        const now = new Date();
+        const created = MON[now.getMonth()] + ' ' + now.getDate() + '. ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+        const order = { id: 'o-' + n, ref, name: s.custName.trim() || 'Új ügyfél', phone: s.custPhone.trim() || '—',
+          cat: s.cat, desc: s.desc.trim(), address: s.address.trim() || 'Szeged', photos: s.photos.slice(),
+          status: 'uj', created, items: est.items.filter(i => !i.surcharge).map(i => Object.assign({}, i, { final: i.min })),
+          reasoning: est.reasoning, confidence: est.confidence, slots: s.picked.slice(), confirmed: null, notes: [] };
+        this.save([order].concat(s.orders));
+        this.setState({ view: 'done', doneRef: ref, doneTime: 'ma ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0'), curId: order.id });
+      },
+      doneRef: s.doneRef || 'VS-2026-0420',
+      doneTime: s.doneTime || 'ma',
+      doneLead: contactName + ' most nézi a naptárát, és 2 órán belül visszaigazolja a három sáv egyikét. SMS-t és e-mailt is küldünk — ez az oldal bármikor újranyitható a linkről.',
+
+      toast: s.toast, hasToast: !!s.toast
+    }, d);
+  }
+}
+</script>
+</body>
+</html>
