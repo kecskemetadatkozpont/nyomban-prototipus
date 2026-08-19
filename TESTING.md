@@ -43,7 +43,8 @@ e-mailbe. Belépés után elérhető: Munkák, Naptár, Ügyfelek, Árazási sza
 | 1 | Nyisd meg a belépő címét | Sötét bejelentkező űrlap |
 | 2 | Adj meg rossz jelszót | „Hibás felhasználónév vagy jelszó" — és minden próbálkozás után lassabban válaszol |
 | 3 | Helyes belépés | Betölt a CRM a Munkák listával |
-| 4 | Árazási szabályok | Írj át egy díjat, majd nézd meg az ügyféloldalt — az új szabály szerint számol |
+| 4 | Árazási szabályok | Írj át egy díjat, majd a jobb alsó kapcsolóval válts „Ügyfél oldal"-ra — az új szabály szerint számol |
+| 4b | Zárd be a fület, nyisd meg újra a belépőt | Újra kér jelszót, és a korábbi szerkesztések nincsenek meg — az admin munkamenet szándékosan nem marad a gépen |
 | 5 | Nyiss meg egy munkát | Fotók, tételek, végleges ár szerkeszthető |
 | 6 | Időpont megerősítése | Státusz `elfogadva`-ra vált, toast: „SMS kiküldve" (csak felirat) |
 
