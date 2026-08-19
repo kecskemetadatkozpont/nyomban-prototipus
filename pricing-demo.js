@@ -4,7 +4,7 @@
 // külön, mert amíg nincs szerveroldali árazó végpont, a becslés a böngészőben fut,
 // és enélkül nem tudna árat mutatni.
 //
-// Amint a Supabase Edge Function él:  VOLT_QUOTE_ENDPOINT=https://... node deploy/build.mjs
+// Amint a Supabase Edge Function él:  NYOMBAN_QUOTE_ENDPOINT=https://... node deploy/build.mjs
 // — ekkor ez a fájl NEM jön létre, és az árazás teljes egészében a szerveren marad.
 (function () {
   const DEFAULT_RULES = [
@@ -18,5 +18,5 @@
   { id:'r8', label:'Kültéri / IP44 szerelvény', note:'terasz, kert, nedves tér', keywords:'kültéri, terasz, kert, ip44, nedves', min:11000, max:18000, active:true }
 ];
   const DEFAULT_GLOB = { callout:6900, hourly:9900, urgency:30, materialPct:0, minFee:12000 };
-  window.VOLT_PRICING = { rules: DEFAULT_RULES, glob: DEFAULT_GLOB };
+  window.NYOMBAN_PRICING = { rules: DEFAULT_RULES, glob: DEFAULT_GLOB };
 })();

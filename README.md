@@ -1,4 +1,4 @@
-# VOLT.SZEGED — kattintható prototípus
+# NYOMBAN — kattintható prototípus
 
 Ez a repo egy **statikus prototípus** kiszolgálására szolgál (GitHub Pages).
 Nem éles rendszer: nincs backend, nincs adatbázis — amit a látogató megad, az a saját

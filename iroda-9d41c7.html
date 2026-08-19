@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <meta name="robots" content="noindex, nofollow">
-<title>VOLT.SZEGED — iroda</title>
+<title>NYOMBAN — iroda</title>
 <script>window.__resources={"https://unpkg.com/react@18.3.1/umd/react.production.min.js":"./vendor/react.production.min.js","https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js":"./vendor/react-dom.production.min.js"};</script>
 <script src="./config.js"></script>
 <script src="./support.js"></script>
@@ -34,7 +34,7 @@
 <body>
 
 <div id="gate">
-  <div class="mark">VOLT<i>.</i>SZEGED</div>
+  <div class="mark">NYOMBAN<i>.</i></div>
   <form id="f" autocomplete="off">
     <label for="u">Felhasználónév</label>
     <input id="u" name="u" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" required>
@@ -62,8 +62,8 @@
   // A localStorage-ban maradt korábbi CRM-adatot itt takarítjuk el — az a
   // publikus oldal számára is olvasható lenne, mert közös az origin.
   try {
-    localStorage.removeItem('voltszeged.orders.v1');
-    localStorage.removeItem('voltszeged.pricing.v1');
+    localStorage.removeItem('nyomban.orders.v1');
+    localStorage.removeItem('nyomban.pricing.v1');
   } catch (e) {}
 
   function b64(s) {

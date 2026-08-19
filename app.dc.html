@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VOLT.SZEGED — árajánlat 3 perc alatt</title>
+<title>NYOMBAN — árajánlat 3 perc alatt</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <script>window.__resources={"https://unpkg.com/react@18.3.1/umd/react.production.min.js":"./vendor/react.production.min.js","https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js":"./vendor/react-dom.production.min.js"};</script>
@@ -33,7 +33,7 @@
   <div>
     <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 40px; border-bottom:1px solid #EAE4DA; position:sticky; top:0; background:#FAF7F2; z-index:20;">
       <div style="display:flex; align-items:center; gap:40px;">
-        <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:21px; letter-spacing:-.02em;">VOLT<span style="color:#C4711A;">.</span>SZEGED</div>
+        <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:21px; letter-spacing:-.02em;">NYOMBAN<span style="color:#C4711A;">.</span></div>
         <div style="display:flex; gap:26px; font-size:15px; color:#57534A;"><span>Szolgáltatások</span><span>Árak</span><span>Referenciák</span><span>Rólunk</span></div>
       </div>
       <div style="display:flex; align-items:center; gap:16px;">
@@ -108,7 +108,7 @@
 
     <div style="padding:44px 40px; background:#1B1A17; display:flex; align-items:center; justify-content:space-between;">
       <div style="display:flex; flex-direction:column; gap:8px;">
-        <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:19px; color:#FAF7F2; letter-spacing:-.02em;">VOLT<span style="color:#E8A33D;">.</span>SZEGED</div>
+        <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:19px; color:#FAF7F2; letter-spacing:-.02em;">NYOMBAN<span style="color:#E8A33D;">.</span></div>
         <span style="font-size:14px; color:#8E8779;">{{ contactName }} e.v. · Szeged, Kossuth Lajos sgt. · Adószám: 12345678-1-06</span>
       </div>
       <div style="display:flex; gap:36px; font-size:14px; color:#8E8779;"><span>ÁSZF</span><span>Adatkezelés</span><span>Árlista</span><span>{{ contactPhone }}</span></div>
@@ -119,7 +119,7 @@
   <sc-if value="{{ isWizard }}" hint-placeholder-val="{{ false }}">
   <div style="min-height:100vh; display:flex; flex-direction:column;">
     <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 40px; border-bottom:1px solid #EAE4DA;">
-      <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:20px; letter-spacing:-.02em;">VOLT<span style="color:#C4711A;">.</span>SZEGED</div>
+      <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:20px; letter-spacing:-.02em;">NYOMBAN<span style="color:#C4711A;">.</span></div>
       <div style="display:flex; align-items:center; gap:18px;">
         <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st1 }}">1</span><span style="font-size:14.5px; color:#57534A;">Feladat</span></div>
         <span style="width:36px; height:1.5px; background:#E3DCD1;"></span>
@@ -325,7 +325,7 @@
   <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
   <div style="min-height:100vh; background:#1B1A17; display:flex; flex-direction:column;">
     <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 40px; border-bottom:1px solid #2E2B25;">
-      <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:20px; color:#FAF7F2; letter-spacing:-.02em;">VOLT<span style="color:#E8A33D;">.</span>SZEGED</div>
+      <div style="font-family:'Familjen Grotesk',sans-serif; font-weight:700; font-size:20px; color:#FAF7F2; letter-spacing:-.02em;">NYOMBAN<span style="color:#E8A33D;">.</span></div>
       <span style="font-size:14px; color:#8E8779;">{{ doneRef }}</span>
     </div>
     <div style="flex:1; max-width:1180px; margin:0 auto; width:100%; display:grid; grid-template-columns:1.1fr .9fr; gap:56px; padding:56px 40px;">
@@ -374,13 +374,13 @@
 const CFG = Object.assign({
   quoteEndpoint: null, maxPhotos: 5, photoMaxEdge: 1600,
   quotesPerDay: 5, quotesPerHour: 3, minGapSeconds: 25
-}, window.VOLT_CONFIG || {});
+}, window.NYOMBAN_CONFIG || {});
 
 // --- kliensoldali kérés-korlát -------------------------------------------
 // Ez NEM biztonsági határ (a böngésző tárolója üríthető) — a célja az, hogy a
 // véletlen és a lusta visszaélés ne generáljon API-hívást. A valódi limit a
 // szerveren van, lásd RATE_LIMIT.md.
-const RLKEY = 'voltszeged.rl.v1';
+const RLKEY = 'nyomban.rl.v1';
 function rlRead() {
   try { const r = JSON.parse(localStorage.getItem(RLKEY) || '{}'); return { day: r.day || '', count: +r.count || 0, hour: r.hour || '', hcount: +r.hcount || 0, last: +r.last || 0 }; }
   catch (e) { return { day: '', count: 0, hour: '', hcount: 0, last: 0 }; }
@@ -420,11 +420,11 @@ const STATUS = [
   { key:'kesz', label:'Kész', bg:'#E9E4DA', fg:'#57534A' },
   { key:'szamlazva', label:'Számlázva', bg:'#1B1A17', fg:'#FAF7F2' }
 ];
-const KEY = 'voltszeged.orders.v1';
-const PKEY = 'voltszeged.pricing.v1';
+const KEY = 'nyomban.orders.v1';
+const PKEY = 'nyomban.pricing.v1';
 
-const DEFAULT_RULES = (window.VOLT_PRICING && window.VOLT_PRICING.rules) || [];
-const DEFAULT_GLOB = (window.VOLT_PRICING && window.VOLT_PRICING.glob) || { callout:0, hourly:0, urgency:0, materialPct:0, minFee:0 };
+const DEFAULT_RULES = (window.NYOMBAN_PRICING && window.NYOMBAN_PRICING.rules) || [];
+const DEFAULT_GLOB = (window.NYOMBAN_PRICING && window.NYOMBAN_PRICING.glob) || { callout:0, hourly:0, urgency:0, materialPct:0, minFee:0 };
 const GLOB_META = [];
 
 function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
@@ -565,7 +565,7 @@ class Component extends DCLogic {
           address: this.state.address,
           phone: this.state.custPhone,
           photos: this.state.photos,
-          token: (window.VOLT_TURNSTILE_TOKEN || null)
+          token: (window.NYOMBAN_TURNSTILE_TOKEN || null)
         })
       });
       if (!res.ok) throw new Error('http ' + res.status);

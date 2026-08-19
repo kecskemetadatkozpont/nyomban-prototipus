@@ -1,4 +1,4 @@
-# VOLT.SZEGED — tesztelési forgatókönyv
+# NYOMBAN — tesztelési forgatókönyv
 
 Élő cím: a repo Settings → Pages alatt, illetve a projekt README-jében.
 

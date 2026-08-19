@@ -1,5 +1,5 @@
 // Generálva: deploy/build.mjs — kézzel ne szerkeszd.
-window.VOLT_CONFIG = {
+window.NYOMBAN_CONFIG = {
   // Szerveroldali árazó végpont. Amíg null, a becslés a böngészőben fut
   // (demó mód), és a pricing-demo.js szolgáltatja az árlistát.
   quoteEndpoint: null,
