@@ -58,6 +58,14 @@
 
   var fails = 0;
 
+  // Az admin munkamenet a sessionStorage-ban él (fül bezárásakor elszáll).
+  // A localStorage-ban maradt korábbi CRM-adatot itt takarítjuk el — az a
+  // publikus oldal számára is olvasható lenne, mert közös az origin.
+  try {
+    localStorage.removeItem('voltszeged.orders.v1');
+    localStorage.removeItem('voltszeged.pricing.v1');
+  } catch (e) {}
+
   function b64(s) {
     var bin = atob(s), out = new Uint8Array(bin.length);
     for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
@@ -102,7 +110,10 @@
     var holder = document.createElement('div');
     holder.innerHTML = html;
     while (holder.firstChild) document.body.appendChild(holder.firstChild);
-    gate.classList.add('hidden');
+    // A jelszó ne maradjon kiolvasható a DOM-ban a munkamenet hátralévő részében.
+    p.value = '';
+    u.value = '';
+    gate.remove();
     document.body.classList.add('booted');
     window.__dcBoot();
 
@@ -112,7 +123,10 @@
     out.style.cssText = 'position:fixed; right:18px; top:18px; z-index:70; height:34px; padding:0 14px;'
       + 'border-radius:9px; border:1.5px solid #E3DCD1; background:#fff; color:#1B1A17;'
       + 'font-size:13.5px; font-weight:600; cursor:pointer; width:auto;';
-    out.onclick = function () { location.reload(); };
+    out.onclick = function () {
+      try { sessionStorage.clear(); } catch (e) {}
+      location.reload();
+    };
     document.body.appendChild(out);
   }
 

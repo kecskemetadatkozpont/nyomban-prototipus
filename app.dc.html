@@ -386,7 +386,12 @@ function rlRead() {
   catch (e) { return { day: '', count: 0, hour: '', hcount: 0, last: 0 }; }
 }
 function rlWrite(r) { try { localStorage.setItem(RLKEY, JSON.stringify(r)); } catch (e) {} }
-function rlStamp() { const d = new Date(); return { day: d.toISOString().slice(0, 10), hour: d.toISOString().slice(0, 13) }; }
+function rlStamp() {
+  // Helyi naptári nap — UTC-vel a "napi" korlát nyáron hajnali 2-kor fordulna.
+  const d = new Date(), pad = n => String(n).padStart(2, '0');
+  const day = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  return { day: day, hour: day + 'T' + pad(d.getHours()) };
+}
 function rlCheck() {
   const now = Date.now(), st = rlStamp(), r = rlRead();
   if (r.day !== st.day) { r.count = 0; r.day = st.day; }
@@ -638,80 +643,7 @@ class Component extends DCLogic {
     const day = this.days[s.daySel] || this.days[0];
     const picked = s.picked.map((id, i) => ({ n: i + 1, label: this.slotLabel(id), remove: () => this.setState({ picked: s.picked.filter(x => x !== id) }) }));
 
-    // CRM
-    const rowsAll = s.orders;
-    const q = s.search.trim().toLowerCase();
-    const filtered = rowsAll.filter(o => (s.filter === 'mind' || o.status === s.filter) &&
-      (!q || (o.name + ' ' + o.address + ' ' + o.desc + ' ' + o.ref).toLowerCase().indexOf(q) >= 0));
-    const totalOf = o => o.items.reduce((a, i) => a + (i.final != null ? +i.final : i.min), 0);
-    const aiMin = o => o.items.reduce((a, i) => a + i.min, 0);
-    const aiMax = o => o.items.reduce((a, i) => a + (i.max || i.min), 0);
-    const badge = k => { const st = STATUS.find(x => x.key === k) || STATUS[0]; return { st, style: 'justify-self:start; padding:5px 11px; border-radius:100px; font-size:12.5px; font-weight:600; background:' + st.bg + '; color:' + st.fg + ';' }; };
-
-    const rows = filtered.map(o => {
-      const b = badge(o.status);
-      const conf = o.confirmed ? this.slotLabel(o.confirmed) : null;
-      return {
-        ref: o.ref.replace('VS-2026-', 'VS-'), name: o.name, phone: o.phone,
-        work: o.desc.length > 64 ? o.desc.slice(0, 62) + '…' : o.desc,
-        addr: o.address.replace('Szeged, ', ''),
-        when: conf ? conf.split(' · ')[0] : (o.slots.length ? o.slots.length + ' sáv megjelölve' : '—'),
-        whenSub: conf ? 'megerősítve' : (o.slots.length ? 'visszaigazolásra vár' : 'nincs időpont'),
-        whenSubStyle: 'font-size:12.5px; font-weight:600; color:' + (conf ? '#3F7D4E' : '#C4711A') + ';',
-        value: o.status === 'uj' ? rng(aiMin(o), aiMax(o)) : ft(totalOf(o)),
-        valueSub: o.status === 'uj' ? 'AI becslés' : 'véglegesítve',
-        status: b.st.label, badgeStyle: b.style,
-        rowStyle: 'display:grid; grid-template-columns:110px 1.4fr 1.7fr 150px 150px 130px 110px; padding:16px 28px; border-bottom:1px solid #EFEAE1; align-items:center; cursor:pointer; background:' + (o.status === 'uj' ? '#F6F1E8' : 'transparent') + ';',
-        open: () => this.setState({ view: 'crmDetail', curId: o.id })
-      };
-    });
-
-    const cur = this.cur();
-    let d = {};
-    if (cur) {
-      const b = badge(cur.status);
-      const fin = totalOf(cur);
-      const over = fin > aiMax(cur);
-      const under = fin < aiMin(cur);
-      d = {
-        dTitle: cur.ref + ' · ' + cur.name,
-        dStatus: b.st.label, dBadgeStyle: 'padding:5px 11px; border-radius:100px; font-size:12.5px; font-weight:600; background:' + b.st.bg + '; color:' + b.st.fg + ';',
-        dSub: cur.phone + ' · beérkezett ' + cur.created,
-        dDesc: '„' + cur.desc + '”',
-        dPhotoLabel: cur.photos.length ? 'Fotók (' + cur.photos.length + ')' : 'Nem töltött fel fotót',
-        dPhotos: cur.photos.map((u, i) => ({ i, thumbStyle: 'width:118px; height:96px; border-radius:12px; background:#E4DFD3 center/cover no-repeat url(' + u + ');' })),
-        dReasoning: cur.reasoning,
-        dConfidence: 'megbízhatóság ' + (cur.confidence != null ? cur.confidence.toFixed(2) : '0.74') + ' · ' + (cur.photos.length || 0) + ' fotó alapján',
-        dAddress: cur.address,
-        dAiRange: rng(aiMin(cur), aiMax(cur)),
-        dFinalTotal: ft(fin),
-        dItems: cur.items.map((it, idx) => ({
-          label: it.label, ai: it.max && it.max !== it.min ? ft(it.min) + '–' + ft(it.max) : ft(it.min),
-          final: it.final != null ? it.final : it.min,
-          rowStyle: 'display:grid; grid-template-columns:1fr 110px 130px; padding:11px 16px; border-top:1px solid #EFEAE1; align-items:center;',
-          inputStyle: 'width:112px; height:34px; border-radius:8px; padding:0 10px; font-size:14px; font-weight:600; color:#1B1A17; background:#fff; border:1.5px solid ' + ((it.final != null && it.final !== it.min) ? '#E8A33D' : '#E3DCD1') + ';',
-          change: e => { const v = +e.target.value || 0; this.patch(o => { o.items = o.items.map((x, i) => (i === idx ? Object.assign({}, x, { final: v }) : x)); return o; }); }
-        })),
-        dDeltaBoxStyle: 'padding:14px 16px; border-radius:13px; display:flex; flex-direction:column; gap:10px; background:' + (over ? '#F3E7D2' : '#F1EDE5') + ';',
-        dDeltaText: over
-          ? 'A végösszeg ' + ft(fin - aiMax(cur)) + '-tal a közölt ársáv felett van — az ügyfélnek jóvá kell hagynia a módosítást.'
-          : (under ? 'A végösszeg a sáv alatt van, az ügyfél kedvezőbb árat kap. Nem szükséges jóváhagyás.' : 'A végösszeg a közölt ársávon belül van — mehet a munka jóváhagyás nélkül.'),
-        dLearnNote: 'A javítás visszatanul: a módosított tételárak bekerülnek a jövőbeli becslések alapadatai közé.',
-        dSlots: cur.slots.map((id, i) => {
-          const chosen = cur.confirmed === id;
-          const free = hash(id) % 7 !== 0;
-          return { n: i + 1, label: this.slotLabel(id),
-            style: 'display:flex; align-items:center; gap:11px; padding:13px 14px; border-radius:12px; cursor:pointer; background:' + (chosen ? '#fff' : 'transparent') + '; border:1.5px solid ' + (chosen ? '#1B1A17' : '#E3DCD1') + ';',
-            numStyle: 'width:21px; height:21px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; background:' + (chosen ? '#E8A33D' : '#EDE7DC') + '; color:' + (chosen ? '#1B1A17' : '#57534A') + ';',
-            tag: chosen ? 'megerősítve' : (free ? 'szabad' : 'ütközés'),
-            tagStyle: 'font-size:12.5px; font-weight:600; color:' + (chosen ? '#1B1A17' : (free ? '#3F7D4E' : '#C4711A')) + ';',
-            choose: () => { this.patch(o => { o.confirmed = id; if (o.status === 'uj') o.status = 'elfogadva'; return o; }); this.flash('Időpont megerősítve · értesítés kiküldve'); } };
-        }),
-        dNotes: (cur.notes || []).map(n => ({ ini: n.ini, text: n.text, meta: n.meta })),
-        confirmBtnLabel: cur.confirmed ? 'Időpont megerősítve ✓' : (cur.slots.length ? '1. sáv megerősítése' : 'Nincs megjelölt időpont'),
-        confirmBtnStyle: 'height:40px; padding:0 16px; border-radius:10px; border:none; font-size:14px; font-weight:600; cursor:' + (cur.slots.length ? 'pointer' : 'not-allowed') + '; background:' + (cur.confirmed ? '#E2EDE4' : '#1B1A17') + '; color:' + (cur.confirmed ? '#3F7D4E' : '#FAF7F2') + '; opacity:' + (cur.slots.length ? '1' : '.5') + ';'
-      };
-    }
+    const d = {};
 
     const canAccept = s.picked.length >= minSlots && s.terms;
 
@@ -774,7 +706,9 @@ class Component extends DCLogic {
               let out; try { out = cv.toDataURL('image/jpeg', 0.7); } catch (err) { out = r.result; }
               this.setState(st => ({ photos: st.photos.concat([out]).slice(0, CFG.maxPhotos) }));
             };
-            img.onerror = () => this.setState(st => ({ photos: st.photos.concat([r.result]).slice(0, CFG.maxPhotos) }));
+            // Ha nem dekódolható képként, nem tároljuk nyersen — így a méretkorlát
+            // feltétel nélkül érvényes, és a hamis MIME-típus sem csúszik át.
+            img.onerror = () => this.flash('Ezt a fájlt nem sikerült képként beolvasni.');
             img.src = r.result;
           };
           r.readAsDataURL(f);
