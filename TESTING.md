@@ -15,8 +15,9 @@
 
 | # | Lépés | Elvárt eredmény |
 |---|-------|-----------------|
-| 1 | Nyisd meg a kezdőlapot | Landing a DEMÓ-sávval és egy gombbal |
-| 2 | „Árajánlatot kérek" | Nyitóoldal: hero, statisztikák, sötét kategóriakártya |
+| 1 | Nyisd meg a kezdőlapot | Egyből a nyitóoldal: vékony DEMÓ-sáv, fejléc, hero, sötét kategóriakártya |
+| 1b | Zárd be a DEMÓ-sávot az ×-szel, majd frissíts | Nem jön vissza (a böngésző megjegyzi) |
+| 2 | Fejléc: Szolgáltatások / Árak / Referenciák / Rólunk | Mind a négy oldal betölt, mobilon is olvasható |
 | 3 | Kattints egy kategória-chipre a sötét kártyán | Egyből az 1. lépésben vagy, a kategória kiválasztva |
 | 4 | Írj 10 karakternél rövidebb leírást | A tovább gomb tiltott, felirata „Írjon pár szót a hibáról" |
 | 5 | Írj részletes leírást (pl. „Lecsapja a kismegszakítót, ha megy a bojler") | Gépelés közben **azonnal frissül** a jobb oldali ársáv és a pontosságmérő |

@@ -5,7 +5,7 @@ Nem éles rendszer: nincs backend, nincs adatbázis — amit a látogató megad,
 böngészőjében marad.
 
 - `index.html` — belépő oldal
-- `app.dc.html` — az ügyfélfolyamat (leírás → tételes ajánlat → 3 időpont → visszaigazolás)
+- `index.html` — az ügyfélfolyamat (leírás → tételes ajánlat → 3 időpont → visszaigazolás)
 - `TESTING.md` — tesztelési forgatókönyv
 - `support.js`, `vendor/` — a prototípus futtatókörnyezete (React helyben, CDN nélkül)
 

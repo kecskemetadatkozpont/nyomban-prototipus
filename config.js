@@ -4,6 +4,9 @@ window.NYOMBAN_CONFIG = {
   // (demó mód), és a pricing-demo.js szolgáltatja az árlistát.
   quoteEndpoint: null,
 
+  // Vékony demó-sáv a lap tetején. Élesben állítsd false-ra.
+  showDemoBanner: true,
+
   // Feltöltési korlát — egy ügyfél legfeljebb ennyi fotót adhat egy kéréshez.
   maxPhotos: 5,
   photoMaxEdge: 1600,
