@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Adatkezelési tájékoztató — NYOMBAN</title>
-<meta name="description" content="Milyen adatot kezelünk, mire, meddig, és kinek adjuk tovább.">
+<meta name="description" content="Milyen adatot kezelünk, hol tároljuk (Supabase, EU), és mi kerül a Google Gemini API-hoz.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -198,7 +198,8 @@ a:hover { color:var(--amber-deep); }
     <div class="eyebrow">Adatkezelés</div>
     <h1>Adatkezelési tájékoztató</h1>
     <p class="lead">Ez a tájékoztató azt írja le, milyen adatot kérünk Öntől az árbecsléshez és a
-    megrendeléshez, mit csinálunk velük, kinek adjuk tovább, és meddig őrizzük meg őket.</p>
+    megrendeléshez, hol tároljuk őket, kinek adjuk tovább, meddig őrizzük meg, és milyen jogai
+    vannak Önnek ezzel kapcsolatban.</p>
   </div>
 </section>
 
@@ -206,16 +207,14 @@ a:hover { color:var(--amber-deep); }
   <div class="wrap">
 
     <div class="legal">
-<div class="note">
+    <div class="note">
       <p><b>Figyelem: ez a szöveg tervezet.</b> A tájékoztató a rendszer tervezett működése alapján
       készült, nem véglegesített jogi dokumentum. Élesítés előtt ügyvédi, illetve adatvédelmi
       szakértői átnézés szükséges.</p>
       <p>A <b>[szögletes zárójeles]</b> részek kitöltendők: cégadatok, elérhetőségek, a
-      szerződött szolgáltatók neve és a pontos megőrzési idők. Kitöltés és átnézés nélkül a
-      tájékoztató nem tekinthető hatályosnak.</p>
+      szerződött szolgáltatók neve és székhelye, valamint a pontos megőrzési idők. Kitöltés és
+      átnézés nélkül a tájékoztató nem tekinthető hatályosnak.</p>
     </div>
-
-    
 
       <h2>1. Az adatkezelő adatai</h2>
       <p>Az adatkezelő az a vállalkozás, amely az Ön adatairól dönt, és amelyhez az adatokkal
@@ -241,7 +240,8 @@ a:hover { color:var(--amber-deep); }
       </dl>
       <p>A tájékoztató a weboldal használatára, az árbecslés kérésére és a megrendelésekre
       vonatkozik. A szolgáltatás feltételeit külön dokumentum, az
-      <a href="./aszf.html">ÁSZF</a> tartalmazza.</p>
+      <a href="./aszf.html">ÁSZF</a> tartalmazza. Az árakról az
+      <a href="./arak.html">Árak</a> oldalon olvashat.</p>
 
       <h2>2. Milyen adatot kezelünk</h2>
       <p>Csak azt kérjük, ami az ajánlathoz és a munka elvégzéséhez kell. Az alábbi adatokat
@@ -250,49 +250,133 @@ a:hover { color:var(--amber-deep); }
         <dt>Név</dt>
         <dd>A megszólításhoz, a szerződéshez és a számlához.</dd>
         <dt>Telefonszám</dt>
-        <dd>Az időpont egyeztetéséhez és a helyszínen való egyeztetéshez.</dd>
+        <dd>Az időpont egyeztetéséhez és a helyszíni kapcsolattartáshoz. A megrendelés leadásakor
+        SMS-ben küldött kóddal igazoljuk. Részletek a 4.2. pontban.</dd>
         <dt>E-mail-cím</dt>
-        <dd>Az ajánlat és a visszaigazolás megküldéséhez.</dd>
+        <dd>Az ajánlat, a visszaigazolás és az időpont-értesítők megküldéséhez.</dd>
         <dt>A munkavégzés címe</dt>
-        <dd>A kiszállás megszervezéséhez és a kiszállási díj megállapításához.</dd>
+        <dd>A kiszállás megszervezéséhez és a kiszállási díj megállapításához. A címhez tartozó
+        földrajzi koordinátát is tárolhatjuk, kizárólag az útvonal és az időpont tervezéséhez.</dd>
         <dt>A hiba vagy a feladat leírása</dt>
         <dd>Az Ön által beírt szöveg, amely alapján az árbecslés készül.</dd>
         <dt>Feltöltött fényképek</dt>
-        <dd>Kérésenként legfeljebb 5 fotó a hibáról vagy a helyszínről. Részletek a 4. fejezetben.</dd>
+        <dd>Kérésenként legfeljebb 5 fotó a hibáról vagy a helyszínről. Részletek az 5. fejezetben.</dd>
         <dt>A megjelölt időpontok</dt>
-        <dd>Az Ön által megadott három alkalmas időpont.</dd>
+        <dd>Az Ön által megadott három alkalmas időpont, és az, hogy melyiket erősítettük meg.</dd>
+        <dt>A becslés adatai</dt>
+        <dd>A gépi elemzés eredménye: a valószínű munkatételek, a becsült ársáv, a becslés
+        indoklása és az, hogy a becslés gépi elemzéssel vagy a saját árlistánk alapján készült.</dd>
         <dt>A megrendelés adatai</dt>
-        <dd>A megrendelt tételek, a közölt ársáv, a végleges összeg, a munka elvégzésének
-        időpontja, az esetleges garanciális bejelentés.</dd>
+        <dd>A megrendelt tételek, a becsült ársáv, a helyszíni felmérés után egyeztetett végleges
+        ár, a munka elvégzésének időpontja, a munkalap, az esetleges garanciális bejelentés.</dd>
+        <dt>A helyszíni eltérés dokumentumai</dt>
+        <dd>Ha a helyszínen a becsléshez képest több vagy más munka szükséges, az eltérésről
+        jegyzetet és fényképeket veszünk fel, és rögzítjük, hogy Ön az eltérést mikor és milyen
+        módon hagyta jóvá. Erre azért van szükség, hogy utólag is bizonyítható legyen, min
+        állapodtunk meg.</dd>
         <dt>Számlázási adatok</dt>
         <dd>Számlázási név és cím, a fizetés módja, a számla adatai.</dd>
-        <dt>Technikai adatok</dt>
-        <dd>A kérés időpontja, a böngésző által küldött technikai adatok (például IP-cím,
-        böngészőazonosító), valamint a visszaélés-védelemhez használt kérésszámlálók.</dd>
+        <dt>A telefonszám igazolásának adatai</dt>
+        <dd>Az igazoló kód, a kód elküldésének és beírásának időpontja, a sikeres vagy sikertelen
+        próbálkozások száma. Magát a kódot csak rövid ideig, az igazolásig tároljuk.</dd>
+        <dt>Technikai és visszaélés-védelmi adatok</dt>
+        <dd>A kérés időpontja, a böngésző által küldött technikai adatok, valamint kérésszámlálók.
+        Az IP-címet és a telefonszámot ehhez a célhoz <b>nem nyers formában, hanem sózott
+        titkosított lenyomatként (hash)</b> tároljuk, amelyből az eredeti érték nem állítható
+        vissza. Részletek a 4.3. pontban.</dd>
       </dl>
-      <p><b>Fontos, hogy a mai állapotot is lássa.</b> A weboldal jelenleg statikus, bemutató
-      változatban működik: amit beír vagy feltölt, az a saját böngészőjében marad
-      (localStorage), szerverre nem kerül fel. Az alább leírt adatkezelés — adatbázis, fotótárolás,
-      automatikus elemzés — a tervezett éles rendszerre vonatkozik. [kitöltendő: a tájékoztatót
-      az éles indulás napjával kell hatályosítani.]</p>
 
-      <h2>3. Mire és milyen jogalapon kezeljük az adatokat</h2>
+      <h2>3. Hol tárolódnak az adatok</h2>
+      <p>Ezt a fejezetet azért emeljük ki, mert a rendszer korábbi, bemutató változatában a beírt
+      adatok nem hagyták el az Ön böngészőjét. <b>Az éles rendszerben ez már nem így van.</b></p>
+      <ul>
+        <li>Amit az űrlapon beír, és amit feltölt, <b>a szerverünkre kerül</b>, amint az
+        árbecslést kéri, illetve amint a megrendelést leadja.</li>
+        <li>Az adatokat a <b>Supabase</b> rendszerében tároljuk: az űrlapadatok és a megrendelések
+        Postgres adatbázisban, a fényképek a Storage fájltárolóban. A tárolás
+        <b>az Európai Unió területén lévő régióban</b> történik.
+        [kitöltendő: a szolgáltató pontos neve, székhelye, a kiválasztott régió és az
+        adatfeldolgozói szerződés hivatkozása.]</li>
+        <li>A fényképek <b>privát tárolóban</b> vannak: nyilvános hivatkozáson nem érhetők el.</li>
+        <li>A weboldal statikus fájljait tárhelyszolgáltató szolgálja ki; a látogatás technikai
+        adatai (például IP-cím) itt keletkeznek. [kitöltendő: a tárhelyszolgáltató neve és
+        székhelye.]</li>
+        <li>A leírás és a fényképek az árbecsléshez <b>a Google Gemini API-jához is
+        továbbításra kerülnek</b>. Ez adattovábbítás, a részleteit a 6. fejezet írja le.</li>
+      </ul>
+      <p>A megrendelés állapotát egyedi, titkos hivatkozáson követheti. Aki ezt a hivatkozást
+      ismeri, látja a megrendelés adatait, ezért kérjük, ne ossza meg mással.</p>
 
-      <h3>3.1. Ajánlatadás és a szerződés teljesítése</h3>
+      <h2>4. Mire és milyen jogalapon kezeljük az adatokat</h2>
+
+      <h3>4.1. Ajánlatadás és a szerződés teljesítése</h3>
       <dl>
         <dt>Cél</dt>
-        <dd>Az árbecslés elkészítése, az időpont egyeztetése, a munka elvégzése, a kapcsolattartás
-        és a garanciális ügyintézés.</dd>
+        <dd>Az árbecslés elkészítése, az időpont egyeztetése, a helyszíni felmérés, a munka
+        elvégzése, a kapcsolattartás, az esetleges eltérés dokumentálása és a garanciális
+        ügyintézés.</dd>
         <dt>Kezelt adatok</dt>
         <dd>Név, telefonszám, e-mail-cím, a munkavégzés címe, a hiba leírása, a fotók, a megjelölt
-        időpontok, a megrendelés adatai.</dd>
+        időpontok, a becslés és a megrendelés adatai, a helyszíni eltérés dokumentumai.</dd>
         <dt>Jogalap</dt>
         <dd>GDPR 6. cikk (1) bekezdés b) pont — a szerződés teljesítése, illetve a szerződés
         megkötését megelőzően az Ön kérésére tett lépések. Ezek nélkül az adatok nélkül nem tudunk
         ajánlatot adni.</dd>
       </dl>
 
-      <h3>3.2. Számlázás és a bizonylatok megőrzése</h3>
+      <h3>4.2. A telefonszám igazolása SMS-kóddal</h3>
+      <dl>
+        <dt>Cél</dt>
+        <dd>A megrendelés leadásakor SMS-ben küldünk egy kódot a megadott telefonszámra, és a
+        megrendelés csak a kód beírása után véglegesíthető. Így igazolódik, hogy a szám valóban
+        elérhető, és hogy a megrendelést az adja le, akihez a szám tartozik. Ez véd a hamis
+        megrendelésektől, és attól, hogy más nevében rendeljenek ki hozzánk szerelőt.</dd>
+        <dt>Kezelt adatok</dt>
+        <dd>Telefonszám, az igazoló kód, a küldés és a beírás időpontja, a sikertelen
+        próbálkozások száma.</dd>
+        <dt>Kinek adjuk tovább</dt>
+        <dd>Az SMS kiküldéséhez SMS-szolgáltatót veszünk igénybe, amely adatfeldolgozóként jár el.
+        Hozzá a telefonszám és az üzenet szövege kerül továbbításra.
+        [kitöltendő: az SMS-szolgáltató neve, székhelye, az adatfeldolgozói szerződés hivatkozása,
+        valamint az, hogy az adatkezelés az EGT területén történik-e.]</dd>
+        <dt>Jogalap</dt>
+        <dd>GDPR 6. cikk (1) bekezdés b) pont — a szerződés megkötését megelőzően, az Ön kérésére
+        tett lépés, mert az igazolás nélkül a megrendelést nem vesszük fel. Emellett a
+        f) pont — jogos érdek: a hamis megrendelésekkel szembeni védelem, valamint annak
+        megakadályozása, hogy más adatával rendeljenek. [kitöltendő: az írásos érdekmérlegelési
+        teszt elkészítendő.]</dd>
+      </dl>
+
+      <h3>4.3. Bot-védelem és visszaélés-védelem</h3>
+      <p>Az árbecslés minden egyes kérése gépi elemzést indít, amelynek költsége van. Védelem
+      nélkül egy szkript rövid idő alatt használhatatlanná tenné a szolgáltatást. Két eszközt
+      alkalmazunk.</p>
+      <dl>
+        <dt>Cloudflare Turnstile</dt>
+        <dd>Az űrlapon egy bot-ellenőrző fut, amely azt vizsgálja, hogy a kérés embertől
+        származik-e. A legtöbb látogatónak nem kell semmit tennie. Az ellenőrzéshez a Cloudflare
+        a böngészője technikai jellemzőit és viselkedési jeleit vizsgálja (például az IP-címet, a
+        böngésző típusát és beállításait, az oldalon végzett mozgásokat), és egy rövid életű
+        igazoló jegyet ad vissza, amelyet a szerverünk ellenőriz. A megadott nevet, telefonszámot,
+        leírást és fényképeket a Turnstile <b>nem látja</b>. A Cloudflare tájékoztatása szerint az
+        így gyűjtött adatot nem használja hirdetési célra, és nem követi Önt vele oldalak között.
+        [kitöltendő: a Cloudflare, Inc. pontos adatai, az adatfeldolgozói szerződés és a szolgáltató
+        aktuális adatkezelési feltételeinek hivatkozása, az általa tárolt adatok köre és
+        megőrzési ideje.]</dd>
+        <dt>Kérésszámlálás a szerveren</dt>
+        <dd>Naplózzuk, hogy egy adott eszközről, illetve egy adott telefonszámmal hány árbecslést
+        kértek, és mikor. Az IP-címet és a telefonszámot ehhez <b>nem tároljuk nyersen</b>: sózott
+        titkosított lenyomatot (hash) képzünk belőlük, amelyből az eredeti érték nem nyerhető
+        vissza, de az ismétlődés felismerhető. A napló a becslés eredményét nem tartalmazza.</dd>
+        <dt>Jogalap</dt>
+        <dd>GDPR 6. cikk (1) bekezdés f) pont — jogos érdek. Az érdekmérlegelés lényege: az
+        adatkezelés kevés adatot érint, az azonosításra alkalmas értékeket lenyomatként tároljuk,
+        az adatokat rövid ideig őrizzük, és nélkülük a szolgáltatás bárki számára használhatatlanná
+        tehető. [kitöltendő: az írásos érdekmérlegelési teszt elkészítendő, és kérésre elérhetővé
+        teendő.]</dd>
+      </dl>
+
+      <h3>4.4. Számlázás és a bizonylatok megőrzése</h3>
       <dl>
         <dt>Cél</dt>
         <dd>A számla kiállítása, a könyvelés, az adójogszabályok teljesítése.</dd>
@@ -304,22 +388,7 @@ a:hover { color:var(--amber-deep); }
         törölhetjük a határidő előtt.</dd>
       </dl>
 
-      <h3>3.3. Visszaélés- és költségvédelem</h3>
-      <dl>
-        <dt>Cél</dt>
-        <dd>Az automatikus árbecslés védelme a tömeges, gépi vagy rosszhiszemű kérésektől, a
-        szolgáltatás működőképességének és költségeinek védelme. Ezért böngészőnként naponta 5 és
-        óránként 3 árbecslés kérhető.</dd>
-        <dt>Kezelt adatok</dt>
-        <dd>Technikai adatok, a kérések időpontja és száma.</dd>
-        <dt>Jogalap</dt>
-        <dd>GDPR 6. cikk (1) bekezdés f) pont — jogos érdek. Az érdekmérlegelés lényege: az
-        adatkezelés kevés adatot érint, rövid ideig tart, és nélküle a szolgáltatás bárki számára
-        használhatatlanná tehető. [kitöltendő: az írásos érdekmérlegelési teszt elkészítendő, és
-        kérésre elérhetővé teendő.]</dd>
-      </dl>
-
-      <h3>3.4. Marketing</h3>
+      <h3>4.5. Marketing</h3>
       <dl>
         <dt>Cél</dt>
         <dd>Hírlevél, akciók, emlékeztető az időszakos érintésvédelmi mérésre.</dd>
@@ -329,21 +398,25 @@ a:hover { color:var(--amber-deep); }
         hozzájárulást bármikor, indokolás nélkül visszavonhatja.</dd>
       </dl>
 
-      <h2>4. A feltöltött fényképek</h2>
-      <p>A fotók a szolgáltatás lényegi részei: ezek alapján tudunk helyszíni felmérés nélkül
-      árat becsülni. Ezért külön is elmondjuk, mi történik velük.</p>
+      <h2>5. A feltöltött fényképek</h2>
+      <p>A fotók a szolgáltatás lényegi részei: ezek alapján tudunk helyszíni felmérés előtt
+      becslést adni. Ezért külön is elmondjuk, mi történik velük.</p>
       <ul>
-        <li>Kérésenként legfeljebb <b>5 fotót</b> tölthet fel. A böngésző a képeket feltöltés előtt
-        kicsinyíti.</li>
-        <li>A feltöltött fotókat <b>automatizált elemzés dolgozza fel</b> az árbecsléshez: a
-        rendszer a képek és a leírás alapján állapítja meg a valószínű munkatételeket és az ársávot.</li>
-        <li>Az elemzéshez a képek és a leírás <b>továbbításra kerülnek a Google felé (Gemini API)</b>,
-        amely ebben adatfeldolgozóként jár el. Ez azt jelenti, hogy a képek elhagyják a mi
-        rendszerünket, és a Google szolgáltatásában is feldolgozásra kerülnek.</li>
-        <li>A fotók <b>nem nyilvánosak</b>: nem jelennek meg a weboldalon, nem kerülnek közösségi
-        médiába, keresők nem indexelik őket. Csak a munkatársaink és a fenti adatfeldolgozók férnek
-        hozzájuk, kizárólag az Ön kérésének teljesítése érdekében. Referenciaként csak akkor
-        használjuk fel őket, ha ahhoz Ön külön, előzetesen hozzájárul.</li>
+        <li>Kérésenként legfeljebb <b>5 fotót</b> tölthet fel.</li>
+        <li><b>A böngészője a képeket feltöltés előtt kicsinyíti és újratömöríti.</b> Ennek
+        mellékhatása az Ön javára szól: a képfájlba mentett <b>EXIF-adatok — köztük a fénykép
+        készítésének helyét megadó GPS-koordináta, a készítés pontos ideje és a készülék
+        azonosítója — levágódnak</b>, tehát ezek hozzánk el sem jutnak.</li>
+        <li>A kép a szervertől kapott, <b>rövid életű, aláírt hivatkozáson</b> keresztül kerül fel
+        közvetlenül a privát tárolóba. Ez a hivatkozás rövid idő után lejár.</li>
+        <li>A fényképek <b>privát tárolóban</b> élnek: nyilvános címen nem érhetők el, és keresők
+        nem indexelik őket. A munkatársunk sem nyilvános linken, hanem a belső rendszerből
+        generált, <b>rövid életű, aláírt hivatkozáson</b> nézi meg őket. A hivatkozás lejárta után
+        a kép azon a címen már nem nyitható meg.</li>
+        <li>A feltöltött fotókat és a leírást <b>gépi elemzés dolgozza fel</b> az árbecsléshez.
+        Ehhez a Google Gemini API-jához továbbítjuk őket — lásd a 6. fejezetet.</li>
+        <li>A fotók nem jelennek meg a weboldalon és nem kerülnek közösségi médiába. Referenciaként
+        csak akkor használjuk fel őket, ha ahhoz Ön külön, előzetesen hozzájárul.</li>
       </ul>
       <div class="note">
         <p><b>Kérjük, ne töltsön fel olyan képet, amelyen más személy felismerhető</b> — se
@@ -353,72 +426,126 @@ a:hover { color:var(--amber-deep); }
         vagy a lámpahelyről készült fotó elég az ajánlathoz — más nem kell hozzá.</p>
       </div>
       <p>Ha véletlenül olyan képet töltött fel, amelyet nem szeretne nálunk hagyni, jelezze a
-      kapcsolattartónál, és törüljük.</p>
+      kapcsolattartónál, és töröljük.</p>
 
-      <h2>5. Automatizált döntéshozatal</h2>
-      <p>Az ár becslése automatizált: a leírás és a fotók alapján a rendszer emberi közreműködés
-      nélkül állítja össze a tételeket és az ársávot. Ezt nyíltan megmondjuk, mert Önnek joga van
-      tudni róla.</p>
-      <p>Ez az automatizmus azonban <b>nem jár Önre nézve joghatással, és hasonlóan jelentős
-      mértékben sem érinti Önt</b>: a becslés csak ajánlat. Ön szabadon eldöntheti, elfogadja-e,
-      és semmilyen hátrány nem éri, ha nem fogadja el.</p>
+      <h2>6. Az árbecslés és a Google Gemini API</h2>
+      <p>Az ársávot gépi elemzés állítja elő. Ehhez <b>a hiba leírását és a feltöltött
+      fényképeket a Google Gemini API-jához továbbítjuk</b>, a saját árlistánkkal együtt. Ez
+      adattovábbítás: a leírás és a képek elhagyják a mi rendszerünket, és a Google
+      szolgáltatásában is feldolgozásra kerülnek. A Google ebben <b>adatfeldolgozóként</b> jár el,
+      a mi megbízásunkból és a mi utasításaink szerint.</p>
       <ul>
+        <li>Az adattovábbítás célja kizárólag az árbecslés elkészítése.</li>
+        <li>A továbbított adat: a hiba leírása, a munka kategóriája és a feltöltött fényképek.
+        A nevét, a telefonszámát és a pontos címét <b>nem küldjük el</b> az elemzéshez.</li>
+        <li><b>A szolgáltatás fizetős szintjét használjuk, ahol a szolgáltató feltételei szerint
+        a beküldött adat nem kerül felhasználásra a modellek tanítására.</b> Ez a fizetős és az
+        ingyenes szint közötti lényeges különbség, ezért használjuk a fizetőset.
+        [kitöltendő: a szolgáltató aktuális adatkezelési feltételeinek pontos megnevezése és
+        hivatkozása. Ezek a feltételek a szolgáltató oldalán változhatnak, ezért az élesítés előtt
+        és utána rendszeresen ellenőrizni kell, és eltérés esetén ezt a tájékoztatót módosítani
+        kell.]</li>
+        <li>Az elemzés a Google infrastruktúrájában, várhatóan az Európai Gazdasági Térségen kívül
+        is történhet. Erről a 8. fejezet szól.</li>
+      </ul>
+      <p>Ha nem szeretné, hogy a fényképei gépi elemzésre kerüljenek, ne töltsön fel képet: a
+      leírás alapján is tudunk becslést adni, illetve telefonon is egyeztethetünk időpontot.</p>
+
+      <h2>7. Automatizált döntéshozatal</h2>
+      <p>Az ár becslése automatizált: a leírás és a fotók alapján a rendszer emberi közreműködés
+      nélkül állítja össze a valószínű tételeket és az ársávot. Ezt nyíltan megmondjuk, mert Önnek
+      joga van tudni róla.</p>
+      <p>Ez az automatizmus azonban <b>nem jár Önre nézve joghatással, és hasonlóan jelentős
+      mértékben sem érinti Önt</b>: a becslés nem szerződés és nem végleges ár.</p>
+      <ul>
+        <li><b>A közölt ársáv tájékoztató jellegű becslés</b>, amely a megadott leírás és a
+        fényképek alapján, jóhiszeműen készül. A végleges ár a helyszíni felmérés után alakul ki,
+        és azt a munka megkezdése előtt egyeztetjük Önnel.</li>
         <li><b>Emberi felülvizsgálat kérhető.</b> Ha a becslést tévesnek tartja, hívja a
-        kapcsolattartót a +36 30 254 9290 számon, és munkatársunk átnézi a kérést.</li>
-        <li>A közölt ársáv szerződéses ígéret: ha a végleges összeg a sáv fölé menne, azt előbb
-        Önnek jóvá kell hagynia.</li>
+        kapcsolattartót a +36 30 254 9290 számon, és munkatársunk átnézi a kérést. Álláspontját
+        el is mondhatja, és a becslést vitathatja.</li>
+        <li>Ha a helyszínen a becsléshez képest több vagy más munka szükséges, az eltérést a
+        kollégánk megmutatja, dokumentálja, és a munkát csak az Ön jóváhagyása után folytatja.
+        A jóváhagyás tényét és időpontját rögzítjük.</li>
         <li>A megrendelés elfogadásáról és a munka elvégzéséről minden esetben ember dönt.</li>
       </ul>
 
-      <h2>6. Adatfeldolgozók</h2>
+      <h2>8. Adatfeldolgozók és adattovábbítás</h2>
       <p>Az adatfeldolgozó a mi megbízásunkból, a mi utasításaink szerint kezel adatot, önálló
-      célja nincs. A tervezett éles rendszerben az alábbi szolgáltatókat vesszük igénybe.</p>
+      célja nincs. Az éles rendszerben az alábbi szolgáltatókat vesszük igénybe.</p>
       <ul>
-        <li><b>[Tárhely: GitHub Inc. (GitHub Pages), Egyesült Államok]</b> — a weboldal statikus
-        fájljainak kiszolgálása. A látogatás technikai adatai (például IP-cím) itt keletkeznek.</li>
-        <li><b>[Supabase]</b> — adatbázis és fotótárolás. A megrendelések, az ajánlatkérések és a
-        feltöltött képek tárolása. Tárolási régió: EU. [kitöltendő: a szolgáltató pontos neve,
-        székhelye és a szerződés adatai.]</li>
-        <li><b>[Google — Gemini API]</b> — a fotók és a leírás automatizált elemzése az árbecsléshez.
-        [kitöltendő: a szolgáltató pontos neve, a feldolgozás régiója és az adatfeldolgozói
-        szerződés hivatkozása.]</li>
-        <li><b>[Számlázó program: kitöltendő]</b> — a számla kiállítása és tárolása.</li>
-        <li><b>[SMS- és e-mail-küldő szolgáltató: kitöltendő]</b> — a visszaigazolások, az
-        ajánlatok és az időpont-emlékeztetők kiküldése.</li>
+        <li><b>Supabase</b> — adatbázis (Postgres) és fájltárolás (Storage): az ajánlatkérések, a
+        megrendelések és a feltöltött fényképek tárolása. Tárolási régió: az Európai Unió területe.
+        [kitöltendő: a szolgáltató pontos neve, székhelye, a régió megnevezése és az
+        adatfeldolgozói szerződés hivatkozása.]</li>
+        <li><b>Google (Gemini API)</b> — a leírás és a fényképek gépi elemzése az árbecsléshez.
+        [kitöltendő: a szolgáltató pontos neve és székhelye, a feldolgozás régiója, az
+        adatfeldolgozói szerződés és az aktuális adatkezelési feltételek hivatkozása.]</li>
+        <li><b>Cloudflare (Turnstile)</b> — bot-védelem az árbecslés űrlapján.
+        [kitöltendő: a szolgáltató pontos neve, székhelye és az adatfeldolgozói szerződés
+        hivatkozása.]</li>
+        <li><b>SMS-szolgáltató</b> — a telefonszám igazolására szolgáló kód, valamint az időpontra
+        vonatkozó értesítések kiküldése. [kitöltendő: a szolgáltató neve, székhelye és az
+        adatfeldolgozói szerződés hivatkozása.]</li>
+        <li><b>E-mail-küldő szolgáltató</b> — a visszaigazolások, az ajánlatok és az
+        időpont-emlékeztetők kiküldése. [kitöltendő: a szolgáltató neve, székhelye és az
+        adatfeldolgozói szerződés hivatkozása.]</li>
+        <li><b>Tárhelyszolgáltató</b> — a weboldal statikus fájljainak kiszolgálása.
+        [kitöltendő: a szolgáltató neve és székhelye.]</li>
+        <li><b>Számlázó program</b> — a számla kiállítása és tárolása. [kitöltendő]</li>
+        <li><b>Könyvelő</b> — a bizonylatok feldolgozása. [kitöltendő]</li>
       </ul>
+      <p>Adatot ezen kívül csak akkor adunk át, ha arra jogszabály kötelez minket, vagy ha az
+      igényünk érvényesítéséhez szükséges (például jogi képviselő, hatóság, bíróság). Az adatait
+      nem adjuk el, és nem adjuk át hirdetési célra.</p>
+
       <h3>Adattovábbítás harmadik országba</h3>
       <p>A fenti szolgáltatók egy része az Európai Gazdasági Térségen kívül, jellemzően az
-      Egyesült Államokban is végez adatkezelést. Ilyen esetben az adattovábbítás csak a GDPR V.
-      fejezete szerinti garanciák mellett történhet: az Európai Bizottság megfelelőségi
-      határozata, illetve általános szerződési feltételek (SCC) alapján.</p>
+      Egyesült Államokban is végez adatkezelést. Ez érinti a <b>Google</b> felé továbbított
+      leírást és fényképeket, a <b>Cloudflare</b> bot-ellenőrzését, és érintheti az
+      <b>SMS-</b> és az <b>e-mail-szolgáltatót</b> is. Az adatbázisunk és a fényképtárunk
+      tárolási régiója ezzel szemben az Európai Unió területén van.</p>
+      <p>Ilyen esetben az adattovábbítás csak a GDPR V. fejezete szerinti garanciák mellett
+      történhet: az Európai Bizottság megfelelőségi határozata, illetve általános szerződési
+      feltételek (SCC) alapján, szükség esetén kiegészítő intézkedésekkel.</p>
       <p>[kitöltendő: szolgáltatónként rögzíteni kell, melyik garancia alapján történik a
       továbbítás, és hol érhetők el ezek a dokumentumok. Ezt a pontot jogi átnézés nélkül ne
       tekintse véglegesnek.]</p>
 
-      <h2>7. Meddig őrizzük meg az adatokat</h2>
+      <h2>9. Meddig őrizzük meg az adatokat</h2>
       <dl>
         <dt>Ajánlatkérés, amelyből nem lett megrendelés</dt>
         <dd>[kitöltendő — javasolt: a kérés napjától számított 90 nap, majd törlés.]</dd>
         <dt>Megrendelések és a munka adatai</dt>
         <dd>[kitöltendő — javasolt: a munka elvégzésétől számított 5 év, a polgári jogi elévülési
-        idő végéig. A 3 év garancia miatt a garanciális ügyintézéshez szükséges adatokat legalább
-        a garancia lejártáig őrizzük.]</dd>
+        idő végéig. A garanciális ügyintézéshez szükséges adatokat legalább a garancia lejártáig
+        őrizzük.]</dd>
+        <dt>A helyszíni eltérés dokumentumai (jegyzet, fotó, a jóváhagyás rögzítése)</dt>
+        <dd>[kitöltendő — javasolt: a megrendelés adataival azonos ideig, 5 év, mert ezek a
+        megállapodás bizonyítékai.]</dd>
         <dt>Számlák és számviteli bizonylatok</dt>
-        <dd>8 év, a számviteli törvény alapján. Ez kötelező, ettől kérésre sem térhetünk el.</dd>
+        <dd>[kitöltendő — javasolt és jogszabályból következő: 8 év, a számviteli törvény alapján.
+        Ez kötelező, ettől kérésre sem térhetünk el.]</dd>
         <dt>Feltöltött fényképek</dt>
-        <dd>[kitöltendő — javasolt: megrendelés hiányában az ajánlatkéréssel együtt törölve;
-        megrendelés esetén a munka lezárását követő [x] évig, a garanciális igények kezeléséhez.]
-        A fotókat ennél korábban is töröljük, ha Ön kéri, és nincs jogi akadálya.</dd>
-        <dt>Visszaélés-védelmi technikai adatok</dt>
-        <dd>[kitöltendő — javasolt: legfeljebb 30 nap.]</dd>
+        <dd>[kitöltendő — javasolt: megrendelés hiányában az ajánlatkéréssel együtt, 90 nap után
+        törölve; megrendelés esetén a megrendelés adataival azonos ideig, a garanciális igények
+        kezeléséhez.] A fotókat ennél korábban is töröljük, ha Ön kéri, és nincs jogi akadálya.</dd>
+        <dt>A telefonszám igazolásának adatai</dt>
+        <dd>[kitöltendő — javasolt: az igazoló kód néhány percen belül, az igazolás megtörténtének
+        ténye a megrendelés adataival együtt.]</dd>
+        <dt>Visszaélés-védelmi napló (lenyomatok, kérésszámlálók)</dt>
+        <dd>[kitöltendő — javasolt: legfeljebb 30 nap, utána automatikus törlés.]</dd>
         <dt>Marketing hozzájárulás</dt>
         <dd>A hozzájárulás visszavonásáig, illetve [kitöltendő] időtartamig.</dd>
         <dt>A böngészőjében tárolt adat</dt>
         <dd>Amíg Ön nem törli. Ez az Ön eszközén marad, a böngésző adatainak törlésével bármikor
         eltávolítható.</dd>
       </dl>
+      <p>A megőrzési idő lejárta után az adatokat töröljük, illetve visszaállíthatatlanul
+      anonimizáljuk. A biztonsági mentésekből az adat a mentés forgási ideje szerint tűnik el.
+      [kitöltendő: a biztonsági mentések megőrzési ideje.]</p>
 
-      <h2>8. Az Ön jogai</h2>
+      <h2>10. Az Ön jogai</h2>
       <p>Az adatkezeléssel kapcsolatban Önt az alábbi jogok illetik meg.</p>
       <ul>
         <li><b>Hozzáférés</b> — tájékoztatást kérhet arról, kezelünk-e Önről adatot, és ha igen,
@@ -429,14 +556,18 @@ a:hover { color:var(--amber-deep); }
         számlákat 8 évig nem törölhetjük.</li>
         <li><b>Az adatkezelés korlátozása</b> — kérheti, hogy az adatokat csak tároljuk, de ne
         használjuk, például amíg egy vitatott adat pontosságát ellenőrizzük.</li>
-        <li><b>Tiltakozás</b> — tiltakozhat a jogos érdeken alapuló adatkezelés ellen. Közvetlen
-        üzletszerzés esetén a tiltakozás után az adatkezelést azonnal megszüntetjük.</li>
+        <li><b>Tiltakozás</b> — tiltakozhat a jogos érdeken alapuló adatkezelés ellen, például a
+        visszaélés-védelmi naplózás ellen. Közvetlen üzletszerzés esetén a tiltakozás után az
+        adatkezelést azonnal megszüntetjük.</li>
         <li><b>Adathordozhatóság</b> — a hozzájárulás vagy szerződés alapján kezelt, Ön által
         megadott adatokat tagolt, géppel olvasható formában kérheti, illetve kérheti azok
         továbbítását másik adatkezelőhöz.</li>
         <li><b>A hozzájárulás visszavonása</b> — a hozzájáruláson alapuló adatkezeléshez adott
         hozzájárulását bármikor visszavonhatja. Ez nem érinti a visszavonás előtti adatkezelés
         jogszerűségét.</li>
+        <li><b>Emberi beavatkozás kérése</b> — az automatizált árbecsléssel szemben emberi
+        felülvizsgálatot kérhet, álláspontját elmondhatja, és a becslést vitathatja. Lásd a
+        7. fejezetet.</li>
       </ul>
       <h3>Hogyan élhet ezekkel a jogokkal</h3>
       <p>Írjon a [kitöltendő] e-mail-címre, vagy hívja a +36 30 254 9290 számot 7 és 19 óra között.
@@ -447,7 +578,7 @@ a:hover { color:var(--amber-deep); }
       támad az Ön személyazonossága felől, további adatot kérhetünk az azonosításhoz — ezzel Önt
       védjük attól, hogy más férjen hozzá az adataihoz.</p>
 
-      <h2>9. Jogorvoslat</h2>
+      <h2>11. Jogorvoslat</h2>
       <p>Ha úgy érzi, hogy az adatkezeléssel jogsértést követtünk el, először érdemes közvetlenül
       hozzánk fordulni: a legtöbb ügy néhány napon belül rendezhető. Ettől függetlenül Önt az
       alábbi jogorvoslatok illetik meg.</p>
@@ -457,6 +588,10 @@ a:hover { color:var(--amber-deep); }
         <dd>Nemzeti Adatvédelmi és Információszabadság Hatóság (NAIH)</dd>
         <dt>Cím</dt>
         <dd>1055 Budapest, Falk Miksa utca 9-11.</dd>
+        <dt>Postacím</dt>
+        <dd>1363 Budapest, Pf. 9.</dd>
+        <dt>Telefon</dt>
+        <dd>+36 1 391 1400</dd>
         <dt>Honlap</dt>
         <dd><a href="https://naih.hu">naih.hu</a></dd>
       </dl>
@@ -465,33 +600,52 @@ a:hover { color:var(--amber-deep); }
       Ön választása szerint a lakóhelye vagy tartózkodási helye szerinti törvényszék előtt is
       megindítható. A bíróság az ügyben soron kívül jár el.</p>
 
-      <h2>10. Sütik és a böngészőben tárolt adatok</h2>
-      <p>A bemutató oldal jelenleg <b>nem használ analitikai vagy marketingsütit</b>, és nem követi
-      Önt más oldalakon.</p>
-      <p>A weboldal a böngészője <b>localStorage</b> tárolójában őriz állapotot: a megkezdett
-      ajánlatkérést, a megadott adatokat és a kérésszámlálókat. Ez az Ön eszközén marad, hozzánk
-      nem kerül fel, és a böngésző adatainak törlésével bármikor eltávolítható. Ez a tárolás a
-      szolgáltatás működéséhez szükséges, ezért nem igényel külön hozzájárulást.</p>
-      <p>Ha később analitikai vagy marketingcélú mérés kerül az oldalra, azt csak az Ön előzetes
-      hozzájárulásával indítjuk el, és ez a tájékoztató is kiegészül a részletekkel.</p>
+      <h2>12. Sütik és a böngészőben tárolt adatok</h2>
+      <p>A weboldal <b>nem használ analitikai vagy marketingsütit</b>, és nem követi Önt más
+      oldalakon.</p>
+      <ul>
+        <li><b>A böngészőben tárolt állapot (localStorage).</b> A weboldal a megkezdett
+        ajánlatkérést, a beírt adatokat és a kérésszámlálókat az Ön böngészőjében is eltárolja,
+        hogy egy megszakadt kitöltés folytatható legyen. Ez az Ön eszközén marad, és a böngésző
+        adatainak törlésével bármikor eltávolítható. <b>Ez azonban nem jelenti azt, hogy az adat
+        csak ott marad</b>: amint árbecslést kér vagy megrendelést ad le, az adatok a szerverünkre
+        is felkerülnek — lásd a 3. fejezetet.</li>
+        <li><b>A bot-védelem sütije.</b> A Cloudflare Turnstile a működéséhez saját technikai
+        sütit vagy hasonló tárolót használhat. Ez a szolgáltatás biztonságos működéséhez
+        szükséges. [kitöltendő: a Turnstile által elhelyezett sütik neve, célja és élettartama a
+        szolgáltató aktuális dokumentációja alapján.]</li>
+      </ul>
+      <p>A fenti tárolások a szolgáltatás nyújtásához, illetve a biztonságához szükségesek, ezért
+      nem igényelnek külön hozzájárulást. Ha később analitikai vagy marketingcélú mérés kerül az
+      oldalra, azt csak az Ön előzetes hozzájárulásával indítjuk el, és ez a tájékoztató is
+      kiegészül a részletekkel.</p>
 
-      <h2>11. Adatbiztonság</h2>
+      <h2>13. Adatbiztonság</h2>
       <ul>
         <li>A weboldal titkosított kapcsolaton (HTTPS) érhető el, az adatok továbbítása titkosítva
         történik.</li>
-        <li>Az adatokhoz csak azok férnek hozzá, akiknek a munkájukhoz szükséges;
-        a hozzáféréseket korlátozzuk és nyilvántartjuk.</li>
-        <li>A feltöltött fotók nem nyilvánosak, nem érhetők el nyilvános hivatkozáson keresztül.</li>
-        <li>Az adatbázis és a fotótár a szolgáltató EU-s régiójában, biztonsági mentéssel működik.</li>
-        <li>[kitöltendő: a jelszókezelés, a kétlépcsős azonosítás és az adatvédelmi incidensek
-        kezelésének rendje — incidens esetén a hatóság tájékoztatása 72 órán belül.]</li>
+        <li>Az adatbázis és a fényképtár a szolgáltató EU-s régiójában, hozzáférés-korlátozással és
+        biztonsági mentéssel működik.</li>
+        <li>A feltöltött fényképek privát tárolóban vannak, nyilvános hivatkozáson nem érhetők el.
+        A munkatársak rövid életű, aláírt hivatkozáson nézik meg őket.</li>
+        <li>A képek EXIF-adatai — köztük a GPS-koordináta — már a feltöltés előtt levágódnak.</li>
+        <li>Az IP-címet és a telefonszámot a visszaélés-védelmi naplóban csak sózott lenyomatként
+        tároljuk.</li>
+        <li>Az adatokhoz csak azok férnek hozzá, akiknek a munkájukhoz szükséges; a hozzáféréseket
+        korlátozzuk és nyilvántartjuk. A belső rendszer belépéshez kötött, kétlépcsős
+        azonosítással.</li>
+        <li>A szolgáltatók kulcsait és jelszavait szerveroldalon, titokként tároljuk; ezek nem
+        kerülnek a böngészőbe.</li>
+        <li>[kitöltendő: a jelszókezelés, a jogosultságok felülvizsgálatának rendje és az
+        adatvédelmi incidensek kezelése — incidens esetén a hatóság tájékoztatása 72 órán belül,
+        és szükség esetén az érintettek értesítése.]</li>
       </ul>
 
-      <h2>12. A tájékoztató módosítása</h2>
+      <h2>14. A tájékoztató módosítása</h2>
       <p>A tájékoztatót módosíthatjuk, ha a szolgáltatás vagy a jogszabályi környezet változik —
-      például új adatfeldolgozó lép be, vagy analitika kerül az oldalra. A mindenkor hatályos
-      változat ezen az oldalon érhető el, a lap alján a hatálybalépés dátumával és a
-      verziószámmal.</p>
+      például új adatfeldolgozó lép be, analitika kerül az oldalra, vagy valamelyik szolgáltató
+      megváltoztatja a saját adatkezelési feltételeit. A mindenkor hatályos változat ezen az
+      oldalon érhető el, a lap alján a hatálybalépés dátumával és a verziószámmal.</p>
       <p>Ha a módosítás lényegesen érinti az Ön jogait, arról a megadott elérhetőségén előzetesen
       tájékoztatjuk. Hozzájáruláson alapuló adatkezelés esetén a módosítás csak az Ön új
       hozzájárulásával lép hatályba.</p>
