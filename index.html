@@ -1166,18 +1166,64 @@ class Component extends DCLogic {
    * A SZERVER adja az útvonalat — a kliens nem befolyásolja. Enélkül egy hívó
    * más ügyfél fotójára hivatkozhatna a becslésében.
    */
-  /** A HEIC-dekóder egyszer töltődik be, és csak ha tényleg kell. */
+  /**
+   * A HEIC-dekóder. Egyszer töltődik be, és csak akkor, ha tényleg kell.
+   *
+   * MIÉRT LIBHEIF, ÉS NEM A KISEBB heic2any: a megrendelő valódi iPhone-fotója
+   * (4032x3024) a heic2any-vel „ERR_LIBHEIF format not supported" hibát adott.
+   * A fájl „tmap" márkát visel — ez az újabb iPhone-ok HDR tónusleképezése, ahol
+   * az elsődleges kép SZÁRMAZTATOTT elem. A heic2any-ben lévő libheif 2021-es,
+   * azt még nem ismeri. A libheif 1.19.8 ugyanezt 351 ms alatt dekódolja.
+   *
+   * A wasm változatot használjuk (80 kB kód + 1010 kB wasm), nem az egybegyúrtat
+   * (2127 kB). A wasm binárist MI töltjük le és adjuk át: a modul magától
+   * szinkron kéréssel próbálná, ami a böngészőben nem megy.
+   */
   heicDekoder() {
-    if (window.heic2any) return Promise.resolve(window.heic2any);
-    if (this._heicP) return this._heicP;
-    this._heicP = new Promise((ok, hiba) => {
-      const sc = document.createElement('script');
-      sc.src = './vendor/heic2any.min.js';
-      sc.onload = () => (window.heic2any ? ok(window.heic2any) : hiba(new Error('a dekóder nem indult el')));
-      sc.onerror = () => hiba(new Error('a dekódert nem sikerült letölteni'));
-      document.head.appendChild(sc);
-    });
-    return this._heicP;
+    if (this._heifP) return this._heifP;
+    this._heifP = (async () => {
+      const wasm = await fetch('./vendor/libheif.wasm').then(r => {
+        if (!r.ok) throw new Error('a dekódert nem sikerült letölteni');
+        return r.arrayBuffer();
+      });
+      if (!window.libheif) {
+        await new Promise((ok, hiba) => {
+          const sc = document.createElement('script');
+          sc.src = './vendor/libheif.js';
+          sc.onload = ok;
+          sc.onerror = () => hiba(new Error('a dekódert nem sikerült betölteni'));
+          document.head.appendChild(sc);
+        });
+      }
+      const lib = await (typeof window.libheif === 'function'
+        ? window.libheif({ wasmBinary: wasm })
+        : window.libheif);
+      if (!lib || !lib.HeifDecoder) throw new Error('a dekóder nem indult el');
+      return lib;
+    })();
+    return this._heifP;
+  }
+
+  /** HEIC → teljes méretű vászon. A kicsinyítés utána, a szokásos úton megy. */
+  async heicVaszonra(file) {
+    const lib = await this.heicDekoder();
+    const buf = new Uint8Array(await file.arrayBuffer());
+    const dec = new lib.HeifDecoder();
+    const imgs = dec.decode(buf);
+    if (!imgs || !imgs.length) throw new Error('a fájlban nincs dekódolható kép');
+
+    const im = imgs[0];
+    const w = im.get_width(), h = im.get_height();
+    if (!w || !h) throw new Error('a kép mérete ismeretlen');
+
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const cx = cv.getContext('2d');
+    const id = cx.createImageData(w, h);
+    await new Promise((ok, hiba) => im.display(id, r => (r ? ok() : hiba(new Error('a dekódolás megszakadt')))));
+    cx.putImageData(id, 0, 0);
+    if (im.free) im.free();
+    return cv;
   }
 
   /** HEIC-e? A típus néha üres (a böngésző nem ismeri fel), ezért a név is számít. */
@@ -1199,18 +1245,15 @@ class Component extends DCLogic {
     try {
       let forras = f;
 
-      if (this.heicE(f)) {
-        // Csak akkor dekódolunk, ha a böngésző tényleg nem boldogul vele.
-        // A Safari natívan tudja a HEIC-et — ott fölösleges az 1,3 MB.
-        const tud = await this.tudDekodolni(f);
-        if (!tud) {
-          this.flash('iPhone-kép átalakítása…');
-          const heic2any = await this.heicDekoder();
-          forras = await heic2any({ blob: f, toType: 'image/jpeg', quality: 0.82 });
-        }
+      let out;
+      if (this.heicE(f) && !(await this.tudDekodolni(f))) {
+        // Csak akkor dekódolunk mi, ha a böngésző nem boldogul vele — a Safari
+        // natívan tudja a HEIC-et, ott fölösleges az 1 MB.
+        this.flash('iPhone-kép átalakítása…');
+        out = await this.kicsinyit(await this.heicVaszonra(f));
+      } else {
+        out = await this.kicsinyit(forras);
       }
-
-      const out = await this.kicsinyit(forras);
       this.setState(st => ({ photos: st.photos.concat([out]).slice(0, CFG.maxPhotos), kepBusy: false }));
       if (LIVE) this.uploadPhoto(out);
 
@@ -1240,26 +1283,33 @@ class Component extends DCLogic {
    * képeket is jobban bírja. Enélkül a telefonnal álló helyzetben készült fotó
    * FEKVŐN jelenne meg — ez a leggyakoribb panasz az ilyen felületeknél.
    */
-  async kicsinyit(blob) {
+  async kicsinyit(forras) {
     const MAX = CFG.photoMaxEdge;
+    // A forrás lehet FÁJL vagy már kész VÁSZON (a HEIC-dekódolás azt ad).
+    const vaszon = forras && forras.tagName === 'CANVAS' ? forras : null;
     // A canvas felülete korlátos, iOS-en szigorúbban. 16,7 millió képpont fölött
     // a rajzolás NÉMÁN üres képet ad — ezért előbb mi vágunk vissza.
     const MAX_PIXEL = 16700000;
 
     let bmp = null;
-    try {
-      if (window.createImageBitmap) {
-        bmp = await createImageBitmap(blob, { imageOrientation: 'from-image' });
-      }
-    } catch (e) { bmp = null; }
+    if (!vaszon) {
+      try {
+        if (window.createImageBitmap) {
+          bmp = await createImageBitmap(forras, { imageOrientation: 'from-image' });
+        }
+      } catch (e) { bmp = null; }
+    }
 
     let sw, sh, rajzol;
-    if (bmp) {
+    if (vaszon) {
+      sw = vaszon.width; sh = vaszon.height;
+      rajzol = (cx, w, h) => cx.drawImage(vaszon, 0, 0, w, h);
+    } else if (bmp) {
       sw = bmp.width; sh = bmp.height;
       rajzol = (cx, w, h) => cx.drawImage(bmp, 0, 0, w, h);
     } else {
       const img = await new Promise((ok, hiba) => {
-        const url = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(forras);
         const i = new Image();
         i.onload = () => { URL.revokeObjectURL(url); ok(i); };
         i.onerror = () => { URL.revokeObjectURL(url); hiba(new Error('nem dekódolható')); };
