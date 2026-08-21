@@ -172,7 +172,10 @@
           <p style="margin:0; font-size:16px; color:#57534A;">Minél pontosabban írja le, annál szűkebb lesz az ársáv.</p>
         </div>
         <div style="display:flex; flex-direction:column; gap:11px;">
-          <span style="font-size:14px; font-weight:600;">Munka típusa</span>
+          <div style="display:flex; align-items:baseline; gap:9px;">
+            <span style="font-size:14px; font-weight:600;">Munka típusa</span>
+            <span style="font-size:13px; color:#7A756C;">több is választható</span>
+          </div>
           <div style="display:flex; flex-wrap:wrap; gap:9px;">
             <sc-for list="{{ cats }}" as="c" hint-placeholder-count="6">
               <button type="button" onClick="{{ c.pick }}" style="{{ c.lightStyle }}">{{ c.name }}</button>
@@ -494,7 +497,7 @@ function iso(d) { return d.toISOString().slice(0, 10); }
 class Component extends DCLogic {
   state = {
     view: 'home', step: 1,
-    cat: 'Hibaelhárítás', desc: '', photos: [], address: '', urgency: 'week',
+    cats: ['Hibaelhárítás'], desc: '', photos: [], address: '', urgency: 'week',
     custName: '', custPhone: '', custEmail: '',
     est: null, estimating: false, aiUsed: false,
     daySel: 0, picked: [], terms: false,
@@ -614,7 +617,7 @@ class Component extends DCLogic {
   }
 
   localEstimate() {
-    const t = (this.state.desc + ' ' + this.state.cat).toLowerCase();
+    const t = (this.state.desc + ' ' + this.state.cats.join(' ')).toLowerCase();
     const has = w => t.indexOf(w) >= 0;
     const r = this.estimateFor(t, this.state.urgency);
     const items = r.items; let min = r.min, max = r.max;
@@ -633,7 +636,7 @@ class Component extends DCLogic {
     a += Math.min(34, Math.round(this.state.desc.trim().length / 5));
     a += Math.min(30, this.state.photos.length * 15);
     if (this.state.address.trim().length > 6) a += 8;
-    if (this.state.cat) a += 6;
+    if (this.state.cats.length) a += 6;
     return Math.max(12, Math.min(96, a));
   }
 
@@ -752,8 +755,24 @@ class Component extends DCLogic {
       st1: stepDot(s.step >= 1), st2: stepDot(s.step >= 2), st3: stepDot(s.step >= 3),
       swPublic: sw(s.view !== 'crm' && s.view !== 'crmDetail'), swCrm: sw(s.view === 'crm' || s.view === 'crmDetail'),
 
-      cats: CATS.map(name => ({ name, darkStyle: chipDark(name === s.cat), lightStyle: chipLight(name === s.cat),
-        pick: () => this.setState({ cat: name }), pickAndStart: () => this.setState({ cat: name, view: 'wizard', step: 1 }) })),
+      // Több munkatípus is választható: az ügyfél egy kiszállással több dolgot is
+      // elvégeztetne (pl. klímatisztítás + konnektorcsere). A becslés minden
+      // kiválasztott típus kulcsszavait figyelembe veszi.
+      // Funkcionális setState, mert a chipekre gyorsan egymás után kattintanak —
+      // a befagyott lista különben elnyelné az előző kijelölést.
+      cats: CATS.map(name => ({
+        name,
+        darkStyle:  chipDark(s.cats.indexOf(name) >= 0),
+        lightStyle: chipLight(s.cats.indexOf(name) >= 0),
+        pick: () => this.setState(st => {
+          const on = st.cats.indexOf(name) >= 0;
+          // Legalább egy típus maradjon: enélkül a becslésnek nincs mihez nyúlnia,
+          // és az utolsó chip kikapcsolása néma nulla ársávot adna.
+          if (on && st.cats.length === 1) { this.flash('Legalább egy munkatípust jelöljön meg.'); return null; }
+          return { cats: on ? st.cats.filter(x => x !== name) : st.cats.concat([name]) };
+        }),
+        pickAndStart: () => this.setState({ cats: [name], view: 'wizard', step: 1 })
+      })),
 
       goHome: () => this.setState({ view: 'home' }),
       goPublic: () => this.setState({ view: s.doneRef ? 'done' : 'home' }),
@@ -773,7 +792,8 @@ class Component extends DCLogic {
       nameStyle: fieldStyle(!s.custName.trim() || s.custName.trim().length >= 2),
       phoneStyle: fieldStyle(!s.custPhone.trim() || okPhone(s.custPhone)),
       emailStyle: fieldStyle(!s.custEmail.trim() || okEmail(s.custEmail)),
-      cat: s.cat,
+      cat: s.cats.join(', '),
+      catCount: s.cats.length,
       urgencyLabel: s.urgency === 'today' ? 'Ma / holnap (+' + (this.props.urgencySurcharge ?? 30) + '%)' : 'Ezen a héten',
       urgWeek: () => this.setState({ urgency: 'week' }), urgToday: () => this.setState({ urgency: 'today' }),
       urgWeekStyle: 'flex:1; height:52px; border-radius:13px; cursor:pointer; font-size:15px; font-weight:600; border:1.5px solid ' + (s.urgency === 'week' ? '#1B1A17' : '#E3DCD1') + '; background:' + (s.urgency === 'week' ? '#1B1A17' : '#fff') + '; color:' + (s.urgency === 'week' ? '#FAF7F2' : '#57534A') + ';',
@@ -881,7 +901,7 @@ class Component extends DCLogic {
         const now = new Date();
         const created = MON[now.getMonth()] + ' ' + now.getDate() + '. ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
         const order = { id: 'o-' + n, ref, name: s.custName.trim() || 'Új ügyfél', phone: s.custPhone.trim() || '—',
-          cat: s.cat, desc: s.desc.trim(), address: s.address.trim() || 'Szeged', photos: s.photos.slice(),
+          cat: s.cats.join(', '), desc: s.desc.trim(), address: s.address.trim() || 'Szeged', photos: s.photos.slice(),
           status: 'uj', created, items: est.items.filter(i => !i.surcharge).map(i => Object.assign({}, i, { final: i.min })),
           reasoning: est.reasoning, confidence: est.confidence, slots: s.picked.slice(), confirmed: null, notes: [] };
         this.save([order].concat(s.orders));
