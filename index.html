@@ -422,6 +422,46 @@ const CFG = Object.assign({
 // Ez NEM biztonsági határ (a böngésző tárolója üríthető) — a célja az, hogy a
 // véletlen és a lusta visszaélés ne generáljon API-hívást. A valódi limit a
 // szerveren van, lásd RATE_LIMIT.md.
+// --- élő üzemmód: a Supabase Edge Functionök hívása -----------------------
+// Ha CFG.live hamis, minden marad a demó-működésen (localStorage, helyi árazás).
+// Ez a visszaút, ha élesben bármi elromlik: egy build env-változó.
+const LIVE = !!(CFG.live && CFG.supabase && CFG.supabase.url);
+function fnUrl(name) { return CFG.supabase.url + '/functions/v1/' + name; }
+
+/**
+ * Egy Edge Function hívása. A hibát NEM nyeli el: a hívó dönt, mit mutat.
+ * A csendes elnyelés itt adatvesztés — az ügyfél azt hinné, leadta a rendelést.
+ */
+async function callFn(name, body, timeoutMs) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs || 20000);
+  try {
+    const res = await fetch(fnUrl(name), {
+      method: 'POST', signal: ctrl.signal,
+      headers: { 'Content-Type': 'application/json', apikey: CFG.supabase.key },
+      body: JSON.stringify(body || {})
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (!res.ok) {
+      const err = new Error((data && data.error) || ('Hiba (' + res.status + ')'));
+      err.status = res.status; err.code = data && data.code; err.data = data;
+      throw err;
+    }
+    return data;
+  } finally { clearTimeout(timer); }
+}
+
+/** data: URL → Blob, hogy a Storage-ba bájtként menjen, ne base64 szövegként. */
+function dataUrlToBlob(dataUrl) {
+  const [head, b64] = String(dataUrl).split(',');
+  const mime = (head.match(/data:([^;]+)/) || [])[1] || 'image/jpeg';
+  const bin = atob(b64 || '');
+  const buf = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+  return new Blob([buf], { type: mime });
+}
+
 const RLKEY = 'nyomban.rl.v1';
 function rlRead() {
   try { const r = JSON.parse(localStorage.getItem(RLKEY) || '{}'); return { day: r.day || '', count: +r.count || 0, hour: r.hour || '', hcount: +r.hcount || 0, last: +r.last || 0 }; }
@@ -497,7 +537,10 @@ function iso(d) { return d.toISOString().slice(0, 10); }
 class Component extends DCLogic {
   state = {
     view: 'home', step: 1,
-    cats: ['Hibaelhárítás'], desc: '', photos: [], address: '', urgency: 'week',
+    cats: ['Hibaelhárítás'], desc: '', photos: [], photoPaths: [], photoBusy: 0,
+    address: '', urgency: 'week',
+    estimateId: null, estFatal: '',
+    smsPhase: 'idle', smsChallenge: null, smsCode: '', smsErr: '', smsNote: '', submitting: false,
     custName: '', custPhone: '', custEmail: '',
     est: null, estimating: false, aiUsed: false,
     daySel: 0, picked: [], terms: false,
@@ -641,46 +684,122 @@ class Component extends DCLogic {
   }
 
   async runAI() {
-    // A pontosított (AI) becslés kizárólag szerveroldalon fut. Amíg nincs
-    // beállítva végpont, a kulcsszavas motor eredménye marad érvényben —
-    // ez a tervezett fallback, a felhasználó nem lát hibát.
+    // A becslés a SZERVEREN készül, ha él a kapcsolat. A mezőnevek az
+    // API_SZERZODES.md 2. pontja szerintiek — ezen bukott el korábban minden hívás.
     const base = this.localEstimate();
-    const url = CFG.quoteEndpoint;
-    if (!url) { this.setState({ est: base, estimating: false, aiUsed: false }); return; }
-    this.setState({ est: base, estimating: true, aiUsed: false });
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 20000);
+    if (!LIVE) { this.setState({ est: base, estimating: false, aiUsed: false }); return; }
+
+    this.setState({ est: base, estimating: true, aiUsed: false, estFatal: '' });
     try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: ctrl.signal,
-        body: JSON.stringify({
-          cat: this.state.cat,
-          desc: this.state.desc,
-          urgency: this.state.urgency,
-          address: this.state.address,
-          phone: this.state.custPhone,
-          photos: this.state.photos,
-          token: (window.NYOMBAN_TURNSTILE_TOKEN || null)
-        })
+      const d = await callFn('estimate', {
+        name: this.state.custName.trim(),
+        email: this.state.custEmail.trim(),
+        phone: this.state.custPhone.trim(),
+        category: this.state.cats.join(', '),
+        description: this.state.desc.trim(),
+        urgency: this.state.urgency,
+        address: this.state.address.trim(),
+        photoPaths: this.state.photoPaths || [],
+        clarifyId: this.state.clarifyId || null,
+        answers: this.state.answers || null,
+        turnstileToken: window.NYOMBAN_TURNSTILE_TOKEN || null
+      }, 25000);
+
+      if (!d || !Array.isArray(d.items) || !d.items.length) throw new Error('üres válasz');
+      this.setState({
+        est: { items: d.items, min: d.min, max: d.max, reasoning: d.reasoning || base.reasoning,
+               confidence: typeof d.confidence === 'number' ? d.confidence : this.accuracy() / 100 },
+        estimateId: d.estimateId || null, estimating: false, aiUsed: !!d.aiUsed,
+        // Ha a szerver nem tudta elmenteni a becslést, NEM lehet rá rendelést adni.
+        // Ezt most kell megmondani, nem a folyamat végén.
+        estFatal: d.estimateId ? '' : 'Az ajánlatot most nem tudjuk rögzíteni. Hívjon minket: ' + (this.props.contactPhone || '')
       });
-      if (!res.ok) throw new Error('http ' + res.status);
-      const p = await res.json();
-      if (!p || !Array.isArray(p.items) || !p.items.length) throw new Error('üres');
-      const items = p.items.map(i => ({ label: String(i.label || 'Tétel'), note: String(i.note || ''), min: +i.min || 0, max: +i.max || +i.min || 0 }));
-      let min = items.reduce((a, i) => a + i.min, 0);
-      let max = items.reduce((a, i) => a + i.max, 0);
-      if (max <= min) max = Math.round(min * 1.18);
-      this.setState({ est: { items, min, max, reasoning: p.reasoning || base.reasoning, confidence: this.accuracy() / 100 }, estimating: false, aiUsed: true });
     } catch (e) {
-      this.setState({ estimating: false });
-    } finally {
-      clearTimeout(timer);
+      // A becslés hibája nem lehet látható hiba: a helyi ársáv marad érvényben.
+      // A megrendelés viszont estimateId nélkül nem adható le — ezt jelezzük.
+      this.setState({ estimating: false, estimateId: null,
+        estFatal: 'Az ajánlatot most nem tudjuk rögzíteni. Hívjon minket: ' + (this.props.contactPhone || '') });
     }
   }
 
   // ---------- perzisztencia ----------
+  /**
+   * A kicsinyített képet aláírt linkre tölti, és az útvonalat teszi el.
+   * A SZERVER adja az útvonalat — a kliens nem befolyásolja. Enélkül egy hívó
+   * más ügyfél fotójára hivatkozhatna a becslésében.
+   */
+  async uploadPhoto(dataUrl) {
+    try {
+      this.setState(st => ({ photoBusy: (st.photoBusy || 0) + 1 }));
+      const grant = await callFn('upload-url', { count: 1 }, 15000);
+      const up = grant && grant.uploads && grant.uploads[0];
+      if (!up) throw new Error('nincs feltöltési link');
+      const res = await fetch(up.signedUrl, {
+        method: 'PUT', headers: { 'Content-Type': 'image/jpeg' }, body: dataUrlToBlob(dataUrl)
+      });
+      if (!res.ok) throw new Error('feltöltés: ' + res.status);
+      this.setState(st => ({ photoPaths: (st.photoPaths || []).concat([up.path]),
+                             photoBusy: Math.max(0, (st.photoBusy || 1) - 1) }));
+    } catch (e) {
+      // A fotó nélkül is lehet becslést kérni, csak pontatlanabbat — ezért ez
+      // figyelmeztetés, nem elakadás. De NEM néma: az ügyfélnek tudnia kell,
+      // hogy a képe nem jutott el hozzánk.
+      this.setState(st => ({ photoBusy: Math.max(0, (st.photoBusy || 1) - 1) }));
+      this.flash('A fotót nem sikerült feltölteni — a becslés fotó nélkül készül.');
+    }
+  }
+
+  async submitOrder() {
+    const s = this.state;
+    if (s.submitting) return;
+    if (!s.estimateId) {
+      return this.flash('Az ajánlatot nem sikerült rögzíteni. Kérjük, hívjon minket: ' + (this.props.contactPhone || ''));
+    }
+    this.setState({ submitting: true });
+    try {
+      // A telefonszám igazolása: ha nincs SMS-keret vagy szolgáltató, a szerver
+      // smsSkipped-et ad, és a megrendelés „visszaigazolásra vár" státusszal jön
+      // létre — a vállalkozó telefonon igazolja. Ez nem hiba, hanem fokozat.
+      let challengeId = null;
+      try {
+        const v = await callFn('verify-phone', { phone: s.custPhone.trim(), estimateId: s.estimateId }, 15000);
+        if (v && v.challengeId) challengeId = v.challengeId;
+      } catch (e) { /* az igazolás kimaradása nem állíthatja meg a leadást */ }
+
+      const slots = s.picked.map(id => {
+        const [key, i] = String(id).split('|');
+        const t = TIMES[+i] || '8:00–10:00';
+        const [a, b] = t.split('–');
+        const pad = x => (x.length === 4 ? '0' + x : x);
+        return { date: key, start: pad(a), end: pad(b) };
+      });
+
+      const d = await callFn('create-order', {
+        estimateId: s.estimateId,
+        challengeId: challengeId,
+        customer: { name: s.custName.trim(), phone: s.custPhone.trim(), email: s.custEmail.trim() || null },
+        address: s.address.trim() || 'Szeged',
+        slots: slots,
+        terms: true
+      }, 25000);
+
+      const now = new Date();
+      this.setState({
+        submitting: false, view: 'done',
+        doneRef: d.ref,                       // a SZERVERTŐL, nem kitalálva
+        doneTime: 'ma ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0')
+      });
+    } catch (e) {
+      this.setState({ submitting: false });
+      // Ha a becslést közben már felhasználták, a rendelés MEGVAN — ezt meg kell mondani.
+      if (e && e.status === 409 && e.data && e.data.ref) {
+        return this.setState({ view: 'done', doneRef: e.data.ref, doneTime: 'ma' });
+      }
+      this.flash((e && e.message ? e.message : 'A megrendelést nem sikerült elküldeni.') +
+                 ' Kérjük, hívjon minket: ' + (this.props.contactPhone || ''));
+    }
+  }
+
   save(orders) {
     try { localStorage.setItem(KEY, JSON.stringify(orders)); }
     catch (e) { this.flash('A böngésző tárhelye betelt — ezt a lépést nem sikerült elmenteni.'); }
@@ -778,7 +897,7 @@ class Component extends DCLogic {
       goPublic: () => this.setState({ view: s.doneRef ? 'done' : 'home' }),
       goCrm: () => this.setState({ view: 'crm' }),
       startFlow: () => this.setState({ view: 'wizard', step: 1 }),
-      newRequest: () => this.setState({ view: 'wizard', step: 1, desc: '', photos: [], picked: [], terms: false, est: null, doneRef: '', custName: '', custPhone: '', address: '', cat: CATS[0], urgency: 'week', aiUsed: false, daySel: 0 }),
+      newRequest: () => this.setState({ view: 'wizard', step: 1, desc: '', photos: [], photoPaths: [], photoBusy: 0, picked: [], terms: false, est: null, estimateId: null, estFatal: '', doneRef: '', custName: '', custPhone: '', custEmail: '', address: '', cats: [CATS[0]], urgency: 'week', aiUsed: false, daySel: 0, smsPhase: 'idle', smsChallenge: null, smsCode: '', smsErr: '', smsNote: '', submitting: false }),
 
       desc: s.desc, descLen: s.desc.length + ' karakter',
       descHint: s.desc.trim().length < 40 ? 'Minél részletesebb, annál pontosabb az ár' : 'Szép — ez már elég a becsléshez',
@@ -802,7 +921,10 @@ class Component extends DCLogic {
       photos: s.photos.map((url, i) => ({
         thumbStyle: 'width:140px; height:110px; border-radius:13px; position:relative; overflow:hidden; background:#EDE7DC center/cover no-repeat url(' + url + ');',
         previewStyle: 'width:112px; height:88px; border-radius:11px; background:#EDE7DC center/cover no-repeat url(' + url + ');',
-        remove: () => this.setState({ photos: s.photos.filter((_, k) => k !== i) })
+        remove: () => this.setState(st => ({
+          photos: st.photos.filter((_, k) => k !== i),
+          photoPaths: (st.photoPaths || []).filter((_, k) => k !== i)
+        }))
       })),
       photoHint: s.photos.length ? s.photos.length + ' feltöltve · minél több szög, annál pontosabb' : 'Még nincs fotó · a becslés pontosságát nagyban javítja',
       addPhotos: e => {
@@ -822,7 +944,9 @@ class Component extends DCLogic {
               cv.height = Math.max(1, Math.round(img.height * sc));
               cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
               let out; try { out = cv.toDataURL('image/jpeg', 0.7); } catch (err) { out = r.result; }
+              // Az előnézet mindig azonnal megjelenik — a feltöltés a háttérben megy.
               this.setState(st => ({ photos: st.photos.concat([out]).slice(0, CFG.maxPhotos) }));
+              if (LIVE) this.uploadPhoto(out);
             };
             // Ha nem dekódolható képként, nem tároljuk nyersen — így a méretkorlát
             // feltétel nélkül érvényes, és a hamis MIME-típus sem csúszik át.
@@ -896,6 +1020,7 @@ class Component extends DCLogic {
       acceptBtn: 'height:58px; border-radius:13px; border:none; font-size:16.5px; font-weight:600; background:#1B1A17; color:#FAF7F2; cursor:' + (canAccept ? 'pointer' : 'not-allowed') + '; opacity:' + (canAccept ? '1' : '.45') + ';',
       acceptOffer: () => {
         if (!canAccept) return this.flash('Jelöljön meg ' + minSlots + ' sávot és fogadja el az ÁSZF-et.');
+        if (LIVE) return this.submitOrder();
         const n = 420 + s.orders.length;
         const ref = 'VS-2026-0' + n;
         const now = new Date();

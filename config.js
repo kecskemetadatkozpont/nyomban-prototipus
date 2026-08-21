@@ -8,7 +8,7 @@ window.NYOMBAN_CONFIG = {
 
   // Amíg false, minden a mai demó-működésen marad (localStorage, helyi árazás).
   // Ez a visszaút, ha élesben bármi elromlik.
-  live: false,
+  live: true,
 
   // Szerveroldali árazó végpont. Amíg null, a becslés a böngészőben fut
   // (demó mód), és a pricing-demo.js szolgáltatja az árlistát.
