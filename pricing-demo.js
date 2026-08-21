@@ -15,7 +15,10 @@
   { id:'r5', label:'Elosztószekrény bővítés / csere', note:'FI-relével, sorkapcsokkal', keywords:'elosztó, tábla, biztosíték, fi-relé, fi relé, áramvédő', min:62000, max:96000, active:true },
   { id:'r6', label:'Kaputelefon hibakeresés, javítás', note:'beltéri egység cseréje külön', keywords:'kaputelefon, csengő, videokaputelefon', min:16000, max:26000, active:true },
   { id:'r7', label:'Vezetékhálózat felújítás', note:'pontonként, falhoronnyal', keywords:'felújítás, vezetékcsere, teljes felújítás, alumínium', min:120000, max:210000, active:true },
-  { id:'r8', label:'Kültéri / IP44 szerelvény', note:'terasz, kert, nedves tér', keywords:'kültéri, terasz, kert, ip44, nedves', min:11000, max:18000, active:true }
+  { id:'r8', label:'Kültéri / IP44 szerelvény', note:'terasz, kert, nedves tér', keywords:'kültéri, terasz, kert, ip44, nedves', min:11000, max:18000, active:true },
+  { id:'r9', label:'Klímatisztítás, fertőtlenítés', note:'beltéri egységenként, vegyszeres tisztítással', keywords:'klíma tisztítás, klímatisztítás, klíma karbantartás, klímaszűrő, penészes klíma, büdös klíma, klíma szagos', min:18000, max:26000, active:true },
+  { id:'r10', label:'Klíma telepítés (split)', note:'beltéri és kültéri egység, 3 fm csővel', keywords:'klíma telepítés, klímaszerelés, klíma felszerelés, split klíma, klíma beszerelés, klímát szeretnék', min:75000, max:120000, active:true },
+  { id:'r11', label:'Klíma áramkör kiépítése', note:'külön 16A kör a klímának', keywords:'klíma áramkör, klíma konnektor, klíma vezeték', min:22000, max:38000, active:true }
 ];
   const DEFAULT_GLOB = { callout:6900, hourly:9900, urgency:30, materialPct:0, minFee:12000 };
   window.NYOMBAN_PRICING = { rules: DEFAULT_RULES, glob: DEFAULT_GLOB };

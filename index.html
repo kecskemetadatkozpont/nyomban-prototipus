@@ -448,7 +448,7 @@ function rlBump() {
   rlWrite({ day: st.day, count: r.count + 1, hour: st.hour, hcount: r.hcount + 1, last: Date.now() });
 }
 
-const CATS = ['Hibaelhárítás','Konnektor / kapcsoló','Lámpa felszerelés','Felújítás','Elosztószekrény','Kaputelefon'];
+const CATS = ['Hibaelhárítás','Klíma','Konnektor / kapcsoló','Lámpa felszerelés','Felújítás','Elosztószekrény','Kaputelefon'];
 const DOW = ['Vas','Hét','Kedd','Sze','Csüt','Pén','Szo'];
 const DOWLONG = ['vasárnap','hétfő','kedd','szerda','csütörtök','péntek','szombat'];
 const MON = ['jan.','febr.','márc.','ápr.','máj.','jún.','júl.','aug.','szept.','okt.','nov.','dec.'];
@@ -484,6 +484,8 @@ function fieldStyle(ok) {
          (ok ? '#E3DCD1' : '#C4711A') + ';';
 }
 
+const ftk = n => Math.round(+n || 0).toLocaleString('hu-HU').replace(/,/g, ' ') + ' Ft';
+
 function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
 function ft(n) { return Math.round(n).toLocaleString('hu-HU').replace(/,/g, ' ') + ' Ft'; }
 function rng(a, b) { return a === b ? ft(a) : ft(a) + ' – ' + ft(b); }
@@ -514,6 +516,41 @@ class Component extends DCLogic {
       if (p && Array.isArray(p.rules) && p.rules.length) { rules = p.rules; glob = Object.assign(glob, p.glob || {}); }
     } catch (e) {}
     this.setState({ orders, rules, glob });
+  }
+
+  // ---------- AI-keret ----------
+  // A CRM a `budget` Edge Functiont hívja, admin tokennel. A token a jelszóval
+  // titkosított admin-csomagban utazik — a publikus buildben nincs benne.
+  keretCfg() {
+    const c = (typeof window !== 'undefined' && window.NYOMBAN_CONFIG) || {};
+    const base = c.supabase && c.supabase.url;
+    return base ? { url: base + '/functions/v1/budget', key: c.supabase.key, token: c.adminApiToken } : null;
+  }
+  async loadKeret() {
+    const cfg = this.keretCfg();
+    if (!cfg || !cfg.token) return this.setState({ keret: 'nincs' });
+    this.setState({ keretBusy: true });
+    try {
+      const r = await fetch(cfg.url, { method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: cfg.key, 'x-admin-token': cfg.token }, body: '{}' });
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      this.setState({ keret: d, keretAi: String(d.ai.monthly_limit), keretSms: String(d.sms.monthly_limit), keretBusy: false });
+    } catch (e) { this.setState({ keret: 'hiba', keretBusy: false }); }
+  }
+  async saveKeret() {
+    const cfg = this.keretCfg();
+    if (!cfg || !cfg.token) return;
+    this.setState({ keretBusy: true, keretSaved: '' });
+    try {
+      const r = await fetch(cfg.url, { method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: cfg.key, 'x-admin-token': cfg.token },
+        body: JSON.stringify({ action: 'set', aiMonthly: +this.state.keretAi || 0, smsMonthly: +this.state.keretSms || 0 }) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'hiba');
+      this.setState({ keret: d, keretAi: String(d.ai.monthly_limit), keretSms: String(d.sms.monthly_limit), keretSaved: 'Mentve', keretBusy: false });
+      clearTimeout(this._kt); this._kt = setTimeout(() => this.setState({ keretSaved: '' }), 3000);
+    } catch (e) { this.setState({ keretSaved: 'Nem sikerült: ' + e.message, keretBusy: false }); }
   }
 
   savePricing(rules, glob) {
