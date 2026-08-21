@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Megrendelés követése — NYOMBAN</title>
+<meta name="robots" content="noindex, nofollow">
+<!-- A Referer teljes elhagyása: ha az ügyfél bármelyik linkre kattint innen,
+     a célhely NE lássa, honnan jött — az URL a tokent tartalmazza. -->
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin:0; background:#FAF7F2; color:#1B1A17;
+  font-family:'Instrument Sans',system-ui,-apple-system,sans-serif; font-size:16px; line-height:1.5; }
+.wrap { max-width:660px; margin:0 auto; padding:0 20px; }
+header { border-bottom:1px solid #E7E1D7; background:#1B1A17; color:#FAF7F2; }
+header .wrap { display:flex; align-items:center; justify-content:space-between; gap:16px; height:64px; }
+.brand { font-family:'Familjen Grotesk',sans-serif; font-size:19px; font-weight:700; letter-spacing:-.02em; color:#FAF7F2; text-decoration:none; }
+.brand i { color:#E8A33D; font-style:normal; }
+.hphone { font-size:14.5px; font-weight:600; color:#E8A33D; text-decoration:none; }
+main { padding:30px 0 60px; }
+.card { background:#fff; border:1.5px solid #E3DCD1; border-radius:18px; padding:24px; margin-bottom:16px; }
+.lbl { font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:#9A9388; font-weight:600; }
+.ref { font-family:'Familjen Grotesk',sans-serif; font-size:26px; font-weight:700; letter-spacing:-.02em; margin:6px 0 0; }
+.badge { display:inline-block; padding:6px 13px; border-radius:100px; font-size:13.5px; font-weight:600; margin-top:10px; }
+.big { font-family:'Familjen Grotesk',sans-serif; font-size:32px; font-weight:700; line-height:1.15; letter-spacing:-.025em; margin:10px 0 0; }
+.sub { font-size:15px; color:#57534A; margin-top:8px; }
+.row { display:flex; justify-content:space-between; gap:14px; padding:11px 0; border-top:1px solid #EFEAE1; font-size:15px; }
+.row:first-of-type { border-top:none; }
+.row b { font-weight:600; white-space:nowrap; }
+.steps { display:flex; gap:6px; margin-top:18px; }
+.step { flex:1; height:6px; border-radius:100px; background:#E7E1D7; }
+.step.on { background:#E8A33D; }
+.steplabels { display:flex; gap:6px; margin-top:7px; }
+.steplabels span { flex:1; font-size:11px; color:#9A9388; text-align:center; }
+.steplabels span.on { color:#57534A; font-weight:600; }
+.call { display:block; text-align:center; background:#1B1A17; color:#FAF7F2; text-decoration:none;
+  padding:16px; border-radius:13px; font-size:16.5px; font-weight:600; margin-top:6px; }
+.muted { font-size:13.5px; color:#7A756C; line-height:1.55; }
+footer { border-top:1px solid #E7E1D7; padding:22px 0 40px; }
+footer .wrap { font-size:13px; color:#9A9388; }
+.err { text-align:center; padding:40px 0; }
+.err h1 { font-family:'Familjen Grotesk',sans-serif; font-size:24px; margin:0 0 12px; }
+@media (max-width:560px) { .big { font-size:26px; } .card { padding:19px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="../index.html">NYOMBAN<i>.</i></a>
+    <a class="hphone" href="tel:+36302549290">+36 30 254 9290</a>
+  </div>
+</header>
+
+<main class="wrap" id="fo">
+  <div class="card"><p class="muted" style="margin:0">Betöltés…</p></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    NYOMBAN · Novák Ádám e.v. · <a href="tel:+36302549290" style="color:#8A5A1B">+36 30 254 9290</a><br>
+    <a href="../adatkezeles.html" style="color:#8A5A1B">Adatkezelés</a> ·
+    <a href="../aszf.html" style="color:#8A5A1B">ÁSZF</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var API = "https://uqymbvzatjccxhrktkgm.supabase.co" + '/rest/v1/rpc/get_order_by_token';
+  var KEY = "sb_publishable_9DYs6p7Suj1qy5ws4DpLvA_hXmR3mZa";
+  var TEL = "+36 30 254 9290";
+
+  // A token a '#' mögül jön. Ez a rész sosem megy el a szerverhez.
+  var token = (location.hash || '').replace(/^#/, '').trim();
+
+  var fo = document.getElementById('fo');
+
+  // MINDEN szöveg szövegcsomópontként kerül be, sosem innerHTML-lel. Az adat a
+  // szerverről jön, de ott is ügyfél által beírt mezőkből származhat — a
+  // beillesztés helye dönti el, hogy egy „<script>" adat marad-e vagy kód lesz.
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.appendChild(document.createTextNode(String(text)));
+    return e;
+  }
+
+  function ft(n) {
+    if (n == null) return '—';
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft';
+  }
+
+  var NAPOK = ['vasárnap','hétfő','kedd','szerda','csütörtök','péntek','szombat'];
+  var HONAP = ['jan.','febr.','márc.','ápr.','máj.','jún.','júl.','aug.','szept.','okt.','nov.','dec.'];
+
+  function napSzoveg(iso) {
+    var p = String(iso).split('-');
+    if (p.length !== 3) return String(iso);
+    var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    return HONAP[d.getMonth()] + ' ' + d.getDate() + '. ' + NAPOK[d.getDay()];
+  }
+
+  function ora(t) { return String(t || '').slice(0, 5).replace(/^0/, ''); }
+
+  // Az állapotnevek az adatbázis szótárából jönnek. Az ügyfél SOHA nem lát nyers
+  // állapotnevet — az belső adat, és értelmezhetetlen kívülről.
+  var ALLAPOT = {
+    uj:                   { cimke: 'Feldolgozás alatt', bg: '#F3E7D2', fg: '#8A5A1B', lepes: 1 },
+    visszaigazolasra_var: { cimke: 'Egyeztetés alatt',  bg: '#F3E7D2', fg: '#8A5A1B', lepes: 1 },
+    elfogadva:            { cimke: 'Időpont megerősítve', bg: '#E2EDE4', fg: '#2F6B3E', lepes: 2 },
+    utban:                { cimke: 'Kollégánk úton van', bg: '#DDEAF3', fg: '#2F5F82', lepes: 3 },
+    kesz:                 { cimke: 'Elkészült',         bg: '#E9E4DA', fg: '#57534A', lepes: 4 },
+    szamlazva:            { cimke: 'Számlázva',         bg: '#1B1A17', fg: '#FAF7F2', lepes: 5 },
+    lemondva:             { cimke: 'Lemondva',          bg: '#F0E3E3', fg: '#8A3B3B', lepes: 0 }
+  };
+
+  function hiba(uzenet) {
+    fo.textContent = '';
+    var d = el('div', 'card');
+    var w = el('div', 'err');
+    w.appendChild(el('h1', null, 'Ez a link nem érvényes'));
+    w.appendChild(el('p', 'muted', uzenet));
+    var a = el('a', 'call', 'Hívjon minket: ' + TEL);
+    a.href = 'tel:' + TEL.replace(/\s/g, '');
+    a.style.marginTop = '18px';
+    w.appendChild(a);
+    d.appendChild(w);
+    fo.appendChild(d);
+  }
+
+  if (!/^[0-9a-fA-F-]{36}$/.test(token)) {
+    // Ugyanaz az üzenet érvénytelen és ismeretlen tokenre. A különbségtétel maga
+    // is információ lenne annak, aki próbálgat.
+    hiba('Lehet, hogy elgépelés történt, vagy a link már lejárt. Ha Öntől származik, hívjon minket.');
+    return;
+  }
+
+  fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: KEY, Authorization: 'Bearer ' + KEY },
+    body: JSON.stringify({ p_token: token })
+  })
+    .then(function (r) {
+      if (r.status === 429) throw new Error('sok');
+      if (!r.ok) throw new Error('http');
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d || !d.ref) { hiba('Lehet, hogy elgépelés történt, vagy a link már lejárt. Ha Öntől származik, hívjon minket.'); return; }
+      rajzol(d);
+    })
+    .catch(function (e) {
+      if (e.message === 'sok') {
+        // Külön, semleges üzenet: mobilhálózaton egy VALÓDI ügyfél is beleeshet a
+        // kérés-korlátba, és nem szabad neki azt írni, hogy a saját linkje hibás.
+        hiba('Túl sok kérés érkezett rövid idő alatt. Kérjük, próbálja néhány perc múlva.');
+      } else {
+        hiba('A megrendelés adatait most nem tudjuk betölteni. Kérjük, próbálja később, vagy hívjon minket.');
+      }
+    });
+
+  function rajzol(d) {
+    fo.textContent = '';
+    var a = ALLAPOT[d.status] || ALLAPOT.uj;
+
+    // ---------- fejléc: munkaszám és állapot ----------
+    var fej = el('div', 'card');
+    fej.appendChild(el('div', 'lbl', 'Munkaszám'));
+    fej.appendChild(el('p', 'ref', d.ref));
+    var b = el('span', 'badge', a.cimke);
+    b.style.background = a.bg; b.style.color = a.fg;
+    fej.appendChild(b);
+
+    var sav = el('div', 'steps'), cim = el('div', 'steplabels');
+    ['Leadva','Egyeztetve','Úton','Munka','Kész'].forEach(function (nev, i) {
+      var s = el('div', 'step' + (i < a.lepes ? ' on' : ''));
+      sav.appendChild(s);
+      cim.appendChild(el('span', i < a.lepes ? 'on' : '', nev));
+    });
+    fej.appendChild(sav); fej.appendChild(cim);
+    fo.appendChild(fej);
+
+    // ---------- a fő blokk: a megerősített időpont ----------
+    // Ez az egyetlen információ, amiért az ügyfél visszatér a lapra, ezért ez a
+    // legnagyobb elem.
+    var f = el('div', 'card');
+    if (d.confirmedSlot) {
+      f.appendChild(el('div', 'lbl', 'A megbeszélt időpont'));
+      f.appendChild(el('p', 'big', napSzoveg(d.confirmedSlot.date)));
+      f.appendChild(el('p', 'big', ora(d.confirmedSlot.start) + '–' + ora(d.confirmedSlot.end)));
+      f.appendChild(el('p', 'sub', 'Kollégánk ebben az idősávban érkezik. Ha közbejön valami, kérjük, hívjon minket.'));
+    } else if (d.slots && d.slots.length) {
+      f.appendChild(el('div', 'lbl', 'Megjelölt időpontok'));
+      f.appendChild(el('p', 'sub', 'Ezek közül erősítünk meg egyet, és értesítjük Önt.'));
+      d.slots.forEach(function (s) {
+        var r = el('div', 'row');
+        r.appendChild(el('span', null, napSzoveg(s.date)));
+        r.appendChild(el('b', null, ora(s.start) + '–' + ora(s.end)));
+        f.appendChild(r);
+      });
+    } else {
+      f.appendChild(el('div', 'lbl', 'Időpont'));
+      f.appendChild(el('p', 'sub', 'Egyeztetés alatt. Hamarosan keressük.'));
+    }
+    fo.appendChild(f);
+
+    // ---------- ár ----------
+    // Két állapot, SOHA nem keverve: vagy a közölt becslés, vagy a végösszeg.
+    var ar = el('div', 'card');
+    if (d.finalTotal != null) {
+      ar.appendChild(el('div', 'lbl', 'Végösszeg'));
+      ar.appendChild(el('p', 'big', ft(d.finalTotal)));
+      ar.appendChild(el('p', 'sub', 'Bruttó, anyaggal együtt.'));
+    } else {
+      ar.appendChild(el('div', 'lbl', 'Közölt becslés'));
+      ar.appendChild(el('p', 'big', ft(d.aiMin) + ' – ' + ft(d.aiMax)));
+      ar.appendChild(el('p', 'sub', 'Iránymutató becslés a leírás és a fotók alapján. A végleges összeget a szerelő a helyszíni felmérés után, a munka megkezdése előtt mondja meg.'));
+    }
+    (d.items || []).forEach(function (i) {
+      var r = el('div', 'row');
+      r.appendChild(el('span', null, i.label));
+      var v = (i.final != null) ? ft(i.final)
+            : (i.max && i.max !== i.min ? ft(i.min) + '–' + ft(i.max) : ft(i.min));
+      r.appendChild(el('b', null, v));
+      ar.appendChild(r);
+    });
+    fo.appendChild(ar);
+
+    // ---------- kapcsolat ----------
+    var k = el('div', 'card');
+    k.appendChild(el('div', 'lbl', 'Kérdése van?'));
+    k.appendChild(el('p', 'sub', 'Hívjon minket bármikor 7 és 19 óra között.'));
+    var h = el('a', 'call', 'Hívás: ' + TEL);
+    h.href = 'tel:' + TEL.replace(/\s/g, '');
+    k.appendChild(h);
+    fo.appendChild(k);
+  }
+})();
+</script>
+
+</body>
+</html>
