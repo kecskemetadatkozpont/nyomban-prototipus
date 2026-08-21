@@ -647,7 +647,8 @@ class Component extends DCLogic {
     daySel: 0, picked: [], terms: false,
     orders: [], curId: null, filter: 'mind', search: '', noteDraft: '', toast: '', doneRef: '', doneTime: '',
     rules: DEFAULT_RULES, glob: DEFAULT_GLOB,
-    mapBusy: false, mapErr: false
+    mapBusy: false, mapErr: false,
+    slotPick: null
   };
 
   componentDidMount() {
@@ -665,6 +666,33 @@ class Component extends DCLogic {
     } catch (e) {}
     this.setState({ orders, rules, glob });
   }
+
+  // ---------- időpont megerősítése ----------
+  // EGY helyen dől el, mi történik megerősítéskor: a sáv rögzül, a munka
+  // „Elfogadva" lesz, és az ügyfél értesítést kap. A három eddig szétesett —
+  // a státuszt külön kellett átállítani, az értesítésről pedig a felület azt
+  // állította, hogy kiment, holott nem ment sehova.
+  async confirmSlotId(id, isChange) {
+    // ELŐBB a szerver, UTÁNA a képernyő. Fordítva a felület akkor is zöld pipát
+    // mutatna, ha a mentés elbukott — a szerelő azt hinné, elintézte, az ügyfél
+    // meg semmiről nem tudna. (Egyszer pontosan ez történt: a felület
+    // „megerősítve"-t írt, a szerver közben 404-et adott.)
+    const res = await this.pushConfirm(id);
+    if (!res.ok) {
+      this.flash('Az időpontot NEM sikerült megerősíteni. Próbálja újra.');
+      return;
+    }
+    this.patch(o => { o.confirmed = id; o.status = 'elfogadva'; return o; });
+    this.setState({ slotPick: null });
+    this.flash(res.emailSent
+      ? (isChange ? 'Időpont módosítva · az ügyfél e-mailt kapott' : 'Időpont megerősítve · az ügyfél e-mailt kapott')
+      : (isChange ? 'Időpont módosítva — az ügyfelet még kézzel kell értesítenie' : 'Időpont megerősítve — az ügyfelet még kézzel kell értesítenie'));
+  }
+
+  // Demóban nincs szerver, tehát a megerősítés helyben sikerül. Az `emailSent`
+  // false: az értesítés még nincs bekötve, és a „kiküldve" felirat e-mail nélkül
+  // hazugság lenne — a szerelő nem hívná fel az ügyfelet, mert azt hinné, értesült.
+  async pushConfirm() { return { ok: true, emailSent: false }; }
 
   // ---------- térkép ----------
   // A prototípusban nincs szerver, tehát nincs mit geokódolni. Az éles buildben a
