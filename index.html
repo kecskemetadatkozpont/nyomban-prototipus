@@ -700,6 +700,7 @@ class Component extends DCLogic {
     orders: [], curId: null, filter: 'mind', search: '', noteDraft: '', toast: '', doneRef: '', doneTime: '',
     rules: DEFAULT_RULES, glob: DEFAULT_GLOB,
     mapBusy: false, mapErr: false,
+    ujTetelLabel: '', ujTetelAr: '',
     slotPick: null
   };
 
@@ -717,6 +718,32 @@ class Component extends DCLogic {
       if (p && Array.isArray(p.rules) && p.rules.length) { rules = p.rules; glob = Object.assign(glob, p.glob || {}); }
     } catch (e) {}
     this.setState({ orders, rules, glob });
+  }
+
+  // ---------- kézi tétel felvitele ----------
+  //
+  // A helyszínen mindig kiderül valami, amit a becslés nem tudhatott. Eddig ezt
+  // csak a meglévő tételek árának felülírásával lehetett beleszámolni — ott
+  // viszont nem látszott, MIÉRT lett drágább. Külön tétellel az ügyfél is látja.
+  //
+  // A `kezi: true` jelöli meg: ezt a szerelő vitte fel, nem az AI. A `min`/`max`
+  // a beírt árral egyenlő, tehát az „AI becslés" oszlopban nem jelenik meg hamis
+  // sáv — a kézi tételnek nincs becslése, van ára.
+  ujTetelt() {
+    const nev = (this.state.ujTetelLabel || '').trim();
+    const ar = +this.state.ujTetelAr || 0;
+    if (!nev) return this.flash('Adja meg a tétel megnevezését.');
+    if (ar <= 0) return this.flash('Adja meg a tétel árát.');
+    if (ar > 5000000) return this.flash('Ez az összeg túl nagynak tűnik — ellenőrizze.');
+
+    this.patch(o => {
+      o.items = (o.items || []).concat([{
+        label: nev, note: 'a szerelő vitte fel', min: ar, max: ar, final: ar, kezi: true
+      }]);
+      return o;
+    });
+    this.setState({ ujTetelLabel: '', ujTetelAr: '' });
+    this.flash('Tétel hozzáadva: ' + nev);
   }
 
   // ---------- időpont megerősítése ----------
