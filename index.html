@@ -781,6 +781,7 @@ class Component extends DCLogic {
     mapBusy: false, mapErr: false,
     ujTetelLabel: '', ujTetelAr: '',
     nagyKep: null, nagyKepIdx: 0,
+    vjAr: '', vjKerdesek: '',
     dragAktiv: false,
     slotPick: null
   };
@@ -799,6 +800,14 @@ class Component extends DCLogic {
       if (p && Array.isArray(p.rules) && p.rules.length) { rules = p.rules; glob = Object.assign(glob, p.glob || {}); }
     } catch (e) {}
     this.setState({ orders, rules, glob });
+  }
+
+  // ---------- visszajelzés az AI-nak ----------
+  // A demóban nincs szerver; az éles buildben a build.mjs cseréli le.
+  async visszajelzestKuld() {
+    if (!this.state.vjAr && !this.state.vjKerdesek.trim()) return;
+    this.setState({ vjAr: '', vjKerdesek: '' });
+    this.flash('Visszajelzés mentve — köszönjük.');
   }
 
   // ---------- kézi tétel felvitele ----------
