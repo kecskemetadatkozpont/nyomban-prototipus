@@ -47,10 +47,26 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* A felület VILÁGOS. Ezt ki kell mondani, különben a sötét módban futó böngésző
+     a saját sötét stílusával festi meg az űrlapmezőket: a mező fekete lesz, a
+     lap körülötte krémszínű marad. Az árazási szabályok képernyőjén ez tette
+     olvashatatlanná az árakat és a kulcsszavakat — de MINDEN mezőt érintett,
+     az ajánlatkérő űrlapot is. */
+  :root { color-scheme: light; }
+
   body { margin:0; background:#FAF7F2; }
   a { color:#8A5A1B; text-decoration:none; }
   a:hover { color:#B8791F; }
-  input, textarea, button { font-family:'Instrument Sans',system-ui,sans-serif; }
+
+  /* A `color-scheme` mellé kimondott háttér és betűszín is jár: így akkor sem
+     csúszik el semmi, ha a böngésző máshogy értelmezi a jelzést. */
+  input, textarea, select, button { font-family:'Instrument Sans',system-ui,sans-serif; }
+  input, textarea, select {
+    background:#fff;
+    color:#1B1A17;
+    -webkit-text-fill-color:#1B1A17;   /* Safari a saját színét erőltetné */
+  }
+  input::placeholder, textarea::placeholder { color:#A9A296; opacity:1; }
   textarea:focus, input:focus { outline:2px solid #E8A33D; outline-offset:1px; }
   @keyframes vsPulse { 0%,100%{opacity:.35} 50%{opacity:1} }
 </style>
