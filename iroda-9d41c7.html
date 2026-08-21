@@ -58,13 +58,16 @@
 
   var fails = 0;
 
-  // Az admin munkamenet a sessionStorage-ban él (fül bezárásakor elszáll).
-  // A localStorage-ban maradt korábbi CRM-adatot itt takarítjuk el — az a
-  // publikus oldal számára is olvasható lenne, mert közös az origin.
-  try {
-    localStorage.removeItem('nyomban.orders.v1');
-    localStorage.removeItem('nyomban.pricing.v1');
-  } catch (e) {}
+  // Az admin munkamenet a sessionStorage-ban él (fül bezárásakor elszáll), és az
+  // admin SOHA nem ír a localStorage-ba — ezt a build őrzi.
+  //
+  // Korábban itt kitakarítottuk a localStorage-ot is. Azt visszavontuk: a demóban
+  // az ügyféloldalon leadott ajánlatkérések ott élnek, és a CRM-nek épp azokat kell
+  // megmutatnia. A takarítás némán megette őket, és a tesztelő azt látta, hogy a
+  // leadott ajánlatkérés eltűnt.
+  //
+  // Ez nem gyengíti a védelmet: az admin nem ír oda, tehát CRM-adat nem is kerülhet
+  // olyan tárolóba, amit a publikus oldal olvashat.
 
   function b64(s) {
     var bin = atob(s), out = new Uint8Array(bin.length);

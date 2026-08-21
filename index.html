@@ -698,7 +698,7 @@ class Component extends DCLogic {
     if (!tips.length) tips.push({ text: 'Minden megvan — az ársáv ennél pontosabb már csak a helyszínen lesz' });
 
     const day = this.days[s.daySel] || this.days[0];
-    const picked = s.picked.map((id, i) => ({ n: i + 1, label: this.slotLabel(id), remove: () => this.setState({ picked: s.picked.filter(x => x !== id) }) }));
+    const picked = s.picked.map((id, i) => ({ n: i + 1, label: this.slotLabel(id), remove: () => this.setState(st => ({ picked: st.picked.filter(x => x !== id) })) }));
 
     const d = {};
 
@@ -820,9 +820,16 @@ class Component extends DCLogic {
           style: 'display:flex; align-items:center; justify-content:center; gap:9px; height:56px; border-radius:12px; font-size:15.5px; font-weight:' + (on ? '600' : '400') + '; cursor:' + (sl.free ? 'pointer' : 'not-allowed') + '; border:1.5px solid ' + (on ? '#1B1A17' : '#E3DCD1') + '; background:' + (on ? '#1B1A17' : (sl.free ? '#fff' : '#E8E1D6')) + '; color:' + (on ? '#FAF7F2' : (sl.free ? '#1B1A17' : '#B4ADA2')) + ';',
           toggle: () => {
             if (!sl.free) return this.flash('Ez a sáv már betelt.');
-            if (on) return this.setState({ picked: s.picked.filter(x => x !== sl.id) });
-            if (s.picked.length >= minSlots) return this.flash('Már ' + minSlots + ' sávot megjelölt — vegyen ki egyet.');
-            this.setState({ picked: s.picked.concat([sl.id]) });
+            // Funkcionális setState: a `s.picked` a renderelés pillanatában befagyott
+            // másolat. Gyors egymás utáni kattintásnál a React még nem rendereltette
+            // újra a komponenst, tehát a második kattintás is a RÉGI listát látta, és
+            // felülírta az elsőt — a kijelölés némán elveszett.
+            this.setState(st => {
+              const has = st.picked.indexOf(sl.id) >= 0;
+              if (has) return { picked: st.picked.filter(x => x !== sl.id) };
+              if (st.picked.length >= minSlots) { this.flash('Már ' + minSlots + ' sávot megjelölt — vegyen ki egyet.'); return null; }
+              return { picked: st.picked.concat([sl.id]) };
+            });
           } };
       }),
       picked, nonePicked: picked.length === 0,
