@@ -630,7 +630,8 @@ class Component extends DCLogic {
     questions: [], answers: {}, clarifyId: null, clarifyLoading: false,
     daySel: 0, picked: [], terms: false,
     orders: [], curId: null, filter: 'mind', search: '', noteDraft: '', toast: '', doneRef: '', doneTime: '',
-    rules: DEFAULT_RULES, glob: DEFAULT_GLOB
+    rules: DEFAULT_RULES, glob: DEFAULT_GLOB,
+    mapBusy: false, mapErr: false
   };
 
   componentDidMount() {
@@ -647,6 +648,14 @@ class Component extends DCLogic {
       if (p && Array.isArray(p.rules) && p.rules.length) { rules = p.rules; glob = Object.assign(glob, p.glob || {}); }
     } catch (e) {}
     this.setState({ orders, rules, glob });
+  }
+
+  // ---------- térkép ----------
+  // A prototípusban nincs szerver, tehát nincs mit geokódolni. Az éles buildben a
+  // build.mjs ezt lecseréli az `orders` végpont hívására.
+  async loadMap() {
+    this.setState({ mapBusy: true, mapErr: false });
+    setTimeout(() => this.setState({ mapBusy: false, mapErr: true }), 600);
   }
 
   // ---------- AI-keret ----------
