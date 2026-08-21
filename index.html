@@ -220,9 +220,49 @@
           </div>
         </div>
         <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:16px;">
+          <!-- TAGOLT címmezők, nem egyetlen szabad szöveg.
+               A felmérés mindkettőt megépítette és lemérte: az egymezős változat
+               valódi magyar címformákon megbukik. „1131 Budapest, Váci út 12."
+               → „Budapesti út", 8,2 km tévedés, magabiztosan elfogadva.
+               Tagolt mezőknél nincs mit kitalálni: nem kell visszafejteni, hol ér
+               véget a város és hol kezdődik az utca. -->
           <div style="display:flex; flex-direction:column; gap:11px;">
             <span style="font-size:14px; font-weight:600;">Helyszín</span>
-            <input type="text" onChange="{{ setAddr }}" value="{{ address }}" placeholder="Szeged, utca, házszám" style="height:52px; border:1.5px solid #E3DCD1; border-radius:13px; background:#fff; padding:0 16px; font-size:16px; color:#1B1A17;">
+
+            <div style="display:grid; grid-template-columns:96px 1fr; gap:9px;">
+              <input type="text" onChange="{{ setIrsz }}" value="{{ irsz }}" inputmode="numeric" maxlength="4" placeholder="Irsz." style="height:50px; border:1.5px solid #E3DCD1; border-radius:12px; background:#fff; padding:0 13px; font-size:15.5px;">
+              <div style="position:relative;">
+                <input type="text" onChange="{{ setTelepules }}" value="{{ telepules }}" autocomplete="off" placeholder="Település" style="width:100%; height:50px; border:1.5px solid #E3DCD1; border-radius:12px; background:#fff; padding:0 13px; font-size:15.5px;">
+                <sc-if value="{{ telHasList }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute; z-index:20; top:54px; left:0; right:0; background:#fff; border:1.5px solid #E3DCD1; border-radius:12px; box-shadow:0 12px 28px rgba(27,26,23,.13); overflow:hidden; max-height:232px; overflow-y:auto;">
+                  <sc-for list="{{ telList }}" as="t" hint-placeholder-count="3">
+                    <div onClick="{{ t.pick }}" style="{{ t.style }}"><span>{{ t.nev }}</span><span style="font-size:13px; color:#9A9388;">{{ t.sub }}</span></div>
+                  </sc-for>
+                </div>
+                </sc-if>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 108px; gap:9px;">
+              <div style="position:relative;">
+                <input type="text" onChange="{{ setUtca }}" value="{{ utca }}" autocomplete="off" placeholder="{{ utcaPlaceholder }}" style="width:100%; height:50px; border:1.5px solid #E3DCD1; border-radius:12px; background:#fff; padding:0 13px; font-size:15.5px;">
+                <sc-if value="{{ utcaHasList }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute; z-index:20; top:54px; left:0; right:0; background:#fff; border:1.5px solid #E3DCD1; border-radius:12px; box-shadow:0 12px 28px rgba(27,26,23,.13); overflow:hidden; max-height:232px; overflow-y:auto;">
+                  <sc-for list="{{ utcaList }}" as="u" hint-placeholder-count="3">
+                    <div onClick="{{ u.pick }}" style="{{ u.style }}"><span>{{ u.nev }}</span></div>
+                  </sc-for>
+                </div>
+                </sc-if>
+              </div>
+              <!-- A HÁZSZÁM külön mező, és a rendszer SOHA nem írja felül. Ha az
+                   utcaválasztás beleírna, a házszám csendben elveszne — a szerelő
+                   kiszállna és nem találná meg a helyszínt. Az rosszabb, mint az
+                   elveszett megrendelés. -->
+              <input type="text" onChange="{{ setHazszam }}" value="{{ hazszam }}" placeholder="Házszám" style="height:50px; border:1.5px solid #E3DCD1; border-radius:12px; background:#fff; padding:0 13px; font-size:15.5px;">
+            </div>
+
+            <input type="text" onChange="{{ setEmelet }}" value="{{ emelet }}" placeholder="Emelet, ajtó, kapukód — ha van (nem kötelező)" style="height:50px; border:1.5px solid #E3DCD1; border-radius:12px; background:#fff; padding:0 13px; font-size:15.5px;">
+            <span style="{{ cimHintStyle }}">{{ cimHint }}</span>
           </div>
           <div style="display:flex; flex-direction:column; gap:11px;">
             <span style="font-size:14px; font-weight:600;">Sürgősség</span>
@@ -636,6 +676,13 @@ class Component extends DCLogic {
     view: 'home', step: 1,
     cats: ['Hibaelhárítás'], desc: '', photos: [], photoPaths: [], photoBusy: 0,
     address: '', urgency: 'week',
+    // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
+    // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
+    irsz: '', telepules: '', telepulesId: null, utca: '', hazszam: '', emelet: '',
+    telList: [], utcaList: [], cimBusy: false,
+    // Igaz, ha az utcát a LISTÁBÓL választották. A lista a választáskor kiürül,
+    // ezért önmagában az üres lista nem jelenti, hogy nem találtunk semmit.
+    utcaTalalt: false,
     estimateId: null, estFatal: '',
     smsPhase: 'idle', smsChallenge: null, smsCode: '', smsErr: '', smsNote: '', submitting: false,
     custName: '', custPhone: '', custEmail: '',
@@ -833,6 +880,118 @@ class Component extends DCLogic {
     return Math.max(12, Math.min(96, a));
   }
 
+
+  // ---------- tagolt cím ----------
+  //
+  // A VASSZABÁLY: a javaslat segít, de SOHA nem kötelező. Ha a keresett település
+  // vagy utca nincs a listában, az ügyfél beírja, és a megrendelés létrejön. Csak
+  // a koordináta marad üresen. Egy elutasított cím elveszett munka — és a hiányzó
+  // adat nem az ügyfél hibája: a magyar utcaadat országosan hiányos.
+  cimOsszerak(st) {
+    const r = [];
+    const t = [st.irsz, st.telepules].filter(x => x && x.trim()).join(' ').trim();
+    if (t) r.push(t);
+    const u = [st.utca, st.hazszam].filter(x => x && x.trim()).join(' ').trim();
+    if (u) r.push(u);
+    if (st.emelet && st.emelet.trim()) r.push(st.emelet.trim());
+    return r.join(', ');
+  }
+
+  cimValt(mezo, ertek) {
+    this.setState(st => {
+      const next = Object.assign({}, st, { [mezo]: ertek });
+      // A település átírása érvényteleníti a hozzá kötött utcát: egy másik város
+      // utcáját felkínálni rosszabb, mint semmit.
+      if (mezo === 'telepules') { next.telepulesId = null; next.utcaList = []; next.utcaTalalt = false; }
+      if (mezo === 'utca') next.utcaTalalt = false;   // kézi gépelés = újra keresünk
+      next.address = this.cimOsszerak(next);
+      return next;
+    }, () => {
+      if (mezo === 'telepules') this.telepuleseketKeres(ertek);
+      if (mezo === 'utca') this.utcakatKeres(ertek);
+      if (mezo === 'irsz' && String(ertek).length === 4) this.irszAlapjan(ertek);
+    });
+  }
+
+  telepulestValaszt(t) {
+    this.setState(st => {
+      const next = Object.assign({}, st, {
+        telepules: t.nev, telepulesId: t.id, telList: [],
+        irsz: st.irsz || t.irsz || ''
+      });
+      next.address = this.cimOsszerak(next);
+      return next;
+    });
+  }
+
+  utcatValaszt(u) {
+    // A házszámhoz NEM nyúlunk — se törlés, se felülírás.
+    this.setState(st => {
+      const next = Object.assign({}, st, { utca: u.nev, utcaList: [], utcaTalalt: true });
+      next.address = this.cimOsszerak(next);
+      return next;
+    });
+  }
+
+  // A demóban nincs adatbázis; élesben a build.mjs cseréli le ezeket a geo
+  // keresőfüggvények hívására.
+  _rpc(fn, args) {
+    const c = (typeof window !== 'undefined' && window.NYOMBAN_CONFIG) || {};
+    const base = c.supabase && c.supabase.url;
+    if (!base) return Promise.resolve([]);
+    return fetch(base + '/rest/v1/rpc/' + fn, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: c.supabase.key, Authorization: 'Bearer ' + c.supabase.key },
+      body: JSON.stringify(args)
+    }).then(r => (r.ok ? r.json() : []))
+      .then(d => (Array.isArray(d) ? d : []))
+      .catch(() => []);   // a címkiegészítés kiesése NEM akadályozhatja a megrendelést
+  }
+
+  _kesleltet(kulcs, fn) {
+    clearTimeout(this['_t_' + kulcs]);
+    this['_t_' + kulcs] = setTimeout(fn, 180);
+  }
+
+  async telepuleseketKeres(q) {
+    const sz = String(q || '').trim();
+    if (sz.length < 2) return this.setState({ telList: [] });
+    this._kesleltet('tel', async () => {
+      const d = await this._rpc('telepules_kereso', { q: sz, max_db: 6 });
+      // Csak akkor írjuk ki, ha a mező TARTALMA még ugyanaz — különben egy lassú
+      // válasz felülírná a közben továbbgépelt szöveghez tartozó listát.
+      if (String(this.state.telepules || '').trim() !== sz) return;
+      this.setState({ telList: d });
+    });
+  }
+
+  async utcakatKeres(q) {
+    const sz = String(q || '').trim();
+    const tid = this.state.telepulesId;
+    if (!tid || sz.length < 2) return this.setState({ utcaList: [] });
+    this._kesleltet('utca', async () => {
+      const d = await this._rpc('utca_kereso', { p_telepules: tid, q: sz, max_db: 6 });
+      if (String(this.state.utca || '').trim() !== sz) return;
+      this.setState({ utcaList: d });
+    });
+  }
+
+  async irszAlapjan(irsz) {
+    // Az irányítószám kitölti a települést, HA a mező még üres. 508 magyar
+    // irányítószám több települést is fed, ezért a beírt településnév mindig
+    // erősebb — nem írjuk felül.
+    if (String(this.state.telepules || '').trim()) return;
+    const d = await this._rpc('telepules_kereso', { q: String(irsz), max_db: 1 });
+    const t = d && d[0];
+    if (!t) return;
+    const pontos = await this._rpc('telepules_kereso', { q: t.nev, max_db: 1 });
+    const hit = (pontos && pontos[0]) || t;
+    this.setState(st => {
+      const next = Object.assign({}, st, { telepules: hit.nev, telepulesId: hit.id, telList: [] });
+      next.address = this.cimOsszerak(next);
+      return next;
+    });
+  }
 
   // ---------- Tisztázó kérdések ----------
   // Ez a DEMÓ / VISSZAESÉSI ág: se hálózat, se kulcs nem kell hozzá. A build.mjs
@@ -1096,6 +1255,11 @@ class Component extends DCLogic {
 
     const canAccept = s.picked.length >= minSlots && s.terms;
 
+    // „Kerestünk, és tényleg nincs találat." A lista a választáskor bezárul, ezért
+    // az üres lista önmagában nem jelent hiányt — az `utcaTalalt` különbözteti meg
+    // a két esetet.
+    const nincsUtca = !!(s.telepulesId && !s.utcaTalalt && !s.utcaList.length && s.utca.trim().length > 2);
+
     return Object.assign({
       contactName, contactPhone, contactFirst, contactInitials: initials,
       telHref: 'tel:' + contactPhone.replace(/\s/g, ''),
@@ -1138,6 +1302,45 @@ class Component extends DCLogic {
       setDesc: e => this.setState({ desc: e.target.value }),
       address: s.address, addressLabel: s.address.trim() || 'Szeged (pontosítandó)',
       setAddr: e => this.setState({ address: e.target.value }),
+
+      // ---------- tagolt címmezők ----------
+      irsz: s.irsz, telepules: s.telepules, utca: s.utca, hazszam: s.hazszam, emelet: s.emelet,
+      setIrsz:     e => this.cimValt('irsz', e.target.value),
+      setTelepules:e => this.cimValt('telepules', e.target.value),
+      setUtca:     e => this.cimValt('utca', e.target.value),
+      // A házszám és az emelet SEMMILYEN keresést nem indít, és semmi nem írja felül.
+      setHazszam:  e => this.cimValt('hazszam', e.target.value),
+      setEmelet:   e => this.cimValt('emelet', e.target.value),
+
+      utcaPlaceholder: s.telepulesId ? 'Közterület neve' : 'Előbb a település',
+
+      telHasList: (s.telList || []).length > 0,
+      telList: (s.telList || []).map((t, i) => ({
+        nev: t.nev,
+        sub: t.irsz || '',
+        style: 'display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 13px; cursor:pointer; font-size:15px; border-top:' + (i ? '1px solid #EFEAE1' : 'none') + ';',
+        pick: () => this.telepulestValaszt(t)
+      })),
+
+      utcaHasList: (s.utcaList || []).length > 0,
+      utcaList: (s.utcaList || []).map((u, i) => ({
+        nev: u.nev,
+        style: 'padding:11px 13px; cursor:pointer; font-size:15px; border-top:' + (i ? '1px solid #EFEAE1' : 'none') + ';',
+        pick: () => this.utcatValaszt(u)
+      })),
+
+      // A felület SOHA nem mondja, hogy „ilyen cím nincs". Az adat hiányos —
+      // a települések 41%-ának tíz vagy kevesebb utcája van rögzítve —, tehát a
+      // hiányzó találat az ADATRÓL szól, nem az ügyfélről.
+      // Csak akkor jelezzük, hogy nincs találat, ha tényleg kerestünk és nem
+      // választottak a listából. A lista a választáskor bezárul — az üres lista
+      // önmagában nem jelent hiányt.
+      cimHint: !s.telepules.trim()
+        ? 'Kezdje a település nevével — a többi mező onnantól javaslatot ad.'
+        : (nincsUtca
+            ? 'Ezt a közterületet nem találjuk a listánkban — írja be nyugodtan, így is elfogadjuk.'
+            : 'A javaslatok segítenek, de bármit beírhat kézzel is.'),
+      cimHintStyle: 'font-size:12.5px; line-height:1.45; color:' + (nincsUtca ? '#8A5A1B' : '#9A9388') + ';',
       custName: s.custName, setName: e => this.setState({ custName: e.target.value }),
       custPhone: s.custPhone, setPhone: e => this.setState({ custPhone: e.target.value }),
       custEmail: s.custEmail, setEmail: e => this.setState({ custEmail: e.target.value }),
