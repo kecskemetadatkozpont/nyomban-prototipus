@@ -679,7 +679,7 @@ class Component extends DCLogic {
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
     irsz: '', telepules: '', telepulesId: null, utca: '', hazszam: '', emelet: '',
-    telList: [], utcaList: [], cimBusy: false,
+    telList: [], utcaList: [], cimBusy: false, varosresz: null,
     // Igaz, ha az utcát a LISTÁBÓL választották. A lista a választáskor kiürül,
     // ezért önmagában az üres lista nem jelenti, hogy nem találtunk semmit.
     utcaTalalt: false,
@@ -902,7 +902,7 @@ class Component extends DCLogic {
       const next = Object.assign({}, st, { [mezo]: ertek });
       // A település átírása érvényteleníti a hozzá kötött utcát: egy másik város
       // utcáját felkínálni rosszabb, mint semmit.
-      if (mezo === 'telepules') { next.telepulesId = null; next.utcaList = []; next.utcaTalalt = false; }
+      if (mezo === 'telepules') { next.telepulesId = null; next.utcaList = []; next.utcaTalalt = false; next.varosresz = null; }
       if (mezo === 'utca') next.utcaTalalt = false;   // kézi gépelés = újra keresünk
       next.address = this.cimOsszerak(next);
       return next;
@@ -917,6 +917,10 @@ class Component extends DCLogic {
     this.setState(st => {
       const next = Object.assign({}, st, {
         telepules: t.nev, telepulesId: t.id, telList: [],
+        // A városrészt is eltároljuk: ha az utcát nem találjuk meg, ebből
+        // pontosabb koordináta lesz, mint a város közepéből. Szeged Tarján
+        // városrésze 5 km-re van a belvárostól.
+        varosresz: t.varosresz || null,
         irsz: st.irsz || t.irsz || ''
       });
       next.address = this.cimOsszerak(next);
@@ -957,7 +961,10 @@ class Component extends DCLogic {
     const sz = String(q || '').trim();
     if (sz.length < 2) return this.setState({ telList: [] });
     this._kesleltet('tel', async () => {
-      const d = await this._rpc('telepules_kereso', { q: sz, max_db: 6 });
+      // Az irányítószámot is átadjuk. NEM szűr, csak pontoz: egy elgépelt
+      // irányítószám így nem zárja ki a helyes települést. („Nádudvar" + 6345
+      // esetén enélkül a 4181-es Nádudvar nyert a helyes Nemesnádudvar ellen.)
+      const d = await this._rpc('telepules_kereso', { q: sz, max_db: 6, p_irsz: this.state.irsz || null });
       // Csak akkor írjuk ki, ha a mező TARTALMA még ugyanaz — különben egy lassú
       // válasz felülírná a közben továbbgépelt szöveghez tartozó listát.
       if (String(this.state.telepules || '').trim() !== sz) return;
@@ -1099,7 +1106,7 @@ class Component extends DCLogic {
         // a szövegből visszafejteni.
         cimTelepulesId: this.state.telepulesId || null,
         cimUtca: this.state.utca || null,
-        cimVarosresz: null,
+        cimVarosresz: this.state.varosresz || null,
         turnstileToken: window.NYOMBAN_TURNSTILE_TOKEN || null
       }, 25000);
 
@@ -1322,7 +1329,9 @@ class Component extends DCLogic {
 
       telHasList: (s.telList || []).length > 0,
       telList: (s.telList || []).map((t, i) => ({
-        nev: t.nev,
+        // A városrész a címkében jelenik meg: „Pécs — Meszes városrész". Enélkül
+        // a „Meszes" beírásra egy 160 fős borsodi falu jött, 326 km-rel odébb.
+        nev: t.nev + (t.varosresz ? ' — ' + t.varosresz : ''),
         sub: t.irsz || '',
         style: 'display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 13px; cursor:pointer; font-size:15px; border-top:' + (i ? '1px solid #EFEAE1' : 'none') + ';',
         pick: () => this.telepulestValaszt(t)
