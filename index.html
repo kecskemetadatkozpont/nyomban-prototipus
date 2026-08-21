@@ -214,13 +214,18 @@
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
           <div style="display:flex; flex-direction:column; gap:11px;">
-            <span style="font-size:14px; font-weight:600;">Az Ön neve</span>
-            <input type="text" onChange="{{ setName }}" value="{{ custName }}" placeholder="Kovács Anita" style="height:52px; border:1.5px solid #E3DCD1; border-radius:13px; background:#fff; padding:0 16px; font-size:16px; color:#1B1A17;">
+            <span style="font-size:14px; font-weight:600;">Az Ön neve <span style="color:#C4711A;">*</span></span>
+            <input type="text" onChange="{{ setName }}" value="{{ custName }}" placeholder="Kovács Anita" style="{{ nameStyle }}">
           </div>
           <div style="display:flex; flex-direction:column; gap:11px;">
-            <span style="font-size:14px; font-weight:600;">Telefonszám</span>
-            <input type="tel" onChange="{{ setPhone }}" value="{{ custPhone }}" placeholder="+36 20 000 0000" style="height:52px; border:1.5px solid #E3DCD1; border-radius:13px; background:#fff; padding:0 16px; font-size:16px; color:#1B1A17;">
+            <span style="font-size:14px; font-weight:600;">Telefonszám <span style="color:#C4711A;">*</span></span>
+            <input type="tel" onChange="{{ setPhone }}" value="{{ custPhone }}" placeholder="+36 20 000 0000" style="{{ phoneStyle }}">
           </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <span style="font-size:14px; font-weight:600;">E-mail-cím <span style="color:#C4711A;">*</span></span>
+          <input type="email" onChange="{{ setEmail }}" value="{{ custEmail }}" placeholder="kovacs.anita@example.hu" style="{{ emailStyle }}">
+          <span style="font-size:13px; color:#7A756C;">Ide küldjük az ajánlatot és a visszaigazolást.</span>
         </div>
       </div>
       <div style="background:#F1EDE5; border-left:1px solid #EAE4DA; padding:40px 32px; display:flex; flex-direction:column; gap:20px;">
@@ -461,6 +466,24 @@ const DEFAULT_RULES = (window.NYOMBAN_PRICING && window.NYOMBAN_PRICING.rules) |
 const DEFAULT_GLOB = (window.NYOMBAN_PRICING && window.NYOMBAN_PRICING.glob) || { callout:0, hourly:0, urgency:0, materialPct:0, minFee:0 };
 const GLOB_META = [];
 
+// --- kötelező kapcsolattartási mezők ellenőrzése ---
+// A telefonszám-szabálynak egyeznie kell a szerveroldali normalize_phone()-nal.
+function okPhone(v) {
+  var d = String(v || '').replace(/[^0-9]/g, '');
+  if (d.indexOf('00') === 0) d = d.slice(2);
+  if ((d.indexOf('36') === 0 || d.indexOf('06') === 0) && (d.length === 10 || d.length === 11)) d = d.slice(2);
+  var MOBIL = ['20','30','31','50','70','21'], p2 = d.slice(0, 2);
+  if (d.length === 9 && MOBIL.indexOf(p2) >= 0) return true;
+  if (d.length === 8 && d[0] === '1') return true;
+  if (d.length === 8 && d[0] >= '2' && d[0] <= '9' && MOBIL.indexOf(p2) < 0) return true;
+  return false;
+}
+function okEmail(v) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(v || '').trim()); }
+function fieldStyle(ok) {
+  return 'height:52px; border-radius:13px; background:#fff; padding:0 16px; font-size:16px; color:#1B1A17; border:1.5px solid ' +
+         (ok ? '#E3DCD1' : '#C4711A') + ';';
+}
+
 function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
 function ft(n) { return Math.round(n).toLocaleString('hu-HU').replace(/,/g, ' ') + ' Ft'; }
 function rng(a, b) { return a === b ? ft(a) : ft(a) + ' – ' + ft(b); }
@@ -470,7 +493,7 @@ class Component extends DCLogic {
   state = {
     view: 'home', step: 1,
     cat: 'Hibaelhárítás', desc: '', photos: [], address: '', urgency: 'week',
-    custName: '', custPhone: '',
+    custName: '', custPhone: '', custEmail: '',
     est: null, estimating: false, aiUsed: false,
     daySel: 0, picked: [], terms: false,
     orders: [], curId: null, filter: 'mind', search: '', noteDraft: '', toast: '', doneRef: '', doneTime: '',
@@ -709,6 +732,10 @@ class Component extends DCLogic {
       setAddr: e => this.setState({ address: e.target.value }),
       custName: s.custName, setName: e => this.setState({ custName: e.target.value }),
       custPhone: s.custPhone, setPhone: e => this.setState({ custPhone: e.target.value }),
+      custEmail: s.custEmail, setEmail: e => this.setState({ custEmail: e.target.value }),
+      nameStyle: fieldStyle(!s.custName.trim() || s.custName.trim().length >= 2),
+      phoneStyle: fieldStyle(!s.custPhone.trim() || okPhone(s.custPhone)),
+      emailStyle: fieldStyle(!s.custEmail.trim() || okEmail(s.custEmail)),
       cat: s.cat,
       urgencyLabel: s.urgency === 'today' ? 'Ma / holnap (+' + (this.props.urgencySurcharge ?? 30) + '%)' : 'Ezen a héten',
       urgWeek: () => this.setState({ urgency: 'week' }), urgToday: () => this.setState({ urgency: 'today' }),
@@ -758,6 +785,12 @@ class Component extends DCLogic {
       nextBtn: 'height:56px; border-radius:13px; border:none; font-size:16.5px; font-weight:600; background:#1B1A17; color:#FAF7F2; cursor:' + (s.desc.trim().length < 10 ? 'not-allowed' : 'pointer') + '; opacity:' + (s.desc.trim().length < 10 ? '.45' : '1') + ';',
       toOffer: () => {
         if (s.desc.trim().length < 10) return this.flash('Írjon pár szót arról, mi a feladat.');
+        // A kapcsolattartási adatok az árbecsléshez KÖTELEZŐK: ide küldjük az
+        // ajánlatot, és ez akadályozza meg, hogy az anonim kattintgatás fizetős
+        // AI-hívásokat generáljon.
+        if (s.custName.trim().length < 2) return this.flash('Adja meg a nevét — az ajánlatot erre a névre állítjuk ki.');
+        if (!okPhone(s.custPhone)) return this.flash('Adjon meg egy érvényes telefonszámot, például +36 30 123 4567.');
+        if (!okEmail(s.custEmail)) return this.flash('Adjon meg egy érvényes e-mail-címet — ide küldjük az ajánlatot.');
         const rl = rlCheck();
         if (!rl.ok) return this.flash(rl.msg);
         rlBump();
