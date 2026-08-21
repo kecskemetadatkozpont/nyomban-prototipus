@@ -388,12 +388,55 @@
   function kebabToCamel(s) {
     return s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
   }
+  /**
+   * Stílus-szöveg → objektum.
+   *
+   * A pontosvessző mentén vágunk, DE nem zárójelen és nem idézőjelen belül.
+   * Ok: a `background: url("data:image/jpeg;base64,...")` alakban a data URL
+   * MAGA is tartalmaz pontosvesszőt. Naiv vágással a deklaráció ott elszakadt,
+   * és a böngésző csak `url("data:image/jpeg")`-et kapott — vagyis a kép adata
+   * elveszett, a helyén üres doboz maradt. A fotó-előnézetek emiatt sosem
+   * jelentek meg.
+   *
+   * Ugyanez érint minden más értéket is, ami pontosvesszőt hordoz: SVG data URL,
+   * `content: "a;b"`, `font-family` idézőjeles névvel.
+   */
+  function splitDecls(css) {
+    const out = [];
+    let start = 0, depth = 0, quote = null;
+    for (let i = 0; i < css.length; i++) {
+      const c = css[i];
+      if (quote) {
+        if (c === "\\") { i++; continue; }      // escape-elt karakter átugrása
+        if (c === quote) quote = null;
+        continue;
+      }
+      if (c === '"' || c === "'") { quote = c; continue; }
+      if (c === "(") { depth++; continue; }
+      if (c === ")") { if (depth > 0) depth--; continue; }
+      if (c === ";" && depth === 0) { out.push(css.slice(start, i)); start = i + 1; }
+    }
+    out.push(css.slice(start));
+    return out;
+  }
+
   function cssToObj(css) {
     const o = {};
-    for (const decl of css.split(";")) {
-      const i = decl.indexOf(":");
+    for (const decl of splitDecls(css)) {
+      // A kettőspontot is a zárójeleken KÍVÜL keressük: a `url(http://…)` és a
+      // `data:image/…` is tartalmaz kettőspontot.
+      let i = -1, depth = 0, quote = null;
+      for (let k = 0; k < decl.length; k++) {
+        const c = decl[k];
+        if (quote) { if (c === "\\") { k++; continue; } if (c === quote) quote = null; continue; }
+        if (c === '"' || c === "'") { quote = c; continue; }
+        if (c === "(") { depth++; continue; }
+        if (c === ")") { if (depth > 0) depth--; continue; }
+        if (c === ":" && depth === 0) { i = k; break; }
+      }
       if (i < 0) continue;
       const prop = decl.slice(0, i).trim();
+      if (!prop) continue;
       o[prop.startsWith("--") ? prop : kebabToCamel(prop)] = decl.slice(i + 1).trim();
     }
     return o;

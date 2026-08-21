@@ -220,7 +220,7 @@
             <label style="width:180px; height:110px; border-radius:13px; border:1.5px dashed #D3CABB; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; color:#8A5A1B; cursor:pointer;">
               <span style="font-size:22px;">+</span>
               <span style="font-size:14px; font-weight:600;">Fotó hozzáadása</span>
-              <input type="file" accept="image/*" multiple="{{ true }}" onChange="{{ addPhotos }}" style="display:none;">
+              <input type="file" accept="image/*,.heic,.heif" multiple="{{ true }}" onChange="{{ addPhotos }}" style="display:none;">
             </label>
           </div>
         </div>
@@ -696,6 +696,7 @@ class Component extends DCLogic {
     // ezen keresztül veszi át a fotó-összefoglalót és a válaszok ÁRHATÁSÁT, anélkül
     // hogy a képeket újra fel kellene tölteni, vagy a kliens árat láthatna.
     questions: [], answers: {}, clarifyId: null, clarifyLoading: false,
+    kepBusy: false,
     daySel: 0, picked: [], terms: false,
     orders: [], curId: null, filter: 'mind', search: '', noteDraft: '', toast: '', doneRef: '', doneTime: '',
     rules: DEFAULT_RULES, glob: DEFAULT_GLOB,
@@ -1165,6 +1166,128 @@ class Component extends DCLogic {
    * A SZERVER adja az útvonalat — a kliens nem befolyásolja. Enélkül egy hívó
    * más ügyfél fotójára hivatkozhatna a becslésében.
    */
+  /** A HEIC-dekóder egyszer töltődik be, és csak ha tényleg kell. */
+  heicDekoder() {
+    if (window.heic2any) return Promise.resolve(window.heic2any);
+    if (this._heicP) return this._heicP;
+    this._heicP = new Promise((ok, hiba) => {
+      const sc = document.createElement('script');
+      sc.src = './vendor/heic2any.min.js';
+      sc.onload = () => (window.heic2any ? ok(window.heic2any) : hiba(new Error('a dekóder nem indult el')));
+      sc.onerror = () => hiba(new Error('a dekódert nem sikerült letölteni'));
+      document.head.appendChild(sc);
+    });
+    return this._heicP;
+  }
+
+  /** HEIC-e? A típus néha üres (a böngésző nem ismeri fel), ezért a név is számít. */
+  heicE(f) {
+    const t = (f.type || '').toLowerCase();
+    if (t === 'image/heic' || t === 'image/heif') return true;
+    return /\.(heic|heif)$/i.test(f.name || '');
+  }
+
+  async kepetFogad(f) {
+    const NEV = f.name || 'kép';
+    // 25 MB fölött meg sem próbáljuk: egy ekkora fájl a dekódolásnál fagyasztaná
+    // le a telefont, és úgysem hordoz több információt.
+    if (f.size > 25 * 1024 * 1024) {
+      return this.flash(NEV + ': ez a fájl túl nagy (' + Math.round(f.size / 1048576) + ' MB). Kérjük, kisebb képet válasszon.');
+    }
+
+    this.setState({ kepBusy: true });
+    try {
+      let forras = f;
+
+      if (this.heicE(f)) {
+        // Csak akkor dekódolunk, ha a böngésző tényleg nem boldogul vele.
+        // A Safari natívan tudja a HEIC-et — ott fölösleges az 1,3 MB.
+        const tud = await this.tudDekodolni(f);
+        if (!tud) {
+          this.flash('iPhone-kép átalakítása…');
+          const heic2any = await this.heicDekoder();
+          forras = await heic2any({ blob: f, toType: 'image/jpeg', quality: 0.82 });
+        }
+      }
+
+      const out = await this.kicsinyit(forras);
+      this.setState(st => ({ photos: st.photos.concat([out]).slice(0, CFG.maxPhotos), kepBusy: false }));
+      if (LIVE) this.uploadPhoto(out);
+
+    } catch (err) {
+      this.setState({ kepBusy: false });
+      // MEGMONDJUK, mi a baj, és mit tehet. A néma kudarc után az ügyfél
+      // ötödször is ugyanazt a fájlt próbálná.
+      this.flash(NEV + ': ezt a képet nem sikerült feldolgozni. Próbálja meg képernyőképként, vagy JPG formátumban.');
+    }
+  }
+
+  /** Meg tudja-e nyitni a böngésző saját magától? */
+  tudDekodolni(blob) {
+    return new Promise(ok => {
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); ok(img.naturalWidth > 0); };
+      img.onerror = () => { URL.revokeObjectURL(url); ok(false); };
+      img.src = url;
+    });
+  }
+
+  /**
+   * Kicsinyítés. Két úton próbálkozunk, mert a régi böngészők nem ismerik az elsőt.
+   *
+   * A createImageBitmap az EXIF forgatást is elvégzi ('from-image'), és a nagy
+   * képeket is jobban bírja. Enélkül a telefonnal álló helyzetben készült fotó
+   * FEKVŐN jelenne meg — ez a leggyakoribb panasz az ilyen felületeknél.
+   */
+  async kicsinyit(blob) {
+    const MAX = CFG.photoMaxEdge;
+    // A canvas felülete korlátos, iOS-en szigorúbban. 16,7 millió képpont fölött
+    // a rajzolás NÉMÁN üres képet ad — ezért előbb mi vágunk vissza.
+    const MAX_PIXEL = 16700000;
+
+    let bmp = null;
+    try {
+      if (window.createImageBitmap) {
+        bmp = await createImageBitmap(blob, { imageOrientation: 'from-image' });
+      }
+    } catch (e) { bmp = null; }
+
+    let sw, sh, rajzol;
+    if (bmp) {
+      sw = bmp.width; sh = bmp.height;
+      rajzol = (cx, w, h) => cx.drawImage(bmp, 0, 0, w, h);
+    } else {
+      const img = await new Promise((ok, hiba) => {
+        const url = URL.createObjectURL(blob);
+        const i = new Image();
+        i.onload = () => { URL.revokeObjectURL(url); ok(i); };
+        i.onerror = () => { URL.revokeObjectURL(url); hiba(new Error('nem dekódolható')); };
+        i.src = url;
+      });
+      sw = img.naturalWidth; sh = img.naturalHeight;
+      rajzol = (cx, w, h) => cx.drawImage(img, 0, 0, w, h);
+    }
+
+    if (!sw || !sh) throw new Error('üres kép');
+
+    let sc = Math.min(1, MAX / Math.max(sw, sh));
+    if (sw * sc * sh * sc > MAX_PIXEL) sc = Math.sqrt(MAX_PIXEL / (sw * sh));
+
+    const cv = document.createElement('canvas');
+    cv.width = Math.max(1, Math.round(sw * sc));
+    cv.height = Math.max(1, Math.round(sh * sc));
+    const cx = cv.getContext('2d');
+    cx.fillStyle = '#fff';                 // átlátszó PNG ne fekete legyen JPEG-ben
+    cx.fillRect(0, 0, cv.width, cv.height);
+    rajzol(cx, cv.width, cv.height);
+    if (bmp && bmp.close) bmp.close();
+
+    const out = cv.toDataURL('image/jpeg', 0.7);
+    if (!out || out.length < 200) throw new Error('a kicsinyítés üres képet adott');
+    return out;
+  }
+
   async uploadPhoto(dataUrl) {
     try {
       this.setState(st => ({ photoBusy: (st.photoBusy || 0) + 1 }));
@@ -1402,7 +1525,7 @@ class Component extends DCLogic {
       urgTodayStyle: 'flex:1; height:52px; border-radius:13px; cursor:pointer; font-size:15px; font-weight:600; border:1.5px solid ' + (s.urgency === 'today' ? '#1B1A17' : '#E3DCD1') + '; background:' + (s.urgency === 'today' ? '#1B1A17' : '#fff') + '; color:' + (s.urgency === 'today' ? '#FAF7F2' : '#57534A') + ';',
 
       photos: s.photos.map((url, i) => ({
-        thumbStyle: 'width:140px; height:110px; border-radius:13px; position:relative; overflow:hidden; background:#EDE7DC center/cover no-repeat url(' + url + ');',
+        thumbStyle: 'width:140px; height:110px; border-radius:13px; position:relative; overflow:hidden; background:#EDE7DC center/cover no-repeat url(\"' + url + '\");',
         previewStyle: 'width:112px; height:88px; border-radius:11px; background:#EDE7DC center/cover no-repeat url(' + url + ');',
         remove: () => this.setState(st => ({
           photos: st.photos.filter((_, k) => k !== i),
@@ -1415,29 +1538,7 @@ class Component extends DCLogic {
         const all = Array.from(e.target.files || []);
         const files = all.slice(0, room);
         if (all.length > files.length) this.flash('Legfeljebb ' + CFG.maxPhotos + ' fotót tölthet fel.');
-        files.forEach(f => {
-          if (!/^image\//.test(f.type)) return this.flash('Csak képfájlt lehet feltölteni.');
-          const r = new FileReader();
-          r.onload = () => {
-            const img = new Image();
-            img.onload = () => {
-              const max = CFG.photoMaxEdge, sc = Math.min(1, max / Math.max(img.width, img.height));
-              const cv = document.createElement('canvas');
-              cv.width = Math.max(1, Math.round(img.width * sc));
-              cv.height = Math.max(1, Math.round(img.height * sc));
-              cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-              let out; try { out = cv.toDataURL('image/jpeg', 0.7); } catch (err) { out = r.result; }
-              // Az előnézet mindig azonnal megjelenik — a feltöltés a háttérben megy.
-              this.setState(st => ({ photos: st.photos.concat([out]).slice(0, CFG.maxPhotos) }));
-              if (LIVE) this.uploadPhoto(out);
-            };
-            // Ha nem dekódolható képként, nem tároljuk nyersen — így a méretkorlát
-            // feltétel nélkül érvényes, és a hamis MIME-típus sem csúszik át.
-            img.onerror = () => this.flash('Ezt a fájlt nem sikerült képként beolvasni.');
-            img.src = r.result;
-          };
-          r.readAsDataURL(f);
-        });
+        files.forEach(f => this.kepetFogad(f));
         e.target.value = '';
       },
 
