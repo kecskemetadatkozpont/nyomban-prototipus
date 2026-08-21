@@ -538,7 +538,7 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;contactName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Novák Ádám&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cégadatok&quot;},&quot;contactPhone&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;+36 30 254 9290&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cégadatok&quot;},&quot;calloutFee&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6900,&quot;min&quot;:0,&quot;max&quot;:20000,&quot;step&quot;:100,&quot;unit&quot;:&quot;Ft&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Árazás&quot;},&quot;urgencySurcharge&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:30,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Árazás&quot;},&quot;requireThreeSlots&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Foglalás&quot;}}">
 const CFG = Object.assign({
   quoteEndpoint: null, maxPhotos: 5, photoMaxEdge: 1600,
-  quotesPerDay: 5, quotesPerHour: 3, minGapSeconds: 25
+  quotesPerDay: 30, quotesPerHour: 15, minGapSeconds: 5
 }, window.NYOMBAN_CONFIG || {});
 
 // --- kliensoldali kérés-korlát -------------------------------------------

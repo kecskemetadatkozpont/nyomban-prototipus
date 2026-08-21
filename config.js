@@ -22,7 +22,16 @@ window.NYOMBAN_CONFIG = {
   photoMaxEdge: 1600,
 
   // Kliensoldali kérés-korlát (nem biztonsági határ, lásd RATE_LIMIT.md).
-  quotesPerDay: 5,
-  quotesPerHour: 3,
-  minGapSeconds: 25
+  //
+  // TESZTIDŐSZAKRA FELEMELVE. Élesben 5 / 3 / 25 volt; a megrendelő aktív
+  // próbázáshoz kért többet. A környezeti változóval bármikor visszaállítható:
+  //   NYOMBAN_QUOTES_PER_DAY=5 NYOMBAN_QUOTES_PER_HOUR=3 NYOMBAN_MIN_GAP=25
+  //
+  // Ez NEM a költségvédelem. Azt a havi keret adja (KOLTSEGKERET.md): egy
+  // AI-hívás ~0,7 Ft, a napi plafon 300 Ft, tehát a keret ~430 hívásnál akkor
+  // is megállítja a rendszert, ha a kérés-korlát tárva-nyitva van. A kliensoldali
+  // számláló amúgy is a böngésző tárolójában él — udvariassági fék, nem határ.
+  quotesPerDay: 30,
+  quotesPerHour: 15,
+  minGapSeconds: 5
 };
