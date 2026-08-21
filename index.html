@@ -181,7 +181,7 @@
         </div>
         <div style="display:flex; flex-direction:column; gap:11px;">
           <span style="font-size:14px; font-weight:600;">Leírás</span>
-          <textarea onChange="{{ setDesc }}" placeholder="Pl. A fürdőszobában lecsapja a kismegszakítót, ha bekapcsolom a bojlert…" style="border:1.5px solid #E3DCD1; border-radius:15px; background:#fff; padding:16px 18px; height:120px; font-size:16px; line-height:1.55; color:#1B1A17; resize:none;">{{ desc }}</textarea>
+          <textarea onChange="{{ setDesc }}" value="{{ desc }}" placeholder="Írja le, mi a baj — mit tapasztal, mióta, és melyik helyiségben. Például: a fürdőszobában lecsapja a kismegszakítót, valahányszor bekapcsolom a bojlert. Ha tudja, írja le a készülék típusát is." style="border:1.5px solid #E3DCD1; border-radius:15px; background:#fff; padding:16px 18px; height:120px; font-size:16px; line-height:1.55; color:#1B1A17; resize:none;"></textarea>
           <div style="display:flex; justify-content:space-between; font-size:13px; color:#9A9388;"><span>{{ descHint }}</span><span>{{ descLen }}</span></div>
         </div>
         <div style="display:flex; flex-direction:column; gap:11px;">
