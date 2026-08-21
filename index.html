@@ -773,6 +773,9 @@ class Component extends DCLogic {
     cats: ['Hibaelhárítás'], desc: '', photos: [], photoPaths: [], photoBusy: 0,
     jelleg: null,
     honapEltolas: 0, nyitottNap: null,
+    // A szerver adja: munkarend, ünnepek felárral, blokkolt sávok. Amíg nincs
+    // meg, a naptár az alapértelmezéssel működik — nem várakoztatjuk az ügyfelet.
+    naptarAdat: null,
     address: '', urgency: 'week',
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
@@ -1072,9 +1075,63 @@ class Component extends DCLogic {
   // A `picked` tömb marad a tárolás alapja (`ÉÉÉÉ-HH-NN|sávindex`), tehát a
   // becslés, a megrendelés és a CRM változatlanul működik. Csak a VÁLASZTÁS
   // módja lett naptáras.
+  /**
+   * Az idősávok a MUNKARENDBŐL állnak elő, nem kódba égetve.
+   *
+   * Eddig fix négy sáv volt (8-10, 10-12, 13-15, 15-17). Aki reggel hatkor
+   * kezd, vagy este hétig dolgozik, annak ez rossz volt.
+   *
+   * Az ebédszünet kimarad: nem sávhatár, hanem lyuk a napban.
+   */
+  savok() {
+    const m = (this.state.naptarAdat && this.state.naptarAdat.munkarend) || {};
+    const perc = t => { const p = String(t || '').split(':'); return (+p[0] || 0) * 60 + (+p[1] || 0); };
+    const ora = p => Math.floor(p / 60) + ':' + String(p % 60).padStart(2, '0');
+
+    const kezd = perc(m.kezdes || '08:00');
+    const zar  = perc(m.zaras  || '17:00');
+    const hossz = Math.max(30, Math.min(480, +m.sav_perc || 120));
+    const ebedK = m.ebed_kezdes ? perc(m.ebed_kezdes) : null;
+    const ebedZ = m.ebed_zaras  ? perc(m.ebed_zaras)  : null;
+
+    const out = [];
+    for (let t = kezd; t + hossz <= zar && out.length < 12; t += hossz) {
+      // Az ebédszünettel átfedő sáv kimarad, és utána onnan folytatjuk.
+      if (ebedK != null && ebedZ != null && t < ebedZ && t + hossz > ebedK) {
+        t = ebedZ - hossz;
+        continue;
+      }
+      out.push(ora(t).replace(/^0/, '') + '–' + ora(t + hossz).replace(/^0/, ''));
+    }
+    return out.length ? out : TIMES;
+  }
+
+  async naptaratTolt() {
+    if (this._naptarFut) return;
+    this._naptarFut = true;
+    try {
+      const ma = new Date(); ma.setHours(0, 0, 0, 0);
+      const vege = new Date(ma.getFullYear(), ma.getMonth() + 4, 0);
+      const fmt = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      const d = await this._rpc('naptar_adat', { p_tol: fmt(ma), p_ig: fmt(vege) });
+      // Az RPC egyetlen objektumot ad, nem tömböt — a _rpc tömböt vár, ezért
+      // mindkét alakot elfogadjuk.
+      const adat = Array.isArray(d) ? d[0] : d;
+      if (adat && adat.munkarend) this.setState({ naptarAdat: adat });
+    } catch (e) {
+      // Csendben marad: az alapértelmezett munkarend használható.
+    }
+  }
+
   naptarVals(s) {
     const MAX_NAP = 3;                 // naponta legfeljebb ennyi sáv
     const MAX_OSSZ = 12;               // összesen — e fölött a szerelő már keresgél
+    const TIMESZ = this.savok();
+    const adat = s.naptarAdat || {};
+    const munkanapok = (adat.munkarend && adat.munkarend.napok) || [1, 2, 3, 4, 5, 6];
+    const unnepek = adat.unnepek || {};
+    const foglalt = adat.foglalt || {};
+    const vasFelar = adat.vasarnap_felar != null ? adat.vasarnap_felar : 50;
 
     const ma = new Date(); ma.setHours(0, 0, 0, 0);
     const elso = new Date(ma.getFullYear(), ma.getMonth() + s.honapEltolas, 1);
@@ -1096,8 +1153,13 @@ class Component extends DCLogic {
       const d = new Date(elso.getFullYear(), elso.getMonth(), n);
       const kulcs = iso(d);
       const mult = d < ma;
-      const vasarnap = d.getDay() === 0;
-      const tiltott = mult || vasarnap;
+      const isoDow = d.getDay() === 0 ? 7 : d.getDay();
+      const u = unnepek[kulcs];
+      // Ünnepnapon lehet foglalni — csak felárral. A munkaszüneti napot nem
+      // tiltjuk le: van, akinek épp akkor van baja, és hajlandó fizetni érte.
+      const nemMunkanap = munkanapok.indexOf(isoDow) < 0 && !(u && u.munkanap);
+      const tiltott = mult || nemMunkanap;
+      const felar = u ? (u.felar || 0) : (isoDow === 7 ? vasFelar : 0);
       const db = (savokNaponta[kulcs] || []).length;
       const nyitva = s.nyitottNap === kulcs;
 
@@ -1109,8 +1171,11 @@ class Component extends DCLogic {
           + '; background:' + (db ? '#E2EDE4' : (nyitva ? '#fff' : 'transparent'))
           + '; color:' + (tiltott ? '#CFC8BC' : (db ? '#2F6B3E' : '#1B1A17'))
           + '; font-weight:' + (db ? '600' : '400') + ';',
-        jel: db ? String(db) : '',
-        jelStyle: db ? 'font-size:9.5px; line-height:1; color:#3F7D4E;' : 'display:none;',
+        // A felár a napon látszik — az ügyfél NE a végén szembesüljön vele.
+        jel: db ? String(db) : (felar && !tiltott ? '+' + felar + '%' : ''),
+        jelStyle: db
+          ? 'font-size:9.5px; line-height:1; color:#3F7D4E;'
+          : (felar && !tiltott ? 'font-size:9px; line-height:1; color:#C4711A; font-weight:600;' : 'display:none;'),
         pick: () => { if (!tiltott) this.setState(st => ({ nyitottNap: st.nyitottNap === kulcs ? null : kulcs })); }
       });
     }
@@ -1143,26 +1208,38 @@ class Component extends DCLogic {
       nyitottNapSzoveg: nyitottDb >= MAX_NAP
         ? 'Ezen a napon már 3 sávot jelölt'
         : (nyitottDb ? nyitottDb + ' / 3 sáv' : 'Válasszon idősávot'),
-      nyitottSavok: TIMES.map((t, i) => {
+      nyitottSavok: TIMESZ.map((t, i) => {
         const id = nyitott + '|' + i;
         const on = (s.picked || []).indexOf(id) >= 0;
         const tele = !on && nyitottDb >= MAX_NAP;
         const teleOssz = !on && osszes >= MAX_OSSZ;
+
+        // Blokkolt-e ez a sáv? A szerelő családi programja, orvosa — az OKOT
+        // nem tudjuk és nem is mutatjuk, csak azt, hogy akkor nem ér rá.
+        const [sk, sz] = t.split('–');
+        const p = x => { const q = String(x).split(':'); return (+q[0]) * 60 + (+q[1] || 0); };
+        const blokk = ((foglalt[nyitott] || []).some(f =>
+          p(sk) < p(String(f.zaras).slice(0, 5)) && p(sz) > p(String(f.kezdes).slice(0, 5))));
+
         return {
-          cimke: t,
-          style: 'height:44px; border-radius:11px; font-size:14.5px; cursor:' + ((tele || teleOssz) ? 'not-allowed' : 'pointer')
+          cimke: blokk ? t + ' — foglalt' : t,
+          blokk,
+          style: 'height:44px; border-radius:11px; font-size:14.5px; cursor:' + ((tele || teleOssz || blokk) ? 'not-allowed' : 'pointer')
             + '; font-weight:' + (on ? '600' : '400')
-            + '; border:1.5px solid ' + (on ? '#1B1A17' : '#E3DCD1')
-            + '; background:' + (on ? '#1B1A17' : '#fff')
-            + '; color:' + (on ? '#FAF7F2' : ((tele || teleOssz) ? '#B4ADA2' : '#1B1A17')) + ';',
-          pick: () => this.savotValt(id, on, tele, teleOssz, MAX_NAP, MAX_OSSZ)
+            + '; border:1.5px solid ' + (on ? '#1B1A17' : (blokk ? '#EFEAE1' : '#E3DCD1'))
+            + '; background:' + (on ? '#1B1A17' : (blokk ? '#F6F1E8' : '#fff'))
+            + '; color:' + (on ? '#FAF7F2' : ((tele || teleOssz || blokk) ? '#B4ADA2' : '#1B1A17')) + ';',
+          pick: () => {
+            if (blokk) return this.flash('Ez az idősáv már foglalt. Válasszon másikat.');
+            this.savotValt(id, on, tele, teleOssz, MAX_NAP, MAX_OSSZ);
+          }
         };
       }),
 
       vanValasztott: napok.length > 0,
       valasztottNapok: napok.map(d => ({
         nap: this.napFelirat(d),
-        savok: (savokNaponta[d] || []).sort((a, b) => a - b).map(i => TIMES[i]).join(' · '),
+        savok: (savokNaponta[d] || []).sort((a, b) => a - b).map(i => TIMESZ[i] || TIMES[i]).join(' · '),
         torol: () => this.setState(st => ({
           picked: st.picked.filter(x => String(x).split('|')[0] !== d),
           nyitottNap: st.nyitottNap === d ? null : st.nyitottNap
@@ -1253,9 +1330,12 @@ class Component extends DCLogic {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', apikey: c.supabase.key, Authorization: 'Bearer ' + c.supabase.key },
       body: JSON.stringify(args)
-    }).then(r => (r.ok ? r.json() : []))
-      .then(d => (Array.isArray(d) ? d : []))
-      .catch(() => []);   // a címkiegészítés kiesése NEM akadályozhatja a megrendelést
+    }).then(r => (r.ok ? r.json() : null))
+      // A PostgREST tömböt ad a táblát visszaadó függvényekre, és sima OBJEKTUMOT
+      // a jsonb-t visszaadókra. Ha itt mindent tömbbé kényszerítenénk, az utóbbi
+      // csendben üresre cserélődne — a naptár beállításai pontosan így vesztek el.
+      .then(d => (d == null ? [] : d))
+      .catch(() => []);   // a kiesés NEM akadályozhatja meg a megrendelést
   }
 
   _kesleltet(kulcs, fn) {
@@ -1270,7 +1350,8 @@ class Component extends DCLogic {
       // Az irányítószámot is átadjuk. NEM szűr, csak pontoz: egy elgépelt
       // irányítószám így nem zárja ki a helyes települést. („Nádudvar" + 6345
       // esetén enélkül a 4181-es Nádudvar nyert a helyes Nemesnádudvar ellen.)
-      const d = await this._rpc('telepules_kereso', { q: sz, max_db: 6, p_irsz: this.state.irsz || null });
+      const d0 = await this._rpc('telepules_kereso', { q: sz, max_db: 6, p_irsz: this.state.irsz || null });
+      const d = Array.isArray(d0) ? d0 : [];
       // Csak akkor írjuk ki, ha a mező TARTALMA még ugyanaz — különben egy lassú
       // válasz felülírná a közben továbbgépelt szöveghez tartozó listát.
       if (String(this.state.telepules || '').trim() !== sz) return;
@@ -1283,7 +1364,8 @@ class Component extends DCLogic {
     const tid = this.state.telepulesId;
     if (!tid || sz.length < 2) return this.setState({ utcaList: [] });
     this._kesleltet('utca', async () => {
-      const d = await this._rpc('utca_kereso', { p_telepules: tid, q: sz, max_db: 6 });
+      const d0 = await this._rpc('utca_kereso', { p_telepules: tid, q: sz, max_db: 6 });
+      const d = Array.isArray(d0) ? d0 : [];
       if (String(this.state.utca || '').trim() !== sz) return;
       this.setState({ utcaList: d });
     });
@@ -1295,7 +1377,7 @@ class Component extends DCLogic {
     // erősebb — nem írjuk felül.
     if (String(this.state.telepules || '').trim()) return;
     const d = await this._rpc('telepules_kereso', { q: String(irsz), max_db: 1 });
-    const t = d && d[0];
+    const t = Array.isArray(d) && d[0];
     if (!t) return;
     const pontos = await this._rpc('telepules_kereso', { q: t.nev, max_db: 1 });
     const hit = (pontos && pontos[0]) || t;
@@ -1807,7 +1889,7 @@ class Component extends DCLogic {
       goHome: () => this.setState({ view: 'home' }),
       goPublic: () => this.setState({ view: s.doneRef ? 'done' : 'home' }),
       goCrm: () => this.setState({ view: 'crm' }),
-      startFlow: () => this.setState({ view: 'wizard', step: 1 }),
+      startFlow: () => { this.setState({ view: 'wizard', step: 1 }); this.naptaratTolt(); },
       newRequest: () => this.setState({ view: 'wizard', step: 1, desc: '', photos: [], photoPaths: [], photoBusy: 0, picked: [], terms: false, est: null, estimateId: null, estFatal: '', doneRef: '', custName: '', custPhone: '', custEmail: '', address: '', cats: [CATS[0]], urgency: 'week', aiUsed: false, daySel: 0, smsPhase: 'idle', smsChallenge: null, smsCode: '', smsErr: '', smsNote: '', submitting: false }),
 
       desc: s.desc, descLen: s.desc.length + ' karakter',
