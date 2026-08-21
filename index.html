@@ -13,8 +13,7 @@
 </head>
 <body>
 <div id="demo-strip" hidden>
-  <span><b>DEMÓ</b> — ez még nem éles rendszer. Az árakat a böngészőben futó árazómotor
-  számolja; az AI-becslés és a fotóelemzés még nincs bekötve.</span>
+  <span><b>ÉLES</b> — a leadott ajánlatkérés valódi megrendelésnek számít. A közölt ár iránymutató becslés; a végleges összeget a szerelő a helyszíni felmérés után mondja meg.</span>
   <button type="button" id="demo-x" aria-label="Bezárás">&times;</button>
 </div>
 <style>
@@ -157,9 +156,11 @@
       <div style="display:flex; align-items:center; gap:18px;">
         <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st1 }}">1</span><span style="font-size:14.5px; color:#57534A;">Feladat</span></div>
         <span style="width:36px; height:1.5px; background:#E3DCD1;"></span>
-        <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st2 }}">2</span><span style="font-size:14.5px; color:#57534A;">Ajánlat</span></div>
+        <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st2 }}">2</span><span style="font-size:14.5px; color:#57534A;">Kérdések</span></div>
         <span style="width:36px; height:1.5px; background:#E3DCD1;"></span>
-        <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st3 }}">3</span><span style="font-size:14.5px; color:#57534A;">Időpont</span></div>
+        <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st3 }}">3</span><span style="font-size:14.5px; color:#57534A;">Ajánlat</span></div>
+        <span style="width:36px; height:1.5px; background:#E3DCD1;"></span>
+        <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st4 }}">4</span><span style="font-size:14.5px; color:#57534A;">Időpont</span></div>
       </div>
       <button type="button" onClick="{{ goHome }}" style="height:38px; padding:0 14px; border-radius:10px; border:1.5px solid #E3DCD1; background:#fff; font-size:14px; color:#57534A; cursor:pointer;">Mégse</button>
     </div>
@@ -257,6 +258,67 @@
     </sc-if>
 
     <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1; display:grid; grid-template-columns:1fr 420px;">
+      <div style="padding:40px 48px; display:flex; flex-direction:column; gap:26px; max-width:820px;">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <h2 style="margin:0; font-family:'Familjen Grotesk',sans-serif; font-size:38px; letter-spacing:-.03em;">Pontosítsunk pár dolgot</h2>
+          <p style="margin:0; font-size:16px; color:#57534A;">Néhány gyors kérdés a leírás és a fotók alapján. Minél többre válaszol, annál pontosabb ajánlatot tudunk adni.</p>
+        </div>
+
+        <sc-if value="{{ clarifyLoading }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div style="display:flex; align-items:center; gap:10px; font-size:14.5px; color:#7A756C;">
+            <span style="width:7px; height:7px; border-radius:50%; background:#C4711A; animation:vsPulse 2s infinite;"></span>
+            <span>Átnézzük a leírást és a fotókat…</span>
+          </div>
+          <div style="height:158px; border-radius:18px; border:1.5px solid #EAE4DA; background:#F1EDE5; animation:vsPulse 2.4s infinite;"></div>
+          <div style="height:158px; border-radius:18px; border:1.5px solid #EAE4DA; background:#F1EDE5; animation:vsPulse 2.4s infinite; animation-delay:.3s;"></div>
+          <div style="height:158px; border-radius:18px; border:1.5px solid #EAE4DA; background:#F1EDE5; animation:vsPulse 2.4s infinite; animation-delay:.6s;"></div>
+        </div>
+        </sc-if>
+
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <sc-for list="{{ questions }}" as="q" hint-placeholder-count="3">
+            <div style="position:relative; padding:22px 24px; border-radius:18px; border:1.5px solid #E3DCD1; background:#fff; display:flex; flex-direction:column; gap:15px;">
+              <span style="{{ q.doneStyle }}">✓</span>
+              <div style="display:flex; flex-direction:column; gap:5px; padding-right:44px;">
+                <span style="font-size:17px; font-weight:600; line-height:1.4;">{{ q.text }}</span>
+                <span style="{{ q.helpStyle }}">{{ q.help }}</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:9px;">
+                <sc-for list="{{ q.options }}" as="o" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background:#F1EDE5; border-left:1px solid #EAE4DA; padding:40px 32px; display:flex; flex-direction:column; gap:20px;">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <span style="font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#8A5A1B; font-weight:600;">⌁ Élő becslés</span>
+          <span style="font-family:'Familjen Grotesk',sans-serif; font-size:40px; line-height:1; letter-spacing:-.03em;">{{ liveRange }}</span>
+          <span style="font-size:14px; line-height:1.5; color:#57534A;">Anyaggal, bruttóban. Ez még a leírás alapján számolt sáv — a válaszokkal pontosított ajánlat a következő lépésben jön.</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:7px;">
+          <div style="height:8px; border-radius:4px; background:#E0D8CA; overflow:hidden;"><div style="{{ accBarStyle }}"></div></div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:#7A756C;"><span>{{ accLabel }}</span><span>{{ accPct }}%</span></div>
+        </div>
+        <div style="height:1px; background:#E0D8CA;"></div>
+        <div style="display:flex; align-items:center; gap:10px; padding:13px 15px; border-radius:12px; background:#FAF7F2;">
+          <span style="width:22px; height:22px; border-radius:7px; background:#E8A33D; color:#1B1A17; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">?</span>
+          <span style="font-size:14px; line-height:1.45; color:#57534A;">{{ answeredLabel }}</span>
+        </div>
+        <div style="margin-top:auto; display:flex; flex-direction:column; gap:12px;">
+          <div style="padding:14px 16px; border-radius:12px; background:#FAF7F2; font-size:13px; line-height:1.5; color:#7A756C;">A válaszok csak az ajánlat pontosításához kellenek — bármelyiket kihagyhatja.</div>
+          <button type="button" onClick="{{ toOfferFromQuestions }}" style="height:56px; border-radius:13px; border:none; font-size:16.5px; font-weight:600; background:#1B1A17; color:#FAF7F2; cursor:pointer;">Tovább az ajánlathoz →</button>
+          <button type="button" onClick="{{ skipQuestions }}" style="height:38px; border:none; background:none; font-size:14.5px; font-weight:600; color:#8A5A1B; cursor:pointer; text-decoration:underline; text-underline-offset:3px;">Kihagyom a kérdéseket</button>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
     <div style="flex:1; display:grid; grid-template-columns:1fr 1fr;">
       <div style="padding:36px 40px 36px 48px; display:flex; flex-direction:column; gap:20px;">
         <div style="padding:26px; border-radius:18px; background:#1B1A17; display:flex; flex-direction:column; gap:10px;">
@@ -305,7 +367,7 @@
     </div>
     </sc-if>
 
-    <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+    <sc-if value="{{ isStep4 }}" hint-placeholder-val="{{ false }}">
     <div style="flex:1; display:grid; grid-template-columns:1fr 460px;">
       <div style="padding:36px 48px; display:flex; flex-direction:column; gap:20px;">
         <div style="display:flex; flex-direction:column; gap:5px;">
@@ -532,7 +594,17 @@ const ftk = n => Math.round(+n || 0).toLocaleString('hu-HU').replace(/,/g, ' ') 
 function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
 function ft(n) { return Math.round(n).toLocaleString('hu-HU').replace(/,/g, ' ') + ' Ft'; }
 function rng(a, b) { return a === b ? ft(a) : ft(a) + ' – ' + ft(b); }
-function iso(d) { return d.toISOString().slice(0, 10); }
+// A dátumkulcs HELYI idő szerint készül, nem UTC szerint.
+//
+// MI VOLT A HIBA: a `toISOString()` UTC-re vált. Magyar nyári időszámításban a helyi
+// éjfél (2026-08-22 00:00+02:00) UTC-ben 2026-08-21T22:00Z, tehát a kulcs egy nappal
+// KORÁBBI napot jelölt, miközben a felirat a `getDate()`-ből a helyes helyi napot
+// mutatta. Az ügyfél szombatot választott, a szerelő péntekre kapta a munkát — és
+// semmi nem jelzett hibát. Az október végi óraátállításig minden nap érintett.
+function iso(d) {
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
 
 class Component extends DCLogic {
   state = {
@@ -543,6 +615,10 @@ class Component extends DCLogic {
     smsPhase: 'idle', smsChallenge: null, smsCode: '', smsErr: '', smsNote: '', submitting: false,
     custName: '', custPhone: '', custEmail: '',
     est: null, estimating: false, aiUsed: false,
+    // Tisztázó kérdések (2. lépés). A `clarifyId` az, amit az estimate örököl:
+    // ezen keresztül veszi át a fotó-összefoglalót és a válaszok ÁRHATÁSÁT, anélkül
+    // hogy a képeket újra fel kellene tölteni, vagy a kliens árat láthatna.
+    questions: [], answers: {}, clarifyId: null, clarifyLoading: false,
     daySel: 0, picked: [], terms: false,
     orders: [], curId: null, filter: 'mind', search: '', noteDraft: '', toast: '', doneRef: '', doneTime: '',
     rules: DEFAULT_RULES, glob: DEFAULT_GLOB
@@ -680,7 +756,102 @@ class Component extends DCLogic {
     a += Math.min(30, this.state.photos.length * 15);
     if (this.state.address.trim().length > 6) a += 8;
     if (this.state.cats.length) a += 6;
+    // A megválaszolt tisztázó kérdések is pontosítanak — ez az EGYETLEN valós
+    // visszajelzés, amit a kliens adhat. Az ársávot szándékosan NEM mozgatjuk:
+    // a végleges árat a szerver számolja a 3. lépésben, és a CLAUDE.md 1. pontja
+    // tiltja, hogy az ügyfél felvillanó, majd megváltozó árat lásson.
+    const qs = this.state.questions || [];
+    if (qs.length) {
+      const done = qs.filter(q => {
+        const v = (this.state.answers || {})[q.id];
+        return v !== undefined && v !== null && v !== '';
+      }).length;
+      a += Math.round((done / qs.length) * 16);
+    }
     return Math.max(12, Math.min(96, a));
+  }
+
+
+  // ---------- Tisztázó kérdések ----------
+  // Ez a DEMÓ / VISSZAESÉSI ág: se hálózat, se kulcs nem kell hozzá. A build.mjs
+  // élesben ezt a metódust cseréli le a `clarify` végpont hívására — ami hiba vagy
+  // időtúllépés esetén PONTOSAN ide esik vissza. Ezért fontos, hogy önmagában is
+  // értelmes kérdéssort adjon: ez fut a legritkábban, és a legrosszabbkor.
+  localQuestions() {
+    const d = (this.state.desc || '').toLowerCase();
+    const has = w => d.indexOf(w) >= 0;
+    const qs = [];
+
+    if (!this.state.photos.length) qs.push({
+      id: 'foto', text: 'Tudna fotót küldeni a hibáról?',
+      help: 'A becslés fotóval lényegesen pontosabb.', type: 'single',
+      options: [{ id: 'a', label: 'Igen, feltöltök egyet' }, { id: 'b', label: 'Most nem tudok' }]
+    });
+
+    if (has('konnektor') || has('kapcsoló') || has('lámpa') || has('csillár')) qs.push({
+      id: 'db', text: 'Hány darabot érint a munka?',
+      help: 'A mennyiség a legnagyobb ármozgató tényező.', type: 'single',
+      options: [{ id: 'a', label: '1 darab' }, { id: 'b', label: '2–3 darab' },
+                { id: 'c', label: '4–8 darab' }, { id: 'd', label: 'Több mint 8' }]
+    });
+
+    if (has('megszakító') || has('bojler') || has('lecsap') || has('zárlat') || has('áram')) qs.push({
+      id: 'mikor', text: 'Mikor jelentkezik a hiba?',
+      help: 'Ebből derül ki, mennyi hibakeresésre kell számítani.', type: 'single',
+      options: [{ id: 'a', label: 'Mindig, egy adott gép bekapcsolásakor' },
+                { id: 'b', label: 'Váltakozva, kiszámíthatatlanul' },
+                { id: 'c', label: 'Csak esőben vagy párás időben' },
+                { id: 'd', label: 'Egyszer fordult elő' }]
+    });
+
+    if (has('klíma') || has('klima')) qs.push({
+      id: 'klima', text: 'Mire van szükség a klímával kapcsolatban?',
+      help: '', type: 'single',
+      options: [{ id: 'a', label: 'Új klíma felszerelése' }, { id: 'b', label: 'Tisztítás, karbantartás' },
+                { id: 'c', label: 'Nem hűt rendesen — hibakeresés' }]
+    });
+
+    qs.push({
+      id: 'hozzaferes', text: 'Milyen a hozzáférés a munkaterülethez?',
+      help: 'Az állványozás vagy a bontás időt tesz hozzá.', type: 'single',
+      options: [{ id: 'a', label: 'Szabadon hozzáférhető' },
+                { id: 'b', label: 'Bútort vagy burkolatot kell mozgatni' },
+                { id: 'c', label: 'Magasban van, létra vagy állvány kell' }]
+    });
+
+    return qs.slice(0, 4);
+  }
+
+  async loadQuestions() {
+    this.setState({ clarifyLoading: true, questions: [], answers: {}, clarifyId: null });
+
+    if (!LIVE) {
+      this.setState({ questions: this.localQuestions(), clarifyLoading: false });
+      return;
+    }
+
+    const s = this.state;
+    try {
+      const d = await callFn('clarify', {
+        name: s.custName, email: s.custEmail, phone: s.custPhone,
+        category: s.cats.join(', '),
+        description: s.desc,
+        urgency: s.urgency,
+        address: s.address,
+        photoPaths: s.photoPaths || []
+      }, 20000);
+
+      const qs = Array.isArray(d && d.questions) ? d.questions.filter(q => q && q.text && Array.isArray(q.options) && q.options.length >= 2) : [];
+      this.setState({
+        questions: qs.length ? qs : this.localQuestions(),
+        clarifyId: (qs.length && d.clarifyId) || null,
+        clarifyLoading: false
+      });
+    } catch (e) {
+      // A kérdések elmaradása NEM hiba az ügyfél felé: a becslés nélkülük is
+      // elkészül, csak tágabb sávval. Ugyanaz az elv, mint az AI-nál.
+      this.setState({ questions: this.localQuestions(), clarifyId: null, clarifyLoading: false });
+    }
   }
 
   async runAI() {
@@ -870,8 +1041,8 @@ class Component extends DCLogic {
       teaserRange: rng(live.min, live.max),
 
       isHome: s.view === 'home', isWizard: s.view === 'wizard', isDone: s.view === 'done',
-      isStep1: s.step === 1, isStep2: s.step === 2, isStep3: s.step === 3,
-      st1: stepDot(s.step >= 1), st2: stepDot(s.step >= 2), st3: stepDot(s.step >= 3),
+      isStep1: s.step === 1, isStep2: s.step === 2, isStep3: s.step === 3, isStep4: s.step === 4,
+      st1: stepDot(s.step >= 1), st2: stepDot(s.step >= 2), st3: stepDot(s.step >= 3), st4: stepDot(s.step >= 4),
       swPublic: sw(s.view !== 'crm' && s.view !== 'crmDetail'), swCrm: sw(s.view === 'crm' || s.view === 'crmDetail'),
 
       // Több munkatípus is választható: az ügyfél egy kiszállással több dolgot is
@@ -961,6 +1132,63 @@ class Component extends DCLogic {
       liveRange: rng(live.min, live.max),
       accPct: acc, accPctLabel: acc + '%',
       accLabel: acc < 45 ? 'Pontosság: alacsony' : (acc < 75 ? 'Pontosság: közepes' : 'Pontosság: magas'),
+      accBarStyle: 'height:8px; background:#E8A33D; border-radius:4px; transition:width .4s ease; width:' + acc + '%;',
+
+      // ---------- 2. lépés: tisztázó kérdések ----------
+      clarifyLoading: s.clarifyLoading,
+      questions: s.questions.map(q => {
+        const given = s.answers[q.id];
+        const done = given !== undefined && given !== null && given !== '';
+        return {
+          text: q.text,
+          help: q.help || '',
+          helpStyle: q.help ? 'font-size:14px; line-height:1.5; color:#7A756C;' : 'display:none;',
+          doneStyle: done
+            ? 'position:absolute; top:20px; right:22px; width:26px; height:26px; border-radius:50%; background:#1B1A17; color:#FAF7F2; display:flex; align-items:center; justify-content:center; font-size:14px;'
+            : 'display:none;',
+          options: q.options.map(o => {
+            const on = q.type === 'multi'
+              ? Array.isArray(given) && given.indexOf(o.id) >= 0
+              : given === o.id;
+            return {
+              label: o.label,
+              style: 'text-align:left; padding:14px 17px; border-radius:12px; font-size:15.5px; cursor:pointer; transition:border-color .15s, background .15s; font-weight:' + (on ? '600' : '400')
+                + '; border:1.5px solid ' + (on ? '#1B1A17' : '#E3DCD1')
+                + '; background:' + (on ? '#1B1A17' : '#fff')
+                + '; color:' + (on ? '#FAF7F2' : '#1B1A17') + ';',
+              // Funkcionális setState — ugyanaz a hiba fenyegetne, mint a sávválasztónál:
+              // gyors egymás utáni kattintásnál a befagyott másolat felülírná az előzőt.
+              pick: () => this.setState(st => {
+                const cur = st.answers[q.id];
+                let val;
+                if (q.type === 'multi') {
+                  const arr = Array.isArray(cur) ? cur : [];
+                  val = arr.indexOf(o.id) >= 0 ? arr.filter(x => x !== o.id) : arr.concat([o.id]);
+                  if (!val.length) val = undefined;
+                } else {
+                  val = cur === o.id ? undefined : o.id;   // újrakattintás = visszavonás
+                }
+                const next = Object.assign({}, st.answers);
+                if (val === undefined) delete next[q.id]; else next[q.id] = val;
+                return { answers: next };
+              })
+            };
+          })
+        };
+      }),
+      answeredLabel: (function () {
+        const total = s.questions.length;
+        const done = s.questions.filter(q => {
+          const v = s.answers[q.id];
+          return v !== undefined && v !== null && v !== '';
+        }).length;
+        if (!total) return 'Egy pillanat, összeállítjuk a kérdéseket.';
+        if (!done) return total + ' kérdés — mindegyik pontosítja az ajánlatot.';
+        if (done < total) return done + ' / ' + total + ' megválaszolva.';
+        return 'Minden kérdés megvan — ennél pontosabb becslést helyszíni felmérés nélkül nem tudunk adni.';
+      })(),
+      toOfferFromQuestions: () => { this.setState({ step: 3 }); this.runAI(); },
+      skipQuestions: () => { this.setState({ answers: {}, step: 3 }); this.runAI(); },
       tips,
       nextLabel: s.desc.trim().length < 10 ? 'Írjon pár szót a hibáról' : 'Részletes ajánlat →',
       nextBtn: 'height:56px; border-radius:13px; border:none; font-size:16.5px; font-weight:600; background:#1B1A17; color:#FAF7F2; cursor:' + (s.desc.trim().length < 10 ? 'not-allowed' : 'pointer') + '; opacity:' + (s.desc.trim().length < 10 ? '.45' : '1') + ';',
@@ -976,7 +1204,7 @@ class Component extends DCLogic {
         if (!rl.ok) return this.flash(rl.msg);
         rlBump();
         this.setState({ step: 2 });
-        this.runAI();
+        this.loadQuestions();
       },
       backToStep1: () => this.setState({ step: 1 }),
 
@@ -984,7 +1212,7 @@ class Component extends DCLogic {
       offerRange: s.estimating ? 'Számoljuk…' : rng(est.min, est.max),
       offerItems: est.items.filter(i => !i.surcharge).map(i => ({ label: i.label, note: i.note, price: i.max && i.max !== i.min ? ft(i.min) + ' – ' + ft(i.max) : ft(i.min) })),
       reasoning: est.reasoning,
-      toSchedule: () => this.setState({ step: 3 }),
+      toSchedule: () => this.setState({ step: 4 }),
 
       slotInstruction: needThree ? 'Jelöljön meg 3 alkalmas sávot — ' + contactFirst + ' ezek közül erősít meg egyet 2 órán belül.' : 'Válasszon egy Önnek megfelelő sávot.',
       days: this.days.map((dd, i) => ({
