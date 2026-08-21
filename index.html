@@ -65,6 +65,11 @@
     background:#fff;
     color:#1B1A17;
     -webkit-text-fill-color:#1B1A17;   /* Safari a saját színét erőltetné */
+    /* A belső margó és a keret a megadott szélességen BELÜL legyen.
+       Enélkül a `width:100%` mező túlnyúlik a saját oszlopán: a címbeírásnál
+       a közterület-mező 28 pixellel rácsúszott a házszám mezőre. Minden
+       `width:100%`-os mezőt érintett volna, nem csak azt az egyet. */
+    box-sizing: border-box;
   }
   input::placeholder, textarea::placeholder { color:#A9A296; opacity:1; }
   textarea:focus, input:focus { outline:2px solid #E8A33D; outline-offset:1px; }
