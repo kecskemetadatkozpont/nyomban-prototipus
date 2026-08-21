@@ -180,8 +180,6 @@
         <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st2 }}">2</span><span style="font-size:14.5px; color:#57534A;">Kérdések</span></div>
         <span style="width:36px; height:1.5px; background:#E3DCD1;"></span>
         <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st3 }}">3</span><span style="font-size:14.5px; color:#57534A;">Ajánlat</span></div>
-        <span style="width:36px; height:1.5px; background:#E3DCD1;"></span>
-        <div style="display:flex; align-items:center; gap:10px;"><span style="{{ st4 }}">4</span><span style="font-size:14.5px; color:#57534A;">Időpont</span></div>
       </div>
       <button type="button" onClick="{{ goHome }}" style="height:38px; padding:0 14px; border-radius:10px; border:1.5px solid #E3DCD1; background:#fff; font-size:14px; color:#57534A; cursor:pointer;">Mégse</button>
     </div>
@@ -302,7 +300,72 @@
           </div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-          <div style="display:flex; flex-direction:column; gap:11px;">
+          <!-- NAPTÁR. Az ügyfél NAPOKAT választ, és minden naphoz legfeljebb hármat
+             a négy idősávból. Így aki csak szerdán ér rá, szerdára jelölhet
+             hármat; aki rugalmas, öt napra egyet-egyet. A régi, „pontosan három
+             sáv összesen" megoldásban mindkettő ugyanabba a három fért. -->
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px;">
+            <div style="display:flex; align-items:baseline; gap:9px;">
+              <span style="font-size:14px; font-weight:600;">Mikor jó Önnek?</span>
+              <span style="font-size:13px; color:#7A756C;">naponta legfeljebb 3 idősáv</span>
+            </div>
+            <span style="{{ napSzamStyle }}">{{ napSzamSzoveg }}</span>
+          </div>
+
+          <div style="border:1.5px solid #E3DCD1; border-radius:14px; background:#fff; overflow:hidden;">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:11px 14px; border-bottom:1px solid #EFEAE1; background:#FAF7F2;">
+              <button type="button" onClick="{{ honapVissza }}" style="{{ honapVisszaStyle }}">←</button>
+              <span style="font-size:14.5px; font-weight:600;">{{ honapNev }}</span>
+              <button type="button" onClick="{{ honapElore }}" style="width:32px; height:32px; border-radius:8px; border:1.5px solid #E3DCD1; background:#fff; cursor:pointer; font-size:14px;">→</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(7,1fr); padding:9px 10px 3px; gap:3px;">
+              <sc-for list="{{ napFejlec }}" as="f" hint-placeholder-count="7">
+                <span style="text-align:center; font-size:11.5px; font-weight:600; color:#9A9388;">{{ f.nev }}</span>
+              </sc-for>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(7,1fr); padding:0 10px 10px; gap:3px;">
+              <sc-for list="{{ naptar }}" as="n" hint-placeholder-count="35">
+                <button type="button" onClick="{{ n.pick }}" style="{{ n.style }}">
+                  <span>{{ n.szam }}</span>
+                  <span style="{{ n.jelStyle }}">{{ n.jel }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- A kiválasztott nap idősávjai. Csak akkor jelenik meg, ha van nyitott nap. -->
+          <sc-if value="{{ vanNyitottNap }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1.5px solid #1B1A17; border-radius:14px; background:#fff; padding:14px;">
+            <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px;">
+              <span style="font-size:14.5px; font-weight:600;">{{ nyitottNapNev }}</span>
+              <span style="font-size:12.5px; color:#7A756C;">{{ nyitottNapSzoveg }}</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:8px;">
+              <sc-for list="{{ nyitottSavok }}" as="v" hint-placeholder-count="4">
+                <button type="button" onClick="{{ v.pick }}" style="{{ v.style }}">{{ v.cimke }}</button>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- Összegzés: mit jelölt meg eddig. -->
+          <sc-if value="{{ vanValasztott }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <sc-for list="{{ valasztottNapok }}" as="d" hint-placeholder-count="2">
+              <div style="display:flex; align-items:center; gap:9px; padding:9px 12px; border-radius:11px; background:#F1EDE5;">
+                <span style="font-size:13.5px; font-weight:600; min-width:118px;">{{ d.nap }}</span>
+                <span style="flex:1; font-size:13.5px; color:#57534A;">{{ d.savok }}</span>
+                <button type="button" onClick="{{ d.torol }}" title="Nap törlése" style="width:24px; height:24px; flex:none; border:none; background:none; color:#9A9388; font-size:15px; cursor:pointer;">×</button>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:11px;">
             <span style="font-size:14px; font-weight:600;">Az Ön neve <span style="color:#C4711A;">*</span></span>
             <input type="text" onChange="{{ setName }}" value="{{ custName }}" placeholder="Kovács Anita" style="{{ nameStyle }}">
           </div>
@@ -453,68 +516,19 @@
           <div style="display:flex; justify-content:space-between;"><span style="font-size:14px; color:#7A756C;">Sürgősség</span><span style="font-size:14px; font-weight:600;">{{ urgencyLabel }}</span></div>
         </div>
         <div style="margin-top:auto; display:flex; flex-direction:column; gap:11px;">
-          <button type="button" onClick="{{ toSchedule }}" style="height:58px; border-radius:13px; background:#1B1A17; color:#FAF7F2; border:none; font-size:16.5px; font-weight:600; cursor:pointer;">Időpontot választok →</button>
+          <!-- A folyamat itt ér véget: az időpontokat az ügyfél már az 1. lépésben
+               megjelölte a naptárban. Nincs értelme még egy képernyőnek. -->
+          <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; padding:2px 0;">
+            <input type="checkbox" checked="{{ terms }}" onChange="{{ toggleTerms }}" style="width:19px; height:19px; margin-top:1px; flex:none; accent-color:#1B1A17;">
+            <span style="font-size:14px; line-height:1.5; color:#57534A;">Elfogadom az ársávot és az <a href="./aszf.html" target="_blank" rel="noopener" style="color:#8A5A1B;">ÁSZF-et</a>.</span>
+          </label>
+          <button type="button" onClick="{{ acceptOffer }}" style="{{ acceptBtn }}">{{ acceptLabel }}</button>
+          <span style="font-size:12.5px; line-height:1.45; color:#9A9388;">{{ idopontOsszegzes }}</span>
         </div>
       </div>
     </div>
     </sc-if>
 
-    <sc-if value="{{ isStep4 }}" hint-placeholder-val="{{ false }}">
-    <div style="flex:1; display:grid; grid-template-columns:1fr 460px;">
-      <div style="padding:36px 48px; display:flex; flex-direction:column; gap:20px;">
-        <div style="display:flex; flex-direction:column; gap:5px;">
-          <h3 style="margin:0; font-family:'Familjen Grotesk',sans-serif; font-size:34px; letter-spacing:-.03em;">Mikor jó Önnek?</h3>
-          <p style="margin:0; font-size:16px; line-height:1.5; color:#57534A;">{{ slotInstruction }}</p>
-        </div>
-        <div style="display:flex; gap:9px; flex-wrap:wrap;">
-          <sc-for list="{{ days }}" as="d" hint-placeholder-count="8">
-            <button type="button" onClick="{{ d.pick }}" style="{{ d.style }}">
-              <span style="font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; opacity:.72;">{{ d.dow }}</span>
-              <span style="font-family:'Familjen Grotesk',sans-serif; font-size:19px; font-weight:700;">{{ d.num }}</span>
-              <span style="font-size:11px; opacity:.6;">{{ d.freeLabel }}</span>
-            </button>
-          </sc-for>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:11px;">
-          <span style="font-size:15px; font-weight:600;">{{ dayTitle }}</span>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; max-width:620px;">
-            <sc-for list="{{ slots }}" as="s" hint-placeholder-count="4">
-              <button type="button" onClick="{{ s.toggle }}" style="{{ s.style }}">
-                <span style="{{ s.badgeStyle }}">{{ s.badge }}</span>
-                <span>{{ s.label }}</span>
-              </button>
-            </sc-for>
-          </div>
-        </div>
-      </div>
-      <div style="background:#F1EDE5; border-left:1px solid #EAE4DA; padding:36px 40px; display:flex; flex-direction:column; gap:18px;">
-        <span style="font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#8A5A1B; font-weight:600;">Kiválasztott sávok · {{ pickedCount }}</span>
-        <div style="display:flex; flex-direction:column; gap:9px;">
-          <sc-for list="{{ picked }}" as="p" hint-placeholder-count="3">
-            <div style="display:flex; align-items:center; gap:11px; padding:14px 15px; border-radius:13px; background:#FAF7F2;">
-              <span style="width:24px; height:24px; border-radius:7px; background:#E8A33D; color:#1B1A17; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:700;">{{ p.n }}</span>
-              <span style="font-size:15px; flex:1;">{{ p.label }}</span>
-              <button type="button" onClick="{{ p.remove }}" style="border:none; background:none; color:#9A9388; font-size:16px; cursor:pointer;">×</button>
-            </div>
-          </sc-for>
-          <sc-if value="{{ nonePicked }}" hint-placeholder-val="{{ false }}">
-            <div style="padding:22px 16px; border-radius:13px; border:1.5px dashed #D8D0C3; font-size:14px; color:#9A9388; text-align:center;">Válasszon a bal oldali sávokból.</div>
-          </sc-if>
-        </div>
-        <div style="padding:18px; border-radius:14px; background:#FAF7F2; display:flex; flex-direction:column; gap:11px;">
-          <div style="display:flex; justify-content:space-between;"><span style="font-size:14px; color:#7A756C;">Elfogadandó ársáv</span><span style="font-size:14px; font-weight:600;">{{ offerRange }}</span></div>
-          <div style="display:flex; justify-content:space-between;"><span style="font-size:14px; color:#7A756C;">Helyszín</span><span style="font-size:14px; font-weight:600;">{{ addressLabel }}</span></div>
-        </div>
-        <div style="margin-top:auto; display:flex; flex-direction:column; gap:12px;">
-          <label style="display:flex; align-items:flex-start; gap:10px; font-size:14px; line-height:1.45; color:#57534A; cursor:pointer;">
-            <input type="checkbox" checked="{{ terms }}" onChange="{{ toggleTerms }}" style="width:18px; height:18px; margin-top:1px; accent-color:#1B1A17;">
-            <span>Elfogadom az ársávot és az ÁSZF-et.</span>
-          </label>
-          <button type="button" onClick="{{ acceptOffer }}" style="{{ acceptBtn }}">{{ acceptLabel }}</button>
-        </div>
-      </div>
-    </div>
-    </sc-if>
   </div>
   </sc-if>
 
@@ -683,6 +697,7 @@ const CATS = ['Hibaelhárítás','Klíma','Konnektor / kapcsoló','Lámpa felsze
 const DOW = ['Vas','Hét','Kedd','Sze','Csüt','Pén','Szo'];
 const DOWLONG = ['vasárnap','hétfő','kedd','szerda','csütörtök','péntek','szombat'];
 const MON = ['jan.','febr.','márc.','ápr.','máj.','jún.','júl.','aug.','szept.','okt.','nov.','dec.'];
+const HONAPTELJES = ['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];
 const TIMES = ['8:00–10:00','10:00–12:00','13:00–15:00','15:00–17:00'];
 // A CRM szótára AZONOS az adatbáziséval. Szándékosan: egy fordítóréteg
 // („visszaigazolasra_var" → „uj") minden irányban veszteséges lenne, és a
@@ -757,6 +772,7 @@ class Component extends DCLogic {
     view: 'home', step: 1,
     cats: ['Hibaelhárítás'], desc: '', photos: [], photoPaths: [], photoBusy: 0,
     jelleg: null,
+    honapEltolas: 0, nyitottNap: null,
     address: '', urgency: 'week',
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
@@ -1049,6 +1065,126 @@ class Component extends DCLogic {
         : '';
       return next;
     });
+  }
+
+  // ---------- naptár ----------
+  //
+  // A `picked` tömb marad a tárolás alapja (`ÉÉÉÉ-HH-NN|sávindex`), tehát a
+  // becslés, a megrendelés és a CRM változatlanul működik. Csak a VÁLASZTÁS
+  // módja lett naptáras.
+  naptarVals(s) {
+    const MAX_NAP = 3;                 // naponta legfeljebb ennyi sáv
+    const MAX_OSSZ = 12;               // összesen — e fölött a szerelő már keresgél
+
+    const ma = new Date(); ma.setHours(0, 0, 0, 0);
+    const elso = new Date(ma.getFullYear(), ma.getMonth() + s.honapEltolas, 1);
+    const honapNev = HONAPTELJES[elso.getMonth()] + ' ' + elso.getFullYear();
+
+    // Hétfővel kezdődő rács.
+    const kezd = (elso.getDay() + 6) % 7;
+    const napokSzama = new Date(elso.getFullYear(), elso.getMonth() + 1, 0).getDate();
+
+    const savokNaponta = {};
+    (s.picked || []).forEach(id => {
+      const [d, i] = String(id).split('|');
+      (savokNaponta[d] = savokNaponta[d] || []).push(+i);
+    });
+
+    const cellak = [];
+    for (let k = 0; k < kezd; k++) cellak.push({ szam: '', ures: true });
+    for (let n = 1; n <= napokSzama; n++) {
+      const d = new Date(elso.getFullYear(), elso.getMonth(), n);
+      const kulcs = iso(d);
+      const mult = d < ma;
+      const vasarnap = d.getDay() === 0;
+      const tiltott = mult || vasarnap;
+      const db = (savokNaponta[kulcs] || []).length;
+      const nyitva = s.nyitottNap === kulcs;
+
+      cellak.push({
+        szam: String(n), ures: false, kulcs, tiltott, db, nyitva,
+        style: 'display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; height:44px; border-radius:9px; font-size:14px; padding:0;'
+          + '; cursor:' + (tiltott ? 'not-allowed' : 'pointer')
+          + '; border:1.5px solid ' + (nyitva ? '#1B1A17' : (db ? '#BFD8C6' : 'transparent'))
+          + '; background:' + (db ? '#E2EDE4' : (nyitva ? '#fff' : 'transparent'))
+          + '; color:' + (tiltott ? '#CFC8BC' : (db ? '#2F6B3E' : '#1B1A17'))
+          + '; font-weight:' + (db ? '600' : '400') + ';',
+        jel: db ? String(db) : '',
+        jelStyle: db ? 'font-size:9.5px; line-height:1; color:#3F7D4E;' : 'display:none;',
+        pick: () => { if (!tiltott) this.setState(st => ({ nyitottNap: st.nyitottNap === kulcs ? null : kulcs })); }
+      });
+    }
+
+    const nyitott = s.nyitottNap;
+    const nyitottDb = nyitott ? (savokNaponta[nyitott] || []).length : 0;
+    const osszes = (s.picked || []).length;
+
+    // Az összegzés napokra bontva, IDŐRENDBEN.
+    const napok = Object.keys(savokNaponta).sort();
+
+    return {
+      honapNev,
+      honapVissza: () => this.setState(st => ({ honapEltolas: Math.max(0, st.honapEltolas - 1), nyitottNap: null })),
+      honapElore:  () => this.setState(st => ({ honapEltolas: Math.min(3, st.honapEltolas + 1), nyitottNap: null })),
+      honapVisszaStyle: 'width:32px; height:32px; border-radius:8px; border:1.5px solid #E3DCD1; background:#fff; font-size:14px; cursor:'
+        + (s.honapEltolas > 0 ? 'pointer' : 'not-allowed') + '; opacity:' + (s.honapEltolas > 0 ? '1' : '.4') + ';',
+      napFejlec: ['H','K','Sze','Cs','P','Szo','V'].map(n => ({ nev: n })),
+      // Az üres cellák a hónap eleji csúszáshoz kellenek. A böngésző a <button>
+      // elemet alapból kerettel és háttérrel rajzolja, ezért ki kell mondani,
+      // hogy ne legyen egyik sem — különben üres dobozok sorakoznak a naptárban.
+      naptar: cellak.map(c => c.ures
+        ? { szam: '', jel: '', jelStyle: 'display:none;',
+            style: 'height:44px; border:none; background:none; padding:0; cursor:default;',
+            pick: () => {} }
+        : c),
+
+      vanNyitottNap: !!nyitott,
+      nyitottNapNev: nyitott ? this.napFelirat(nyitott) : '',
+      nyitottNapSzoveg: nyitottDb >= MAX_NAP
+        ? 'Ezen a napon már 3 sávot jelölt'
+        : (nyitottDb ? nyitottDb + ' / 3 sáv' : 'Válasszon idősávot'),
+      nyitottSavok: TIMES.map((t, i) => {
+        const id = nyitott + '|' + i;
+        const on = (s.picked || []).indexOf(id) >= 0;
+        const tele = !on && nyitottDb >= MAX_NAP;
+        const teleOssz = !on && osszes >= MAX_OSSZ;
+        return {
+          cimke: t,
+          style: 'height:44px; border-radius:11px; font-size:14.5px; cursor:' + ((tele || teleOssz) ? 'not-allowed' : 'pointer')
+            + '; font-weight:' + (on ? '600' : '400')
+            + '; border:1.5px solid ' + (on ? '#1B1A17' : '#E3DCD1')
+            + '; background:' + (on ? '#1B1A17' : '#fff')
+            + '; color:' + (on ? '#FAF7F2' : ((tele || teleOssz) ? '#B4ADA2' : '#1B1A17')) + ';',
+          pick: () => this.savotValt(id, on, tele, teleOssz, MAX_NAP, MAX_OSSZ)
+        };
+      }),
+
+      vanValasztott: napok.length > 0,
+      valasztottNapok: napok.map(d => ({
+        nap: this.napFelirat(d),
+        savok: (savokNaponta[d] || []).sort((a, b) => a - b).map(i => TIMES[i]).join(' · '),
+        torol: () => this.setState(st => ({
+          picked: st.picked.filter(x => String(x).split('|')[0] !== d),
+          nyitottNap: st.nyitottNap === d ? null : st.nyitottNap
+        }))
+      })),
+      napSzamSzoveg: osszes ? (napok.length + ' nap · ' + osszes + ' idősáv') : 'még nincs megjelölve',
+      napSzamStyle: 'font-size:13px; font-weight:600; color:' + (osszes ? '#2F6B3E' : '#C4711A') + ';'
+    };
+  }
+
+  savotValt(id, on, tele, teleOssz, maxNap, maxOssz) {
+    if (!on && tele) return this.flash('Egy napra legfeljebb ' + maxNap + ' idősávot jelölhet meg.');
+    if (!on && teleOssz) return this.flash('Összesen legfeljebb ' + maxOssz + ' idősávot jelölhet meg.');
+    this.setState(st => ({
+      picked: on ? st.picked.filter(x => x !== id) : st.picked.concat([id]).sort(slotRend)
+    }));
+  }
+
+  napFelirat(kulcs) {
+    const p = String(kulcs).split('-');
+    const d = new Date(+p[0], +p[1] - 1, +p[2]);
+    return MON[d.getMonth()] + ' ' + d.getDate() + '. ' + DOWLONG[d.getDay()];
   }
 
   // ---------- tagolt cím ----------
@@ -1608,7 +1744,8 @@ class Component extends DCLogic {
 
     const d = {};
 
-    const canAccept = s.picked.length >= minSlots && s.terms;
+    // Az időpont már az 1. lépésben kötelező volt, tehát itt csak az ÁSZF hiányozhat.
+    const canAccept = s.picked.length >= 1 && s.terms;
 
     // „Kerestünk, és tényleg nincs találat." A lista a választáskor bezárul, ezért
     // az üres lista önmagában nem jelent hiányt — az `utcaTalalt` különbözteti meg
@@ -1622,8 +1759,8 @@ class Component extends DCLogic {
       teaserRange: rng(live.min, live.max),
 
       isHome: s.view === 'home', isWizard: s.view === 'wizard', isDone: s.view === 'done',
-      isStep1: s.step === 1, isStep2: s.step === 2, isStep3: s.step === 3, isStep4: s.step === 4,
-      st1: stepDot(s.step >= 1), st2: stepDot(s.step >= 2), st3: stepDot(s.step >= 3), st4: stepDot(s.step >= 4),
+      isStep1: s.step === 1, isStep2: s.step === 2, isStep3: s.step === 3,
+      st1: stepDot(s.step >= 1), st2: stepDot(s.step >= 2), st3: stepDot(s.step >= 3),
       swPublic: sw(s.view !== 'crm' && s.view !== 'crmDetail'), swCrm: sw(s.view === 'crm' || s.view === 'crmDetail'),
 
       // Több munkatípus is választható: az ügyfél egy kiszállással több dolgot is
@@ -1758,6 +1895,9 @@ class Component extends DCLogic {
         if (!all.length) return this.flash('Ezt nem tudtuk képként értelmezni — próbálja fájlként ráhúzni.');
         this.kepeketFogad(all);
       },
+      // ---------- NAPTÁR ----------
+      ...this.naptarVals(s),
+
       photoHint: s.photos.length ? s.photos.length + ' feltöltve · minél több szög, annál pontosabb' : 'Még nincs fotó · a becslés pontosságát nagyban javítja',
       addPhotos: e => {
         this.kepeketFogad(Array.from(e.target.files || []));
@@ -1835,6 +1975,9 @@ class Component extends DCLogic {
         if (s.custName.trim().length < 2) return this.flash('Adja meg a nevét — az ajánlatot erre a névre állítjuk ki.');
         if (!okPhone(s.custPhone)) return this.flash('Adjon meg egy érvényes telefonszámot, például +36 30 123 4567.');
         if (!okEmail(s.custEmail)) return this.flash('Adjon meg egy érvényes e-mail-címet — ide küldjük az ajánlatot.');
+        // Az időpontot már itt bekérjük: a naptár ezen az oldalon van, és a
+        // megrendeléshez úgyis kell legalább egy sáv.
+        if (!s.picked.length) return this.flash('Jelöljön meg legalább egy időpontot a naptárban.');
         const rl = rlCheck();
         if (!rl.ok) return this.flash(rl.msg);
         rlBump();
@@ -1847,7 +1990,20 @@ class Component extends DCLogic {
       offerRange: s.estimating ? 'Számoljuk…' : rng(est.min, est.max),
       offerItems: est.items.filter(i => !i.surcharge).map(i => ({ label: i.label, note: i.note, price: i.max && i.max !== i.min ? ft(i.min) + ' – ' + ft(i.max) : ft(i.min) })),
       reasoning: est.reasoning,
-      toSchedule: () => this.setState({ step: 4 }),
+      // Az időpontokat az 1. lépésben, a naptárban jelölte meg — a 3. lépés a
+      // folyamat vége. Ez a felirat mutatja meg, mit fogad el.
+      idopontOsszegzes: (() => {
+        const napok = {};
+        (s.picked || []).forEach(id => {
+          const [d, i] = String(id).split('|');
+          (napok[d] = napok[d] || []).push(+i);
+        });
+        const k = Object.keys(napok).sort();
+        if (!k.length) return 'Nem jelölt meg időpontot.';
+        return 'Megjelölt időpontok: ' + k.map(d =>
+          this.napFelirat(d) + ' (' + napok[d].sort((a, b) => a - b).map(i => TIMES[i]).join(', ') + ')'
+        ).join(' · ');
+      })(),
 
       slotInstruction: needThree ? 'Jelöljön meg 3 alkalmas sávot — ' + contactFirst + ' ezek közül erősít meg egyet 2 órán belül.' : 'Válasszon egy Önnek megfelelő sávot.',
       days: this.days.map((dd, i) => ({
@@ -1883,10 +2039,10 @@ class Component extends DCLogic {
       picked, nonePicked: picked.length === 0,
       pickedCount: s.picked.length + ' / ' + minSlots,
       terms: s.terms, toggleTerms: () => this.setState({ terms: !s.terms }),
-      acceptLabel: s.picked.length < minSlots ? 'Válasszon még ' + (minSlots - s.picked.length) + ' sávot' : (s.terms ? 'Ajánlat elfogadása' : 'Fogadja el az ÁSZF-et'),
+      acceptLabel: !s.picked.length ? 'Nincs megjelölt időpont' : (s.terms ? 'Ajánlat elfogadása' : 'Fogadja el az ÁSZF-et'),
       acceptBtn: 'height:58px; border-radius:13px; border:none; font-size:16.5px; font-weight:600; background:#1B1A17; color:#FAF7F2; cursor:' + (canAccept ? 'pointer' : 'not-allowed') + '; opacity:' + (canAccept ? '1' : '.45') + ';',
       acceptOffer: () => {
-        if (!canAccept) return this.flash('Jelöljön meg ' + minSlots + ' sávot és fogadja el az ÁSZF-et.');
+        if (!canAccept) return this.flash(s.picked.length ? 'Fogadja el az ÁSZF-et.' : 'Jelöljön meg legalább egy időpontot.');
         if (LIVE) return this.submitOrder();
         const n = 420 + s.orders.length;
         const ref = 'VS-2026-0' + n;
