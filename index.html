@@ -1690,13 +1690,23 @@ class Component extends DCLogic {
   }
   seed() { return []; }
 
+  /**
+   * A naptárban látható napok.
+   *
+   * Az ablak HOSSZA állítható (alapból 5 nap), és a lépegetés is ennyivel megy —
+   * nem fix hétnyivel. Egy egyszemélyes vállalkozásnál a hét mint egység nem
+   * mond semmit: a szerelő azt akarja látni, mi jön a következő pár napban.
+   *
+   * A hétvégét nem szűrjük ki: szombaton is van munka, és ha valaki mégsem
+   * dolgozik akkor, az üres oszlop nem zavaró.
+   */
   weekDays() {
+    const hossz = Math.max(1, Math.min(14, this.state.calNapok || 5));
     const base = new Date(); base.setHours(0, 0, 0, 0);
-    const dow = base.getDay() === 0 ? 7 : base.getDay();
-    const mon = new Date(base.getTime() - (dow - 1) * 86400000 + this.state.calWeek * 7 * 86400000);
+    const kezd = new Date(base.getTime() + (this.state.calWeek || 0) * hossz * 86400000);
     const out = [];
-    for (let i = 0; i < 6; i++) {
-      const d = new Date(mon.getTime() + i * 86400000);
+    for (let i = 0; i < hossz; i++) {
+      const d = new Date(kezd.getTime() + i * 86400000);
       out.push({ iso: iso(d), date: d, dow: DOW[d.getDay()], num: d.getDate(), mon: MON[d.getMonth()], isToday: iso(d) === iso(base) });
     }
     return out;
