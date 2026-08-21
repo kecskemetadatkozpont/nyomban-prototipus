@@ -1094,6 +1094,12 @@ class Component extends DCLogic {
         photoPaths: this.state.photoPaths || [],
         clarifyId: this.state.clarifyId || null,
         answers: this.state.answers || null,
+        // A tagolt cím részei: ebből oldja fel a szerver a koordinátát, saját
+        // adatból. A települést az ügyfél a listából VÁLASZTOTTA, tehát nem kell
+        // a szövegből visszafejteni.
+        cimTelepulesId: this.state.telepulesId || null,
+        cimUtca: this.state.utca || null,
+        cimVarosresz: null,
         turnstileToken: window.NYOMBAN_TURNSTILE_TOKEN || null
       }, 25000);
 
