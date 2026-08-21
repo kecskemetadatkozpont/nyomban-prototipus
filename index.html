@@ -193,6 +193,26 @@
           <h2 style="margin:0; font-family:'Familjen Grotesk',sans-serif; font-size:38px; letter-spacing:-.03em;">Mi a feladat?</h2>
           <p style="margin:0; font-size:16px; color:#57534A;">Minél pontosabban írja le, annál szűkebb lesz az ársáv.</p>
         </div>
+        <!-- 1. SZINT: a munka jellege. Ettől függ, milyen típusokat kínálunk
+             utána — így rövidebb a lista, és nem lehet értelmetlen párost
+             választani (pl. „Felmérés" + „Klímatisztítás"). -->
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <div style="display:flex; align-items:baseline; gap:9px;">
+            <span style="font-size:14px; font-weight:600;">Munka jellege</span>
+            <span style="font-size:13px; color:#7A756C;">válasszon egyet</span>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:9px;">
+            <sc-for list="{{ jellegek }}" as="j" hint-placeholder-count="4">
+              <button type="button" onClick="{{ j.pick }}" style="{{ j.style }}">
+                <span style="font-size:15px; font-weight:600;">{{ j.nev }}</span>
+                <span style="{{ j.leirasStyle }}">{{ j.leiras }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- 2. SZINT: csak akkor jelenik meg, ha az első megvan. -->
+        <sc-if value="{{ vanJelleg }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex; flex-direction:column; gap:11px;">
           <div style="display:flex; align-items:baseline; gap:9px;">
             <span style="font-size:14px; font-weight:600;">Munka típusa</span>
@@ -204,6 +224,7 @@
             </sc-for>
           </div>
         </div>
+        </sc-if>
         <div style="display:flex; flex-direction:column; gap:11px;">
           <span style="font-size:14px; font-weight:600;">Leírás</span>
           <textarea onChange="{{ setDesc }}" value="{{ desc }}" placeholder="Írja le, mi a baj — mit tapasztal, mióta, és melyik helyiségben. Például: a fürdőszobában lecsapja a kismegszakítót, valahányszor bekapcsolom a bojlert. Ha tudja, írja le a készülék típusát is." style="border:1.5px solid #E3DCD1; border-radius:15px; background:#fff; padding:16px 18px; height:120px; font-size:16px; line-height:1.55; color:#1B1A17; resize:none;"></textarea>
@@ -217,9 +238,12 @@
                 <button type="button" onClick="{{ p.remove }}" style="position:absolute; top:7px; right:7px; width:24px; height:24px; border-radius:50%; background:#1B1A17; color:#fff; border:none; font-size:13px; cursor:pointer;">×</button>
               </div>
             </sc-for>
-            <label style="width:180px; height:110px; border-radius:13px; border:1.5px dashed #D3CABB; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; color:#8A5A1B; cursor:pointer;">
-              <span style="font-size:22px;">+</span>
-              <span style="font-size:14px; font-weight:600;">Fotó hozzáadása</span>
+            <!-- RÁHÚZHATÓ terület. A címke egyben fogadja az egérrel ráhúzott
+                 fájlokat is — akár többet egyszerre. Asztali gépen ez a
+                 természetes mozdulat; telefonon a kattintás marad. -->
+            <label onDragOver="{{ dragRajta }}" onDragEnter="{{ dragRajta }}" onDragLeave="{{ dragEl }}" onDrop="{{ dragEjt }}" style="{{ dropStyle }}">
+              <span style="font-size:22px;">{{ dropIkon }}</span>
+              <span style="font-size:14px; font-weight:600; text-align:center; line-height:1.35;">{{ dropFelirat }}</span>
               <input type="file" accept="image/*,.heic,.heif" multiple="{{ true }}" onChange="{{ addPhotos }}" style="display:none;">
             </label>
           </div>
@@ -284,7 +308,14 @@
           </div>
           <div style="display:flex; flex-direction:column; gap:11px;">
             <span style="font-size:14px; font-weight:600;">Telefonszám <span style="color:#C4711A;">*</span></span>
-            <input type="tel" onChange="{{ setPhone }}" value="{{ custPhone }}" placeholder="+36 20 000 0000" style="{{ phoneStyle }}">
+            <!-- Három rész: a +36 fix, a körzetszám külön, a maradék szabadon.
+                 Így nem lehet elfelejteni az országhívót, és nem kell találgatni,
+                 hogy 06-tal vagy +36-tal kezdje. -->
+            <div style="{{ phoneWrapStyle }}">
+              <span style="flex:none; padding:0 11px 0 13px; font-size:16px; font-weight:600; color:#57534A; border-right:1.5px solid #E3DCD1; line-height:50px;">+36</span>
+              <input type="tel" inputmode="numeric" maxlength="2" onChange="{{ setKorzet }}" value="{{ korzet }}" placeholder="30" style="flex:none; width:56px; height:50px; border:none; background:none; padding:0 10px; font-size:16px; font-weight:600; text-align:center; color:#1B1A17;">
+              <input type="tel" inputmode="numeric" onChange="{{ setSzam }}" value="{{ telSzam }}" placeholder="123 4567" style="flex:1; min-width:0; height:50px; border:none; background:none; padding:0 12px; font-size:16px; color:#1B1A17;">
+            </div>
           </div>
         </div>
         <div style="display:flex; flex-direction:column; gap:11px;">
@@ -529,6 +560,20 @@
   </div>
   </sc-if>
 
+  <!-- NAGY KÉPNÉZET. A LEGFELSŐ szinten, mert minden nézetből meg kell tudni
+       nyitni. Először a CRM listanézetén belülre került, és emiatt a megrendelés
+       RÉSZLETEIBŐL — vagyis pont onnan, ahol a fotók vannak — nem nyílt meg.
+
+       A szerelő a helyszínen a telefonján nézi: a bélyegképen nem látszik,
+       milyen típusú a szerelvény, vagy hol van az égésnyom. -->
+  <sc-if value="{{ nagyKep }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ nagyKepZar }}" style="position:fixed; inset:0; z-index:200; background:rgba(20,19,17,.92); display:flex; align-items:center; justify-content:center; padding:28px; cursor:zoom-out;">
+      <img src="{{ nagyKep }}" alt="A megrendeléshez feltöltött fotó" style="max-width:100%; max-height:100%; border-radius:12px; box-shadow:0 24px 60px rgba(0,0,0,.5);">
+      <button type="button" onClick="{{ nagyKepZar }}" style="position:absolute; top:20px; right:22px; width:42px; height:42px; border-radius:50%; border:none; background:#FAF7F2; color:#1B1A17; font-size:20px; cursor:pointer;">×</button>
+      <div style="position:absolute; bottom:20px; left:0; right:0; text-align:center; color:#C9C2B4; font-size:13.5px;">{{ nagyKepFelirat }}</div>
+    </div>
+  </sc-if>
+
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed; left:50%; bottom:26px; transform:translateX(-50%); z-index:60; padding:14px 22px; border-radius:12px; background:#1B1A17; color:#FAF7F2; font-size:15px; font-weight:500; box-shadow:0 14px 40px rgba(27,26,23,.35);">{{ toast }}</div>
   </sc-if>
@@ -536,6 +581,26 @@
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;contactName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Novák Ádám&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cégadatok&quot;},&quot;contactPhone&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;+36 30 254 9290&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cégadatok&quot;},&quot;calloutFee&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6900,&quot;min&quot;:0,&quot;max&quot;:20000,&quot;step&quot;:100,&quot;unit&quot;:&quot;Ft&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Árazás&quot;},&quot;urgencySurcharge&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:30,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Árazás&quot;},&quot;requireThreeSlots&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Foglalás&quot;}}">
+// A munka JELLEGE — ez az első szintű szűrő. Ettől függ, mit kínálunk utána, és
+// később ettől függ az árazás is: ugyanaz a tétel más munka felújításnál és
+// javításnál (új falban vezetéket húzni nem ugyanaz, mint szerelvényt cserélni).
+const JELLEG = [
+  { key: 'felujitas',    nev: 'Felújítás',    leiras: 'Meglévő rendszer átépítése, bővítése' },
+  { key: 'telepites',    nev: 'Telepítés',    leiras: 'Új készülék vagy vezeték kiépítése' },
+  { key: 'karbantartas', nev: 'Karbantartás', leiras: 'Tisztítás, ellenőrzés, javítás' },
+  { key: 'felmeres',     nev: 'Felmérés',     leiras: 'Helyszíni szemle, mérés, árajánlat' }
+];
+
+// A 2. szint kategóriái jellegenként. Ami nem illik hozzá, meg sem jelenik — így
+// rövidebb a lista, és nem lehet értelmetlen párost választani
+// (pl. „Felmérés" + „Klímatisztítás").
+const CATS_JELLEG = {
+  felujitas:    ['Elosztószekrény','Konnektor / kapcsoló','Lámpa felszerelés','Vezetékhálózat','Teljes felújítás'],
+  telepites:    ['Klíma telepítés','Konnektor / kapcsoló','Lámpa felszerelés','Bojler / külön áramkör','Kaputelefon','Elosztószekrény'],
+  karbantartas: ['Hibaelhárítás','Klímatisztítás','Érintésvédelmi mérés','Kaputelefon','Lámpa felszerelés'],
+  felmeres:     ['Helyszíni felmérés','Érintésvédelmi mérés','Árajánlat felújításhoz']
+};
+
 const CFG = Object.assign({
   quoteEndpoint: null, maxPhotos: 5, photoMaxEdge: 1600,
   quotesPerDay: 30, quotesPerHour: 15, minGapSeconds: 5
@@ -671,6 +736,17 @@ function rng(a, b) { return a === b ? ft(a) : ft(a) + ' – ' + ft(b); }
 // KORÁBBI napot jelölt, miközben a felirat a `getDate()`-ből a helyes helyi napot
 // mutatta. Az ügyfél szombatot választott, a szerelő péntekre kapta a munkát — és
 // semmi nem jelzett hibát. Az október végi óraátállításig minden nap érintett.
+/**
+ * Sávok időrendje. Az azonosító alakja `ÉÉÉÉ-HH-NN|index`, ahol az index a TIMES
+ * tömbé — a dátum szövegesen is helyesen rendeződik, az órát az index adja.
+ */
+function slotRend(a, b) {
+  const [da, ia] = String(a).split('|');
+  const [db, ib] = String(b).split('|');
+  if (da !== db) return da < db ? -1 : 1;
+  return (+ia) - (+ib);
+}
+
 function iso(d) {
   const p = n => String(n).padStart(2, '0');
   return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
@@ -680,6 +756,7 @@ class Component extends DCLogic {
   state = {
     view: 'home', step: 1,
     cats: ['Hibaelhárítás'], desc: '', photos: [], photoPaths: [], photoBusy: 0,
+    jelleg: null,
     address: '', urgency: 'week',
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
@@ -691,6 +768,7 @@ class Component extends DCLogic {
     estimateId: null, estFatal: '',
     smsPhase: 'idle', smsChallenge: null, smsCode: '', smsErr: '', smsNote: '', submitting: false,
     custName: '', custPhone: '', custEmail: '',
+    korzet: '', telSzam: '',
     est: null, estimating: false, aiUsed: false,
     // Tisztázó kérdések (2. lépés). A `clarifyId` az, amit az estimate örököl:
     // ezen keresztül veszi át a fotó-összefoglalót és a válaszok ÁRHATÁSÁT, anélkül
@@ -702,6 +780,8 @@ class Component extends DCLogic {
     rules: DEFAULT_RULES, glob: DEFAULT_GLOB,
     mapBusy: false, mapErr: false,
     ujTetelLabel: '', ujTetelAr: '',
+    nagyKep: null, nagyKepIdx: 0,
+    dragAktiv: false,
     slotPick: null
   };
 
@@ -913,6 +993,54 @@ class Component extends DCLogic {
     return Math.max(12, Math.min(96, a));
   }
 
+
+  /**
+   * Fájlok fogadása — EGY helyen, akárhonnan jönnek.
+   *
+   * A fájlmező és a ráhúzás ugyanide fut be, tehát a darabszám-ellenőrzés és a
+   * feldolgozás nem csúszhat szét a két úton.
+   */
+  kepeketFogad(files) {
+    const max = (this.props && this.props.maxPhotos) || 5;
+    const hely = Math.max(0, max - this.state.photos.length);
+    if (!hely) return this.flash('Legfeljebb ' + max + ' fotót tölthet fel.');
+    const lista = files.slice(0, hely);
+    if (files.length > lista.length) this.flash('Legfeljebb ' + max + ' fotót tölthet fel — az elsőket vettük fel.');
+    lista.forEach(f => this.kepetFogad(f));
+  }
+
+  // A demóban nincs feldolgozás; az éles buildben a build.mjs cseréli le.
+  __KEPFELDOLGOZO__
+
+  /**
+   * A munka jellegének kiválasztása. A 2. szint listája ettől függ, ezért a
+   * korábban választott típusokból CSAK azok maradnak, amik az új jellegnél is
+   * léteznek — enélkül egy „Klímatisztítás" ottragadna a felújítás alatt.
+   */
+  jellegetValaszt(key) {
+    this.setState(st => {
+      const lista = CATS_JELLEG[key] || CATS;
+      return { jelleg: key, cats: (st.cats || []).filter(c => lista.indexOf(c) >= 0) };
+    });
+  }
+
+  /**
+   * Telefonszám a három részből. A `custPhone` marad a mérvadó mező — a
+   * validáció, a becslés és a megrendelés is azt használja, tehát a folyamat
+   * többi részéhez nem kellett hozzányúlni.
+   */
+  telefonValt(mezo, ertek) {
+    const csakSzam = String(ertek).replace(/\D/g, '');
+    this.setState(st => {
+      const next = Object.assign({}, st, {
+        [mezo]: mezo === 'korzet' ? csakSzam.slice(0, 2) : csakSzam.slice(0, 9)
+      });
+      next.custPhone = (next.korzet || next.telSzam)
+        ? ('+36 ' + next.korzet + (next.telSzam ? ' ' + next.telSzam : '')).trim()
+        : '';
+      return next;
+    });
+  }
 
   // ---------- tagolt cím ----------
   //
@@ -1494,7 +1622,19 @@ class Component extends DCLogic {
       // kiválasztott típus kulcsszavait figyelembe veszi.
       // Funkcionális setState, mert a chipekre gyorsan egymás után kattintanak —
       // a befagyott lista különben elnyelné az előző kijelölést.
-      cats: CATS.map(name => ({
+      // 1. szint
+      vanJelleg: !!s.jelleg,
+      jellegek: JELLEG.map(j => {
+        const on = s.jelleg === j.key;
+        return { nev: j.nev, leiras: j.leiras,
+          style: 'display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:11px 15px; border-radius:13px; cursor:pointer; text-align:left; min-width:150px; border:1.5px solid '
+            + (on ? '#1B1A17' : '#E3DCD1') + '; background:' + (on ? '#1B1A17' : '#fff')
+            + '; color:' + (on ? '#FAF7F2' : '#1B1A17') + ';',
+          leirasStyle: 'font-size:12.5px; line-height:1.35; color:' + (on ? '#C9C2B4' : '#7A756C') + ';',
+          pick: () => this.jellegetValaszt(j.key) };
+      }),
+
+      cats: (s.jelleg ? (CATS_JELLEG[s.jelleg] || CATS) : CATS).map(name => ({
         name,
         darkStyle:  chipDark(s.cats.indexOf(name) >= 0),
         lightStyle: chipLight(s.cats.indexOf(name) >= 0),
@@ -1562,6 +1702,14 @@ class Component extends DCLogic {
             : 'A javaslatok segítenek, de bármit beírhat kézzel is.'),
       cimHintStyle: 'font-size:12.5px; line-height:1.45; color:' + (nincsUtca ? '#8A5A1B' : '#9A9388') + ';',
       custName: s.custName, setName: e => this.setState({ custName: e.target.value }),
+      // A `custPhone` a KÉT mezőből áll össze — a folyamat többi része
+      // változatlanul azt használja.
+      korzet: s.korzet,
+      telSzam: s.telSzam,
+      setKorzet: e => this.telefonValt('korzet', e.target.value),
+      setSzam:   e => this.telefonValt('telSzam', e.target.value),
+      phoneWrapStyle: 'display:flex; align-items:center; height:52px; border-radius:13px; background:#fff; overflow:hidden; border:1.5px solid '
+        + ((!s.custPhone.trim() || okPhone(s.custPhone)) ? '#E3DCD1' : '#C4711A') + ';',
       custPhone: s.custPhone, setPhone: e => this.setState({ custPhone: e.target.value }),
       custEmail: s.custEmail, setEmail: e => this.setState({ custEmail: e.target.value }),
       nameStyle: fieldStyle(!s.custName.trim() || s.custName.trim().length >= 2),
@@ -1582,13 +1730,28 @@ class Component extends DCLogic {
           photoPaths: (st.photoPaths || []).filter((_, k) => k !== i)
         }))
       })),
+      // A ráhúzás vizuális visszajelzése: enélkül nem derül ki, hogy a terület
+      // egyáltalán fogad-e fájlt.
+      dropStyle: 'width:180px; height:110px; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; cursor:pointer; padding:8px; transition:border-color .15s, background .15s; border:1.5px dashed '
+        + (s.dragAktiv ? '#C4711A' : '#D3CABB') + '; background:' + (s.dragAktiv ? '#F3E7D2' : 'transparent')
+        + '; color:' + (s.dragAktiv ? '#8A5A1B' : '#8A5A1B') + ';',
+      dropIkon: s.dragAktiv ? '↓' : '+',
+      dropFelirat: s.dragAktiv ? 'Engedje el' : 'Fotó hozzáadása vagy húzza ide',
+      dragRajta: e => { e.preventDefault(); if (!s.dragAktiv) this.setState({ dragAktiv: true }); },
+      dragEl: e => { e.preventDefault(); this.setState({ dragAktiv: false }); },
+      dragEjt: e => {
+        e.preventDefault();
+        this.setState({ dragAktiv: false });
+        const dt = e.dataTransfer;
+        if (!dt) return;
+        // A `files` a megbízható forrás; az `items` böngészőnként eltér.
+        const all = Array.from(dt.files || []);
+        if (!all.length) return this.flash('Ezt nem tudtuk képként értelmezni — próbálja fájlként ráhúzni.');
+        this.kepeketFogad(all);
+      },
       photoHint: s.photos.length ? s.photos.length + ' feltöltve · minél több szög, annál pontosabb' : 'Még nincs fotó · a becslés pontosságát nagyban javítja',
       addPhotos: e => {
-        const room = Math.max(0, CFG.maxPhotos - s.photos.length);
-        const all = Array.from(e.target.files || []);
-        const files = all.slice(0, room);
-        if (all.length > files.length) this.flash('Legfeljebb ' + CFG.maxPhotos + ' fotót tölthet fel.');
-        files.forEach(f => this.kepetFogad(f));
+        this.kepeketFogad(Array.from(e.target.files || []));
         e.target.value = '';
       },
 
@@ -1700,7 +1863,11 @@ class Component extends DCLogic {
               const has = st.picked.indexOf(sl.id) >= 0;
               if (has) return { picked: st.picked.filter(x => x !== sl.id) };
               if (st.picked.length >= minSlots) { this.flash('Már ' + minSlots + ' sávot megjelölt — vegyen ki egyet.'); return null; }
-              return { picked: st.picked.concat([sl.id]) };
+              // IDŐRENDBEN tartjuk, nem a kattintás sorrendjében. Az ügyfél a
+              // naptárban ugrál, és ha kivesz egyet, majd újat választ, a lista
+              // enélkül összekeveredne — a szerelő pedig a sorrendből olvassa ki,
+              // melyik időpont a legjobb neki.
+              return { picked: st.picked.concat([sl.id]).sort(slotRend) };
             });
           } };
       }),
