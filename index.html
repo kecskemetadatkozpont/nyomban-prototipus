@@ -878,7 +878,7 @@ class Component extends DCLogic {
     // meg, a naptár az alapértelmezéssel működik — nem várakoztatjuk az ügyfelet.
     naptarAdat: null,
     address: '',
-    egyeniNyitva: false, egyeniKezd: '', egyeniVeg: '',
+    egyeniNyitva: false, egyeniKezd: '', egyeniVeg: '', kikuldFut: false,
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
     irsz: '', telepules: '', telepulesId: null, utca: '', hazszam: '', emelet: '',
@@ -929,6 +929,10 @@ class Component extends DCLogic {
     } catch (e) {}
     this.setState({ orders, rules, glob });
   }
+
+  // ---------- az ajánlat kiküldése ----------
+  // A demóban nincs szerver; az éles buildben a build.mjs cseréli le.
+  async ajanlatKikuld() { this.flash('Ajánlat kiküldve (demó).'); }
 
   // ---------- anyagtörzs és leltár ----------
   // A demóban nincs szerver; az éles buildben a build.mjs cseréli le.
