@@ -24,7 +24,7 @@ window.NYOMBAN_CONFIG = {
 
   // Feltöltési korlát — egy ügyfél legfeljebb ennyi fotót adhat egy kéréshez.
   maxPhotos: 5,
-  photoMaxEdge: 1600,
+  photoMaxEdge: 1800,   // a feliratok olvashatóságáért; lásd a képfeldolgozót
 
   // Kliensoldali kérés-korlát (nem biztonsági határ, lásd RATE_LIMIT.md).
   //

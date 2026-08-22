@@ -230,6 +230,10 @@
         </div>
         <div style="display:flex; flex-direction:column; gap:11px;">
           <div style="display:flex; align-items:baseline; gap:10px;"><span style="font-size:14px; font-weight:600;">Fotók</span><span style="font-size:13.5px; color:#9A9388;">{{ photoHint }}</span></div>
+          <!-- MIT ÉRDEMES LEFOTÓZNI. Munkatípusra szabva: a hiányzó közeli kép a
+               biztosítéktábláról vagy a típustábláról ma az egyik legdrágább
+               vakfolt — a modell abból tudná, mekkora a munka. -->
+          <span style="{{ fotoTippStyle }}">{{ fotoTipp }}</span>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <sc-for list="{{ photos }}" as="p" hint-placeholder-count="0">
               <div style="{{ p.thumbStyle }}">
@@ -662,7 +666,7 @@ const CATS_JELLEG = {
 };
 
 const CFG = Object.assign({
-  quoteEndpoint: null, maxPhotos: 5, photoMaxEdge: 1600,
+  quoteEndpoint: null, maxPhotos: 5, photoMaxEdge: 1800,
   quotesPerDay: 30, quotesPerHour: 15, minGapSeconds: 5
 }, window.NYOMBAN_CONFIG || {});
 
@@ -2017,8 +2021,22 @@ class Component extends DCLogic {
       } else {
         out = await this.kicsinyit(forras);
       }
-      this.setState(st => ({ photos: st.photos.concat([out]).slice(0, CFG.maxPhotos), kepBusy: false }));
-      if (LIVE) this.uploadPhoto(out);
+      // A kicsinyítő mostantól { kep, gond } alakot ad — a régi, sima adat-URL-t
+      // is elfogadjuk, hogy egy félig frissült build se törjön el.
+      const kep = (out && out.kep) ? out.kep : out;
+      const gond = (out && out.gond) || null;
+
+      this.setState(st => ({ photos: st.photos.concat([kep]).slice(0, CFG.maxPhotos), kepBusy: false }));
+      if (LIVE) this.uploadPhoto(kep);
+
+      // FIGYELMEZTETÉS, nem tiltás: a rossz fotó is többet ér a semminél, és egy
+      // téves riasztás nem tarthatja vissza a megrendelést. De most, a felvétel
+      // pillanatában még két másodperc újrafotózni — a becslés után már késő.
+      if (gond === 'homalyos') {
+        this.flash(NEV + ': ez a kép homályosnak tűnik. Ha felirat is van rajta (pl. B16, 30 mA), érdemes újra lefotózni.');
+      } else if (gond === 'sotet') {
+        this.flash(NEV + ': ez a kép elég sötét. Kapcsoljon villanyt vagy használjon vakut — így többet látunk rajta.');
+      }
 
     } catch (err) {
       this.setState({ kepBusy: false });
@@ -2096,9 +2114,61 @@ class Component extends DCLogic {
     rajzol(cx, cv.width, cv.height);
     if (bmp && bmp.close) bmp.close();
 
-    const out = cv.toDataURL('image/jpeg', 0.7);
+    // A MINŐSÉG 0,7-ről 0,85-re. Fotónak a 0,7 is jó, FELIRATNAK nem: egy
+    // biztosíték „B16" jelzése vagy egy típustábla „30 mA" felirata pont ezen a
+    // ponton mosódik el — és a modell ilyenkor nem szól, hogy nem olvassa,
+    // hanem magabiztosan tippel. A képet amúgy is csak egyszer küldjük fel.
+    const out = cv.toDataURL('image/jpeg', 0.85);
     if (!out || out.length < 200) throw new Error('a kicsinyítés üres képet adott');
-    return out;
+
+    // ---------- KÉPMINŐSÉG-ELLENŐRZÉS ----------
+    //
+    // A vásznon már ott a kép, tehát ez ingyen van — se hálózat, se AI.
+    // Amit megfog: az elmosódott és a túl sötét fotó. Ezekre a modell NEM SZÓL,
+    // hogy nem látja; magabiztosan tippel, és a tévedés az árban jelenik meg.
+    // Az ügyfélnek viszont a felvétel pillanatában még két másodperc újrafotózni.
+    //
+    // NEM tiltás, csak figyelmeztetés: egy rossz fotó is többet ér a semminél,
+    // és egy téves riasztás nem tarthatja vissza a megrendelést.
+    try {
+      const px = cx.getImageData(0, 0, cv.width, cv.height);
+      const d = px.data, w = cv.width, h = cv.height;
+      // Szürkeárnyalat egy sorfolytonos tömbbe — a Laplace-hoz kell a szomszéd.
+      const g = new Float32Array(w * h);
+      let osszeg = 0;
+      for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+        const v = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        g[j] = v; osszeg += v;
+      }
+      const atlagFeny = osszeg / (w * h);
+
+      // Laplace-variancia: az élek erőssége. Éles képen nagy, homályoson kicsi.
+      // Mintavételezve, hogy nagy képnél se lassítson.
+      const lepes = Math.max(1, Math.floor(Math.min(w, h) / 400));
+      let n = 0, sum = 0, sum2 = 0;
+      for (let y = lepes; y < h - lepes; y += lepes) {
+        for (let x = lepes; x < w - lepes; x += lepes) {
+          const i = y * w + x;
+          const lap = 4 * g[i] - g[i - 1] - g[i + 1] - g[i - w * lepes] - g[i + w * lepes];
+          sum += lap; sum2 += lap * lap; n++;
+        }
+      }
+      const variancia = n > 1 ? (sum2 / n) - (sum / n) * (sum / n) : 0;
+
+      // A küszöbök mértek: 1800 px-es, 0,85-ös JPEG-en egy éles beltéri fotó
+      // jellemzően 300 fölött van, egy bemozdult 80 alatt.
+      // A SÖTÉTSÉGET nézzük ELŐBB: egy sötét képnek az élei is gyengék, tehát
+      // homályosnak látszana — pedig a teendő más (villanyt kapcsolni, nem
+      // stabilan tartani a telefont). Mérve: a sötét minta varianciája 33, a
+      // homályosé 3, az élesé 14 306.
+      if (atlagFeny < 42)  return { kep: out, gond: 'sotet' };
+      if (variancia < 80) return { kep: out, gond: 'homalyos' };
+    } catch (e) {
+      // A getImageData elbukhat (nagyon nagy vászon, memória). Nem hiba: a kép
+      // ettől még használható, csak nem tudtuk megnézni.
+    }
+
+    return { kep: out, gond: null };
   }
 
   async uploadPhoto(dataUrl) {
@@ -2637,6 +2707,34 @@ class Component extends DCLogic {
       ...this.naptarVals(s),
 
       photoHint: s.photos.length ? s.photos.length + ' feltöltve · minél több szög, annál pontosabb' : 'Még nincs fotó · a becslés pontosságát nagyban javítja',
+
+      // Munkatípusra szabott fotó-útmutató. Nem kötelező képhely: az visszavehet
+      // a befejezett ajánlatkérésekből, és egyetlen elveszett érdeklődő többe
+      // kerül, mint egy év fotóminőség-javulás. Csak egy mondat, ami megmondja,
+      // mi az, amiből tényleg ki lehet olvasni a munka nagyságát.
+      fotoTipp: (() => {
+        // ÉKEZETFÜGGETLEN egyezés: a telefonon sokan ékezet nélkül gépelnek
+        // („eloszotabla", „klima"), és a szó szerinti keresés ezeket nem találná.
+        const ekNelkul = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const c = ekNelkul((s.cats || []).join(' ') + ' ' + (s.desc || ''));
+        const van = t => c.indexOf(ekNelkul(t)) >= 0;
+        if (van('elosztó') || van('tábla') || van('biztosíték') || van('fi-relé') || van('fi relé'))
+          return '💡 Ehhez a legtöbbet a NYITOTT elosztótábla szemből készült képe adja, plusz egy közeli a biztosítékokról — a rájuk írt jelzés (B16, C16, 30 mA) elárulja, mekkora a munka.';
+        if (van('klíma'))
+          return '💡 Fotózza le a beltéri egység helyét, a külső falat, ahová a kültéri kerül, és ha látszik, a meglévő csőnyomvonalat.';
+        if (van('lámpa') || van('csillár') || van('világítás'))
+          return '💡 A mennyezetről készült kép sokat segít: abból látszik, gipszkarton-e, van-e már kiállás, és milyen magas a helyiség.';
+        if (van('kaputelefon') || van('csengő'))
+          return '💡 A beltéri készülékről és a kapunál lévő egységről is kérünk képet — a típus alapján derül ki, cserélhető-e önmagában.';
+        if (van('konnektor') || van('kapcsoló') || van('dugalj'))
+          return '💡 Egy kép a szerelvényről, egy pedig a falról tágabban. Ha kiszedhető a fedél, a doboz belseje a legárulkodóbb: abból látszik a vezeték kora és anyaga.';
+        if (van('bojler') || van('vízmelegítő'))
+          return '💡 A bojler típustáblájáról készült közeli kép a legfontosabb, és egy tágabb a környezetéről a vezeték útja miatt.';
+        return '💡 A jó fotó egy tágabb kép a helyszínről és egy közeli arról, ami elromlott. Ha van rajta felirat vagy típusjelzés, azt érdemes külön is lefotózni.';
+      })(),
+      fotoTippStyle: s.photos.length
+        ? 'display:none;'
+        : 'font-size:12.5px; line-height:1.5; color:#8A5A1B; background:#FBF3E4; border-radius:10px; padding:9px 11px;',
       addPhotos: e => {
         this.kepeketFogad(Array.from(e.target.files || []));
         e.target.value = '';
