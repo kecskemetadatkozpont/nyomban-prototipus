@@ -907,6 +907,7 @@ class Component extends DCLogic {
     anyagLista: [], anyagCsoportok: [], anyagFigy: [], anyagSzures: '',
     mozgasId: '', mozgasDb: '', mozgasNem: 'bevet', mozgasAr: '', mozgasMegj: '',
     mozgasHely: '', mozgasLink: '', anyagNyit: null, anyagNaplo: {},
+    ubDb: '', ubAr: '', ubHely: '', ubLink: '',
     ujAnyagNev: '', ujAnyagEgyseg: 'db', ujAnyagCsoport: 'szerelvény', ujAnyagMin: '', ujAnyagMax: '',
     nagyKep: null, nagyKepIdx: 0,
     vjAr: '', vjKerdesek: '',
@@ -946,6 +947,7 @@ class Component extends DCLogic {
 
   async anyagtorzsTolt() { }
   async anyagNaploTolt() { }
+  async beszerzestRogzit() { this.flash('Beszerzés rögzítve (demó).'); }
   async anyagtorzsMent() { this.flash('Módosítások mentve.'); }
   async anyagMozgasRogzit() { this.flash('Készletmozgás rögzítve.'); }
   async ujAnyagFelvesz() { this.flash('Anyag felvéve.'); }
