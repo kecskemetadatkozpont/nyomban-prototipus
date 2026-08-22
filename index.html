@@ -154,7 +154,7 @@
     <div style="max-width:1320px; margin:0 auto; padding:56px 40px;">
       <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px; padding:32px; border-radius:18px; background:#F1EDE5;">
         <div style="display:flex; flex-direction:column; gap:7px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:600;">MKEH regisztráció</span><span style="font-size:14px; line-height:1.5; color:#57534A;">Nyilvántartott villanyszerelő, érintésvédelmi mérési jogosultsággal.</span></div>
-        <div style="display:flex; flex-direction:column; gap:7px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:600;">3 év garancia</span><span style="font-size:14px; line-height:1.5; color:#57534A;">Munkára és beépített anyagra egyaránt, írásban.</span></div>
+        <div style="display:flex; flex-direction:column; gap:7px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:600;">3 év garancia</span><span style="font-size:14px; line-height:1.5; color:#57534A;">A munkánkra, írásban. Az általunk beszerzett anyagra a gyártói jótállást is mi intézzük.</span></div>
         <div style="display:flex; flex-direction:column; gap:7px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:600;">Fix kiszállás</span><span style="font-size:14px; line-height:1.5; color:#57534A;">{{ calloutLabel }} Szegeden belül, 25 km-en belül +180 Ft/km.</span></div>
         <div style="display:flex; flex-direction:column; gap:7px;"><span style="font-family:'Familjen Grotesk',sans-serif; font-size:17px; font-weight:600;">Számla, e-számla</span><span style="font-size:14px; line-height:1.5; color:#57534A;">Társasházaknak és cégeknek átutalással is.</span></div>
       </div>
@@ -518,10 +518,28 @@
         <div style="margin-top:auto; display:flex; flex-direction:column; gap:11px;">
           <!-- A folyamat itt ér véget: az időpontokat az ügyfél már az 1. lépésben
                megjelölte a naptárban. Nincs értelme még egy képernyőnek. -->
-          <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; padding:2px 0;">
-            <input type="checkbox" checked="{{ terms }}" onChange="{{ toggleTerms }}" style="width:19px; height:19px; margin-top:1px; flex:none; accent-color:#1B1A17;">
-            <span style="font-size:14px; line-height:1.5; color:#57534A;">Elfogadom az ársávot és az <a href="./aszf.html" target="_blank" rel="noopener" style="color:#8A5A1B;">ÁSZF-et</a>.</span>
-          </label>
+          <div style="display:flex; flex-direction:column; gap:9px; padding:13px 15px; border-radius:12px; background:#FAF7F2; border:1.5px solid #EAE4DA;">
+            <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer;">
+              <input type="checkbox" checked="{{ terms }}" onChange="{{ toggleTerms }}" style="width:19px; height:19px; margin-top:1px; flex:none; accent-color:#1B1A17;">
+              <span style="font-size:14px; line-height:1.5; color:#57534A;">Elfogadom az ársávot és az <a href="./aszf.html" target="_blank" rel="noopener" style="color:#8A5A1B;">ÁSZF-et</a>, valamint az <a href="./adatkezeles.html" target="_blank" rel="noopener" style="color:#8A5A1B;">adatkezelési tájékoztatót</a>.</span>
+            </label>
+
+            <!-- A 45/2014. Korm. r. 29. § (1) a) KÉT nyilatkozata. Külön kell
+                 mindkettő: enélkül az elvégzett munka 14 napig visszafordítható,
+                 és elmaradt tájékoztatásnál a határidő 12 hónappal nő.
+                 Szándékosan NEM egy pipa: külön is kell bizonyítani őket. -->
+            <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer;">
+              <input type="checkbox" checked="{{ elallasKorai }}" onChange="{{ toggleElallasKorai }}" style="width:19px; height:19px; margin-top:1px; flex:none; accent-color:#1B1A17;">
+              <span style="font-size:14px; line-height:1.5; color:#57534A;">Kifejezetten kérem, hogy a munkát a 14 napos elállási határidő letelte előtt kezdjék meg.</span>
+            </label>
+
+            <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer;">
+              <input type="checkbox" checked="{{ elallasTudom }}" onChange="{{ toggleElallasTudom }}" style="width:19px; height:19px; margin-top:1px; flex:none; accent-color:#1B1A17;">
+              <span style="font-size:14px; line-height:1.5; color:#57534A;">Tudomásul veszem, hogy a munka teljes elvégzése után az elállási jogomat elveszítem.</span>
+            </label>
+
+            <span style="font-size:12.5px; line-height:1.5; color:#9A9388; padding-left:29px;">Amíg a munka nem készült el teljesen, 14 napon belül elállhat — ilyenkor az addig elvégzett munka arányos díját kell megfizetnie.</span>
+          </div>
           <button type="button" onClick="{{ acceptOffer }}" style="{{ acceptBtn }}">{{ acceptLabel }}</button>
           <span style="font-size:12.5px; line-height:1.45; color:#9A9388;">{{ idopontOsszegzes }}</span>
         </div>
@@ -789,6 +807,7 @@ class Component extends DCLogic {
     custName: '', custPhone: '', custEmail: '',
     korzet: '', telSzam: '',
     est: null, estimating: false, aiUsed: false,
+    elallasKorai: false, elallasTudom: false,
     // Tisztázó kérdések (2. lépés). A `clarifyId` az, amit az estimate örököl:
     // ezen keresztül veszi át a fotó-összefoglalót és a válaszok ÁRHATÁSÁT, anélkül
     // hogy a képeket újra fel kellene tölteni, vagy a kliens árat láthatna.
@@ -1745,7 +1764,13 @@ class Component extends DCLogic {
         customer: { name: s.custName.trim(), phone: s.custPhone.trim(), email: s.custEmail.trim() || null },
         address: s.address.trim() || 'Szeged',
         slots: slots,
-        terms: true
+        terms: true,
+        // A 45/2014. 29. § két nyilatkozata. A szerver KÖVETELI mindkettőt:
+        // enélkül az elvégzett munka 14 napig visszafordítható lenne.
+        elallasKoraiKezdes: s.elallasKorai === true,
+        elallasTudomasul: s.elallasTudom === true,
+        aszfVerzio: (CFG.aszf && CFG.aszf.verzio) || null,
+        aszfHash: (CFG.aszf && CFG.aszf.hash) || null
       }, 25000);
 
       const now = new Date();
@@ -1836,8 +1861,9 @@ class Component extends DCLogic {
 
     const d = {};
 
-    // Az időpont már az 1. lépésben kötelező volt, tehát itt csak az ÁSZF hiányozhat.
-    const canAccept = s.picked.length >= 1 && s.terms;
+    // Mindhárom nyilatkozat kell. A 45/2014. 29. § kettőt külön ír elő; ha
+    // ezek hiányoznak, az elvégzett munka 14 napig visszafordítható.
+    const canAccept = s.picked.length >= 1 && s.terms && s.elallasKorai && s.elallasTudom;
 
     // „Kerestünk, és tényleg nincs találat." A lista a választáskor bezárul, ezért
     // az üres lista önmagában nem jelent hiányt — az `utcaTalalt` különbözteti meg
@@ -2131,10 +2157,14 @@ class Component extends DCLogic {
       picked, nonePicked: picked.length === 0,
       pickedCount: s.picked.length + ' / ' + minSlots,
       terms: s.terms, toggleTerms: () => this.setState({ terms: !s.terms }),
-      acceptLabel: !s.picked.length ? 'Nincs megjelölt időpont' : (s.terms ? 'Ajánlat elfogadása' : 'Fogadja el az ÁSZF-et'),
+      elallasKorai: s.elallasKorai,
+      elallasTudom: s.elallasTudom,
+      toggleElallasKorai: () => this.setState({ elallasKorai: !s.elallasKorai }),
+      toggleElallasTudom: () => this.setState({ elallasTudom: !s.elallasTudom }),
+      acceptLabel: !s.picked.length ? 'Nincs megjelölt időpont' : (canAccept ? 'Ajánlat elfogadása' : 'Fogadja el mindhárom nyilatkozatot'),
       acceptBtn: 'height:58px; border-radius:13px; border:none; font-size:16.5px; font-weight:600; background:#1B1A17; color:#FAF7F2; cursor:' + (canAccept ? 'pointer' : 'not-allowed') + '; opacity:' + (canAccept ? '1' : '.45') + ';',
       acceptOffer: () => {
-        if (!canAccept) return this.flash(s.picked.length ? 'Fogadja el az ÁSZF-et.' : 'Jelöljön meg legalább egy időpontot.');
+        if (!canAccept) return this.flash(s.picked.length ? 'Mindhárom jelölőnégyzetet be kell pipálnia.' : 'Jelöljön meg legalább egy időpontot.');
         if (LIVE) return this.submitOrder();
         const n = 420 + s.orders.length;
         const ref = 'VS-2026-0' + n;

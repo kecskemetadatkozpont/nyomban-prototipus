@@ -17,6 +17,11 @@ window.NYOMBAN_CONFIG = {
   // Vékony demó-sáv a lap tetején. Élesben állítsd false-ra.
   showDemoBanner: true,
 
+  // Az ÁSZF verziója és ujjlenyomata. A megrendelés RÖGZÍTI, melyiket fogadta
+  // el az ügyfél — az ÁSZF szövege változik, és egy fél évvel későbbi vitánál
+  // enélkül nem derülne ki, MIT fogadott el.
+  aszf: { verzio: "2026-08-22", hash: "1fbc70eb5239958efb2196096792f5e6" },
+
   // Feltöltési korlát — egy ügyfél legfeljebb ennyi fotót adhat egy kéréshez.
   maxPhotos: 5,
   photoMaxEdge: 1600,
