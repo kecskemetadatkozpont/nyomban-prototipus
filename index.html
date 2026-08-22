@@ -291,13 +291,6 @@
             <input type="text" onChange="{{ setEmelet }}" value="{{ emelet }}" placeholder="Emelet, ajtó, kapukód — ha van (nem kötelező)" style="height:50px; border:1.5px solid #E3DCD1; border-radius:12px; background:#fff; padding:0 13px; font-size:15.5px;">
             <span style="{{ cimHintStyle }}">{{ cimHint }}</span>
           </div>
-          <div style="display:flex; flex-direction:column; gap:11px;">
-            <span style="font-size:14px; font-weight:600;">Sürgősség</span>
-            <div style="display:flex; gap:9px;">
-              <button type="button" onClick="{{ urgWeek }}" style="{{ urgWeekStyle }}">Ezen a héten</button>
-              <button type="button" onClick="{{ urgToday }}" style="{{ urgTodayStyle }}">Ma / holnap</button>
-            </div>
-          </div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
           <!-- NAPTÁR. Az ügyfél NAPOKAT választ, és minden naphoz legfeljebb hármat
@@ -335,6 +328,11 @@
               </sc-for>
             </div>
           </div>
+
+          <!-- SÜRGŐSSÉGI FELÁR. A gombpár eltűnt, a következménye nem tűnhet el
+               vele: ha az ügyfél kizárólag mai/holnapi sávot jelöl, itt, a
+               választás pillanatában megmondjuk, mit jelent ez az árra. -->
+          <div style="{{ surgosSavStyle }}">{{ surgosSav }}</div>
 
           <!-- A kiválasztott nap idősávjai. Csak akkor jelenik meg, ha van nyitott nap. -->
           <sc-if value="{{ vanNyitottNap }}" hint-placeholder-val="{{ false }}">
@@ -825,7 +823,7 @@ class Component extends DCLogic {
     // A szerver adja: munkarend, ünnepek felárral, blokkolt sávok. Amíg nincs
     // meg, a naptár az alapértelmezéssel működik — nem várakoztatjuk az ügyfelet.
     naptarAdat: null,
-    address: '', urgency: 'week',
+    address: '',
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
     irsz: '', telepules: '', telepulesId: null, utca: '', hazszam: '', emelet: '',
@@ -1085,10 +1083,34 @@ class Component extends DCLogic {
     return { items, min, max, matched };
   }
 
+  /**
+   * Sürgős-e a munka. A NAPTÁRBÓL derül ki, nem külön kérdésből.
+   *
+   * Amíg volt „Ezen a héten / Ma-holnap" gombpár, ugyanazt kérdeztük kétszer: a
+   * naptár már megmondta, mikor ér rá az ügyfél. A gombokat kivettük, a felárat
+   * viszont NEM lehet vele kivenni — a másnapi kiszállás valóban félretol más
+   * munkát, és ezt az árlista `urgency` sora fejezi ki.
+   *
+   * A szabály szándékosan SZIGORÚ: csak akkor sürgős, ha az ügyfél MINDEN
+   * megjelölt napja ma vagy holnap. Aki mellé egy jövő heti alternatívát is
+   * megjelöl, az nem kényszeríti ki a mai napot — a szerelő választhat a
+   * nyugodtabb sávot, tehát felárat sem kérünk. Ha az „legkorábbi nap" döntene,
+   * egy udvarias alternatíva is 30%-ot fizetne.
+   */
+  surgosseg() {
+    const p = this.state.picked || [];
+    if (!p.length) return 'week';
+    const ma = new Date(); ma.setHours(0, 0, 0, 0);
+    const holnap = iso(new Date(ma.getTime() + 86400000));
+    const maIso = iso(ma);
+    const napok = [...new Set(p.map(x => String(x).split('|')[0]))];
+    return napok.every(d => d === maIso || d === holnap) ? 'today' : 'week';
+  }
+
   localEstimate() {
     const t = (this.state.desc + ' ' + this.state.cats.join(' ')).toLowerCase();
     const has = w => t.indexOf(w) >= 0;
-    const r = this.estimateFor(t, this.state.urgency);
+    const r = this.estimateFor(t, this.surgosseg());
     const items = r.items; let min = r.min, max = r.max;
     const bits = [];
     if (this.state.photos.length) bits.push(this.state.photos.length + ' feltöltött fotó');
@@ -1346,6 +1368,15 @@ class Component extends DCLogic {
         }))
       })),
       napSzamSzoveg: osszes ? (napok.length + ' nap · ' + osszes + ' idősáv') : 'még nincs megjelölve',
+      // A SZÁZALÉK az élő árazásból jön (`glob().urgency`), nem a beépített
+      // alapértékből: ha Ádám átállítja a felárat a CRM-ben, ez a mondat is
+      // változik. Különben az ügyfél 30%-ot olvasna, és mást fizetne.
+      surgosSav: 'Csak mai vagy holnapi időpontot jelölt meg. A soron kívüli kiszállás '
+        + (this.glob().urgency || this.props.urgencySurcharge || 30) + '%-os sürgősségi felárral jár — ez '
+        + 'külön tételként szerepel az ajánlatban. Ha megjelöl egy későbbi napot is, a felár elmarad.',
+      surgosSavStyle: this.surgosseg() === 'today'
+        ? 'padding:11px 13px; border-radius:11px; background:#FBF3E4; border:1.5px solid #EFDFC4; font-size:12.5px; line-height:1.5; color:#8A5A1B;'
+        : 'display:none;',
       napSzamStyle: 'font-size:13px; font-weight:600; color:' + (osszes ? '#2F6B3E' : '#C4711A') + ';'
     };
   }
@@ -1553,7 +1584,7 @@ class Component extends DCLogic {
         jelleg: s.jelleg || null,
         category: s.cats.join(', '),
         description: s.desc,
-        urgency: s.urgency,
+        urgency: this.surgosseg(),
         address: s.address,
         photoPaths: s.photoPaths || []
       }, 20000);
@@ -1585,7 +1616,7 @@ class Component extends DCLogic {
         phone: this.state.custPhone.trim(),
         category: this.state.cats.join(', '),
         description: this.state.desc.trim(),
-        urgency: this.state.urgency,
+        urgency: this.surgosseg(),
         address: this.state.address.trim(),
         photoPaths: this.state.photoPaths || [],
         clarifyId: this.state.clarifyId || null,
@@ -2158,7 +2189,7 @@ class Component extends DCLogic {
       goPublic: () => this.setState({ view: s.doneRef ? 'done' : 'home' }),
       goCrm: () => this.setState({ view: 'crm' }),
       startFlow: () => { this.setState({ view: 'wizard', step: 1 }); this.naptaratTolt(); },
-      newRequest: () => this.setState({ view: 'wizard', step: 1, desc: '', photos: [], photoPaths: [], photoBusy: 0, picked: [], terms: false, anyagUgyfele: false, est: null, estimateId: null, estFatal: '', doneRef: '', custName: '', custPhone: '', custEmail: '', address: '', cats: [CATS[0]], urgency: 'week', aiUsed: false, daySel: 0, smsPhase: 'idle', smsChallenge: null, smsCode: '', smsErr: '', smsNote: '', submitting: false }),
+      newRequest: () => this.setState({ view: 'wizard', step: 1, desc: '', photos: [], photoPaths: [], photoBusy: 0, picked: [], terms: false, anyagUgyfele: false, est: null, estimateId: null, estFatal: '', doneRef: '', custName: '', custPhone: '', custEmail: '', address: '', cats: [CATS[0]], aiUsed: false, daySel: 0, smsPhase: 'idle', smsChallenge: null, smsCode: '', smsErr: '', smsNote: '', submitting: false }),
 
       desc: s.desc, descLen: s.desc.length + ' karakter',
       descHint: s.desc.trim().length < 40 ? 'Minél részletesebb, annál pontosabb az ár' : 'Szép — ez már elég a becsléshez',
@@ -2223,10 +2254,11 @@ class Component extends DCLogic {
       emailStyle: fieldStyle(!s.custEmail.trim() || okEmail(s.custEmail)),
       cat: s.cats.join(', '),
       catCount: s.cats.length,
-      urgencyLabel: s.urgency === 'today' ? 'Ma / holnap (+' + (this.props.urgencySurcharge ?? 30) + '%)' : 'Ezen a héten',
-      urgWeek: () => this.setState({ urgency: 'week' }), urgToday: () => this.setState({ urgency: 'today' }),
-      urgWeekStyle: 'flex:1; height:52px; border-radius:13px; cursor:pointer; font-size:15px; font-weight:600; border:1.5px solid ' + (s.urgency === 'week' ? '#1B1A17' : '#E3DCD1') + '; background:' + (s.urgency === 'week' ? '#1B1A17' : '#fff') + '; color:' + (s.urgency === 'week' ? '#FAF7F2' : '#57534A') + ';',
-      urgTodayStyle: 'flex:1; height:52px; border-radius:13px; cursor:pointer; font-size:15px; font-weight:600; border:1.5px solid ' + (s.urgency === 'today' ? '#1B1A17' : '#E3DCD1') + '; background:' + (s.urgency === 'today' ? '#1B1A17' : '#fff') + '; color:' + (s.urgency === 'today' ? '#FAF7F2' : '#57534A') + ';',
+      // Az ajánlaton MEGMONDJUK, mit jelent a választott időpont az árra nézve.
+      // A gomb eltűnt, a következménye nem lehet láthatatlan.
+      urgencyLabel: this.surgosseg() === 'today'
+        ? 'Sürgős — csak ma/holnap (+' + (this.glob().urgency || this.props.urgencySurcharge || 30) + '%)'
+        : 'Nem sürgős',
 
       photos: s.photos.map((url, i) => ({
         thumbStyle: 'width:140px; height:110px; border-radius:13px; position:relative; overflow:hidden; background:#EDE7DC center/cover no-repeat url(\"' + url + '\");',
