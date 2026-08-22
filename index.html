@@ -1469,6 +1469,7 @@ class Component extends DCLogic {
     try {
       const d = await callFn('clarify', {
         name: s.custName, email: s.custEmail, phone: s.custPhone,
+        jelleg: s.jelleg || null,
         category: s.cats.join(', '),
         description: s.desc,
         urgency: s.urgency,
@@ -1511,6 +1512,9 @@ class Component extends DCLogic {
         // A tagolt cím részei: ebből oldja fel a szerver a koordinátát, saját
         // adatból. A települést az ügyfél a listából VÁLASZTOTTA, tehát nem kell
         // a szövegből visszafejteni.
+        // A munka jellege az 1. szintű választásból. Ettől függ, melyik ársávot
+        // használja a szerver: a meglévő javítása és az új kiépítés más ár.
+        jelleg: this.state.jelleg || null,
         cimTelepulesId: this.state.telepulesId || null,
         cimUtca: this.state.utca || null,
         cimVarosresz: this.state.varosresz || null,
@@ -2096,6 +2100,11 @@ class Component extends DCLogic {
         // Az időpontot már itt bekérjük: a naptár ezen az oldalon van, és a
         // megrendeléshez úgyis kell legalább egy sáv.
         if (!s.picked.length) return this.flash('Jelöljön meg legalább egy időpontot a naptárban.');
+        // A munka jellege és típusa KÖTELEZŐ. A szerver enélkül 400-zal elutasít,
+        // a felület pedig csendben a helyi becslést mutatná — az ügyfél olyan
+        // árat látna, amit a szerver soha nem adott ki.
+        if (!s.jelleg) return this.flash('Válassza ki a munka jellegét.');
+        if (!s.cats.length) return this.flash('Válasszon legalább egy munkatípust.');
         const rl = rlCheck();
         if (!rl.ok) return this.flash(rl.msg);
         rlBump();
