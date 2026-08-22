@@ -346,6 +346,22 @@
                 <button type="button" onClick="{{ v.pick }}" style="{{ v.style }}">{{ v.cimke }}</button>
               </sc-for>
             </div>
+
+            <!-- EGYÉNI IDŐINTERVALLUM. A gyári sávok a leggyakoribb eseteket
+                 fedik, de nem mindenkinek jó a kétórás blokk: van, aki csak
+                 ebédszünetben ér rá, vagy 16:30 után. Az egyéni sáv ugyanúgy
+                 ajánlat a szerelőnek, mint a gyári — ő erősíti meg. -->
+            <button type="button" onClick="{{ egyeniNyit }}" style="{{ egyeniNyitStyle }}">{{ egyeniNyitCimke }}</button>
+
+            <div style="{{ egyeniUrlapStyle }}">
+              <div style="display:flex; align-items:center; gap:9px;">
+                <input type="time" value="{{ egyeniKezd }}" onChange="{{ setEgyeniKezd }}" step="900" style="flex:1; height:44px; border-radius:11px; border:1.5px solid #E3DCD1; background:#fff; padding:0 10px; font-size:15px;">
+                <span style="font-size:14px; color:#9A9388;">–</span>
+                <input type="time" value="{{ egyeniVeg }}" onChange="{{ setEgyeniVeg }}" step="900" style="flex:1; height:44px; border-radius:11px; border:1.5px solid #E3DCD1; background:#fff; padding:0 10px; font-size:15px;">
+                <button type="button" onClick="{{ egyeniHozzaad }}" style="{{ egyeniHozzaadStyle }}">Hozzáadás</button>
+              </div>
+              <span style="{{ egyeniHibaStyle }}">{{ egyeniHiba }}</span>
+            </div>
           </div>
           </sc-if>
 
@@ -799,14 +815,52 @@ function rng(a, b) { return a === b ? ft(a) : ft(a) + ' – ' + ft(b); }
 // mutatta. Az ügyfél szombatot választott, a szerelő péntekre kapta a munkát — és
 // semmi nem jelzett hibát. Az október végi óraátállításig minden nap érintett.
 /**
- * Sávok időrendje. Az azonosító alakja `ÉÉÉÉ-HH-NN|index`, ahol az index a TIMES
- * tömbé — a dátum szövegesen is helyesen rendeződik, az órát az index adja.
+ * IDŐSÁV-AZONOSÍTÓ.
+ *
+ * Alakja `ÉÉÉÉ-HH-NN|ÓÓ:PP|ÓÓ:PP` — a dátum, a kezdet és a vég. Korábban
+ * `ÉÉÉÉ-HH-NN|index` volt, ahol az index a négy gyári sáv sorszáma.
+ *
+ * MIÉRT VÁLTOTT: az index csak akkor jelent időpontot, ha a másik oldalon
+ * UGYANAZ a négy sáv van. Egyéni időintervallumnál nincs ilyen sorszám, és a
+ * szerver `slotId()`-ja az ismeretlen kezdetet CSENDBEN a 0. sávra képezte le —
+ * a 9:30-as foglalás 8:00-ként jelent volna meg a naptárban. Az azonosító
+ * mostantól magát az időt hordozza, tehát nincs mit eltéveszteni.
+ *
+ * A `savBont` a RÉGI alakot is érti: a böngészőben félbehagyott űrlap és a
+ * demóadat is ilyen, és azoknak nem szabad elveszniük egy formátumváltástól.
  */
+function savBont(id, savok) {
+  const r = String(id ?? '').split('|');
+  const nap = r[0] || '';
+  if (r.length >= 3 && /^\d{1,2}:\d{2}$/.test(r[1])) {
+    return { nap, kezd: r[1], veg: r[2], cimke: r[1] + '–' + r[2] };
+  }
+  // Régi alak: sorszám a sávlistában.
+  const lista = (savok && savok.length) ? savok : TIMES;
+  const t = lista[+r[1]] || TIMES[+r[1]] || '';
+  const [k, v] = String(t).split('–');
+  return { nap, kezd: k || '', veg: v || '', cimke: t };
+}
+
+/** `08:00` alakra igazít — a rendezés és az egyenlőség így megbízható. */
+function ppad(t) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(t).trim());
+  return m ? String(+m[1]).padStart(2, '0') + ':' + m[2] : String(t);
+}
+
+function savId(nap, kezd, veg) { return nap + '|' + ppad(kezd) + '|' + ppad(veg); }
+
+/** Percben mért idő — összehasonlításhoz, hosszszámításhoz. */
+function percOra(t) {
+  const q = String(t).split(':');
+  return (+q[0]) * 60 + (+q[1] || 0);
+}
+
+/** Sávok időrendje: előbb a nap, azon belül a kezdet. */
 function slotRend(a, b) {
-  const [da, ia] = String(a).split('|');
-  const [db, ib] = String(b).split('|');
-  if (da !== db) return da < db ? -1 : 1;
-  return (+ia) - (+ib);
+  const A = savBont(a), B = savBont(b);
+  if (A.nap !== B.nap) return A.nap < B.nap ? -1 : 1;
+  return percOra(A.kezd) - percOra(B.kezd);
 }
 
 function iso(d) {
@@ -824,6 +878,7 @@ class Component extends DCLogic {
     // meg, a naptár az alapértelmezéssel működik — nem várakoztatjuk az ügyfelet.
     naptarAdat: null,
     address: '',
+    egyeniNyitva: false, egyeniKezd: '', egyeniVeg: '',
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
     irsz: '', telepules: '', telepulesId: null, utca: '', hazszam: '', emelet: '',
@@ -1035,16 +1090,17 @@ class Component extends DCLogic {
       const d = new Date(base.getTime() + i * 86400000);
       if (d.getDay() === 0) continue;
       const key = iso(d);
-      const slots = TIMES.map((t, k) => ({ id: key + '|' + k, time: t, free: hash(key + k) % 5 !== 0 }));
+      const slots = TIMES.map((t, k) => { const [a, b] = t.split('–');
+        return { id: savId(key, a, b), time: t, free: hash(key + k) % 5 !== 0 }; });
       out.push({ iso: key, date: d, dow: DOW[d.getDay()], long: DOWLONG[d.getDay()], num: d.getDate(), mon: MON[d.getMonth()], slots });
     }
     return out;
   }
   slotLabel(id) {
-    const [k, i] = id.split('|');
-    const d = this.days.find(x => x.iso === k);
+    const b = savBont(id, this.savok());
+    const d = this.days.find(x => x.iso === b.nap);
     if (!d) return id;
-    return d.mon + ' ' + d.num + '. ' + d.long + ' · ' + TIMES[+i];
+    return d.mon + ' ' + d.num + '. ' + d.long + ' · ' + b.cimke;
   }
 
   // ---------- árbecslés ----------
@@ -1103,7 +1159,7 @@ class Component extends DCLogic {
     const ma = new Date(); ma.setHours(0, 0, 0, 0);
     const holnap = iso(new Date(ma.getTime() + 86400000));
     const maIso = iso(ma);
-    const napok = [...new Set(p.map(x => String(x).split('|')[0]))];
+    const napok = [...new Set(p.map(x => savBont(x).nap))];
     return napok.every(d => d === maIso || d === holnap) ? 'today' : 'week';
   }
 
@@ -1265,8 +1321,8 @@ class Component extends DCLogic {
 
     const savokNaponta = {};
     (s.picked || []).forEach(id => {
-      const [d, i] = String(id).split('|');
-      (savokNaponta[d] = savokNaponta[d] || []).push(+i);
+      const b = savBont(id, TIMESZ);
+      (savokNaponta[b.nap] = savokNaponta[b.nap] || []).push(b);
     });
 
     const cellak = [];
@@ -1330,8 +1386,9 @@ class Component extends DCLogic {
       nyitottNapSzoveg: nyitottDb >= MAX_NAP
         ? 'Ezen a napon már 3 sávot jelölt'
         : (nyitottDb ? nyitottDb + ' / 3 sáv' : 'Válasszon idősávot'),
-      nyitottSavok: TIMESZ.map((t, i) => {
-        const id = nyitott + '|' + i;
+      nyitottSavok: TIMESZ.map((t) => {
+        const [tk, tv] = t.split('–');
+        const id = savId(nyitott, tk, tv);
         const on = (s.picked || []).indexOf(id) >= 0;
         const tele = !on && nyitottDb >= MAX_NAP;
         const teleOssz = !on && osszes >= MAX_OSSZ;
@@ -1358,12 +1415,77 @@ class Component extends DCLogic {
         };
       }),
 
+      // ---------- EGYÉNI IDŐINTERVALLUM ----------
+      ...(() => {
+        const m = (s.naptarAdat && s.naptarAdat.munkarend) || {};
+        const napKezd = percOra(m.kezdes || '08:00');
+        const napZar  = percOra(m.zaras  || '17:00');
+        const ebedK = m.ebed_kezdes ? percOra(m.ebed_kezdes) : null;
+        const ebedZ = m.ebed_zaras  ? percOra(m.ebed_zaras)  : null;
+        const MIN_HOSSZ = 30, MAX_HOSSZ = 300;
+
+        // Ugyanaz az ellenőrzés, mint a szerveren. Nem a szigor a lényeg, hanem
+        // hogy az ügyfél ITT tudja meg, mi a baj, ne a megrendelés végén.
+        const ellenoriz = () => {
+          if (!nyitott) return 'Előbb válasszon napot a naptárban.';
+          const k = percOra(s.egyeniKezd || ''), v = percOra(s.egyeniVeg || '');
+          if (!s.egyeniKezd || !s.egyeniVeg) return '';
+          if (!(v > k)) return 'A befejezés legyen későbbi, mint a kezdés.';
+          if (v - k < MIN_HOSSZ) return 'Legalább ' + MIN_HOSSZ + ' perces sávot jelöljön meg.';
+          if (v - k > MAX_HOSSZ) return 'Legfeljebb ' + (MAX_HOSSZ / 60) + ' órás sávot jelölhet meg.';
+          if (k < napKezd || v > napZar) {
+            return 'A munkaidő ' + (m.kezdes || '08:00') + ' és ' + (m.zaras || '17:00') + ' között van.';
+          }
+          if (ebedK != null && ebedZ != null && k < ebedZ && v > ebedK) {
+            return 'Ez az idő az ebédszünetre esik (' + m.ebed_kezdes + '–' + m.ebed_zaras + ').';
+          }
+          const utkozes = (foglalt[nyitott] || []).some(f =>
+            k < percOra(String(f.zaras).slice(0, 5)) && v > percOra(String(f.kezdes).slice(0, 5)));
+          if (utkozes) return 'Ebben az idősávban a szerelő már foglalt.';
+          if ((s.picked || []).indexOf(savId(nyitott, s.egyeniKezd, s.egyeniVeg)) >= 0) {
+            return 'Ezt az időpontot már megjelölte.';
+          }
+          if (nyitottDb >= MAX_NAP) return 'Ezen a napon már ' + MAX_NAP + ' sávot jelölt.';
+          if (osszes >= MAX_OSSZ) return 'Összesen legfeljebb ' + MAX_OSSZ + ' sávot jelölhet meg.';
+          return '';
+        };
+        const hiba = ellenoriz();
+        const kesz = !!(nyitott && s.egyeniKezd && s.egyeniVeg && !hiba);
+
+        return {
+          egyeniNyitCimke: s.egyeniNyitva ? '− Egyéni időpont elrejtése' : '+ Egyéni időpont megadása',
+          egyeniNyitStyle: 'height:40px; border-radius:11px; border:1.5px dashed #D6CEC0; background:#FAF7F2; '
+            + 'font-size:13.5px; font-weight:600; color:#57534A; cursor:pointer; margin-top:8px;',
+          egyeniNyit: () => this.setState({ egyeniNyitva: !s.egyeniNyitva }),
+          egyeniUrlapStyle: s.egyeniNyitva
+            ? 'display:flex; flex-direction:column; gap:7px; margin-top:8px; padding:12px; border-radius:12px; background:#FAF7F2; border:1.5px solid #EAE4DA;'
+            : 'display:none;',
+          egyeniKezd: s.egyeniKezd, egyeniVeg: s.egyeniVeg,
+          setEgyeniKezd: e => this.setState({ egyeniKezd: e.target.value }),
+          setEgyeniVeg:  e => this.setState({ egyeniVeg: e.target.value }),
+          egyeniHiba: hiba || 'Például 9:30–11:00. A szerelő ezt is választhatja a megjelölt sávok közül.',
+          egyeniHibaStyle: 'font-size:12.5px; line-height:1.45; color:' + (hiba ? '#8A5A1B' : '#9A9388') + ';',
+          egyeniHozzaadStyle: 'height:44px; padding:0 14px; border-radius:11px; border:none; font-size:14px; font-weight:600; '
+            + 'background:#1B1A17; color:#FAF7F2; cursor:' + (kesz ? 'pointer' : 'not-allowed') + '; opacity:' + (kesz ? '1' : '.4') + ';',
+          egyeniHozzaad: () => {
+            const h = ellenoriz();
+            if (h) return this.flash(h);
+            if (!nyitott || !s.egyeniKezd || !s.egyeniVeg) return;
+            const id = savId(nyitott, s.egyeniKezd, s.egyeniVeg);
+            this.setState(st => ({
+              picked: st.picked.concat([id]).sort(slotRend),
+              egyeniKezd: '', egyeniVeg: ''
+            }));
+          }
+        };
+      })(),
+
       vanValasztott: napok.length > 0,
       valasztottNapok: napok.map(d => ({
         nap: this.napFelirat(d),
-        savok: (savokNaponta[d] || []).sort((a, b) => a - b).map(i => TIMESZ[i] || TIMES[i]).join(' · '),
+        savok: (savokNaponta[d] || []).slice().sort((a, b) => percOra(a.kezd) - percOra(b.kezd)).map(x => x.cimke).join(' · '),
         torol: () => this.setState(st => ({
-          picked: st.picked.filter(x => String(x).split('|')[0] !== d),
+          picked: st.picked.filter(x => savBont(x).nap !== d),
           nyitottNap: st.nyitottNap === d ? null : st.nyitottNap
         }))
       })),
@@ -1869,13 +1991,12 @@ class Component extends DCLogic {
         if (v && v.challengeId) challengeId = v.challengeId;
       } catch (e) { /* az igazolás kimaradása nem állíthatja meg a leadást */ }
 
+      // Az azonosító MAGA hordozza az időt (nap|kezdet|vég), tehát nincs
+      // sorszám-visszakeresés — az egyéni sávok is pontosan mennek át.
       const slots = s.picked.map(id => {
-        const [key, i] = String(id).split('|');
-        const t = TIMES[+i] || '8:00–10:00';
-        const [a, b] = t.split('–');
-        const pad = x => (x.length === 4 ? '0' + x : x);
-        return { date: key, start: pad(a), end: pad(b) };
-      });
+        const b = savBont(id, this.savok());
+        return { date: b.nap, start: ppad(b.kezd), end: ppad(b.veg) };
+      }).filter(x => x.date && x.start && x.end);
 
       const d = await callFn('create-order', {
         estimateId: s.estimateId,
@@ -1947,8 +2068,8 @@ class Component extends DCLogic {
   megallok(iso) {
     if (!iso) return [];
     return this.state.orders
-      .filter(o => o.confirmed && String(o.confirmed).split('|')[0] === iso)
-      .sort((a, b) => (+String(a.confirmed).split('|')[1]) - (+String(b.confirmed).split('|')[1]));
+      .filter(o => o.confirmed && savBont(o.confirmed).nap === iso)
+      .sort((a, b) => percOra(savBont(a.confirmed).kezd) - percOra(savBont(b.confirmed).kezd));
   }
 
   /**
@@ -2023,7 +2144,7 @@ class Component extends DCLogic {
 
     pontok.forEach((o, i) => {
       const szin = TERKEP_SZIN[o.status] || '#8E8779';
-      const sav = TIMES[+String(o.confirmed).split('|')[1]] || '';
+      const sav = savBont(o.confirmed).cimke;
       const ikon = L.divIcon({
         className: '',
         iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -16],
@@ -2392,13 +2513,13 @@ class Component extends DCLogic {
       idopontOsszegzes: (() => {
         const napok = {};
         (s.picked || []).forEach(id => {
-          const [d, i] = String(id).split('|');
-          (napok[d] = napok[d] || []).push(+i);
+          const b2 = savBont(id, this.savok());
+          (napok[b2.nap] = napok[b2.nap] || []).push(b2);
         });
         const k = Object.keys(napok).sort();
         if (!k.length) return 'Nem jelölt meg időpontot.';
         return 'Megjelölt időpontok: ' + k.map(d =>
-          this.napFelirat(d) + ' (' + napok[d].sort((a, b) => a - b).map(i => TIMES[i]).join(', ') + ')'
+          this.napFelirat(d) + ' (' + napok[d].sort((a, b) => percOra(a.kezd) - percOra(b.kezd)).map(x => x.cimke).join(', ') + ')'
         ).join(' · ');
       })(),
 
