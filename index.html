@@ -758,7 +758,8 @@ const STATUS = [
   { key:'lemondva', label:'Lemondva', bg:'#F0E3E3', fg:'#8A3B3B' },
   // Az adatbázis ismerte, a felület nem: egy elutasított munka a STATUS[0]
   // tartalék miatt „Új ajánlat"-ként, tehát TEENDŐKÉNT jelent meg.
-  { key:'elutasitva', label:'Elutasítva', bg:'#F0E3E3', fg:'#8A3B3B' }
+  { key:'elutasitva', label:'Elutasítva', bg:'#F0E3E3', fg:'#8A3B3B' },
+  { key:'elszamolva', label:'Elszámolva', bg:'#E2EDE4', fg:'#2F6B3E' }
 ];
 // A térkép jelölőinek színe. NEM a STATUS.bg: azok halvány háttérszínek, amik
 // csempén, tíz méteres pöttyben olvashatatlanok. Ezek telített, egymástól messze
@@ -766,6 +767,7 @@ const STATUS = [
 const TERKEP_SZIN = {
   uj:                    '#8E8779',
   elutasitva:            '#8A3B3B',
+  elszamolva:            '#3F7D4E',
   visszaigazolasra_var:  '#C4711A',
   elfogadva:             '#2F6B3E',
   utban:                 '#2F5F82',
@@ -879,6 +881,7 @@ class Component extends DCLogic {
     naptarAdat: null,
     address: '',
     egyeniNyitva: false, egyeniKezd: '', egyeniVeg: '', kikuldFut: false, autoAr: true,
+    elMunkaPerc: '', elUtPerc: '', elVegosszeg: '', elMegj: '', elAnyag: {},
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
     irsz: '', telepules: '', telepulesId: null, utca: '', hazszam: '', emelet: '',
@@ -935,6 +938,8 @@ class Component extends DCLogic {
   // ---------- az ajánlat kiküldése ----------
   // A demóban nincs szerver; az éles buildben a build.mjs cseréli le.
   async ajanlatKikuld() { this.flash('Ajánlat kiküldve (demó).'); }
+  async oradijatMent() { }
+  async elszamolastMent() { this.flash('Elszámolás mentve (demó).'); }
 
   // ---------- anyagtörzs és leltár ----------
   // A demóban nincs szerver; az éles buildben a build.mjs cseréli le.
@@ -1357,7 +1362,8 @@ class Component extends DCLogic {
     if (!this.state.autoAr) return;
     const cur = this.cur();
     if (!cur) return;
-    const oradij = this.glob().hourly || 9900;
+    // A MUNKÁRA beállított óradíj elsőbbséget élvez a globálissal szemben.
+    const oradij = cur.oradij != null ? cur.oradij : (this.glob().hourly || 9900);
     const anyagMap = this.anyagTetelenkent();
 
     // A nem besorolt anyag (kézzel felvett sor, vagy törölt munkatételhez tartozó)
@@ -2419,7 +2425,16 @@ class Component extends DCLogic {
           : Math.round((a.egysegarMin + a.egysegarMax) / 2 / 10) * 10
       })),
       anyagKi: o.anyagBeszerzes || 'mi',
-      anyagUjId: '', anyagUjDb: '1', anyagBetoltve: id
+      anyagUjId: '', anyagUjDb: '1', anyagBetoltve: id,
+      // Az elszámolás piszkozata a munkalappal együtt nyílik.
+      elMunkaPerc: (o.elszamolas && o.elszamolas.munkaPerc != null) ? String(o.elszamolas.munkaPerc) : '',
+      elUtPerc: (o.elszamolas && o.elszamolas.utPerc != null) ? String(o.elszamolas.utPerc) : '',
+      elVegosszeg: (o.elszamolas && o.elszamolas.vegosszeg != null) ? String(o.elszamolas.vegosszeg) : '',
+      elMegj: (o.elszamolas && o.elszamolas.megjegyzes) || '',
+      elAnyag: (o.anyag || []).reduce((m, a) => {
+        if (a.felhasznalt != null) m[a.id] = String(a.felhasznalt);
+        return m;
+      }, {})
     });
     this.anyagTolt();
   }
