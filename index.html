@@ -741,8 +741,25 @@ const STATUS = [
   { key:'utban', label:'Úton', bg:'#DDEAF3', fg:'#2F5F82' },
   { key:'kesz', label:'Kész', bg:'#E9E4DA', fg:'#57534A' },
   { key:'szamlazva', label:'Számlázva', bg:'#1B1A17', fg:'#FAF7F2' },
-  { key:'lemondva', label:'Lemondva', bg:'#F0E3E3', fg:'#8A3B3B' }
+  { key:'lemondva', label:'Lemondva', bg:'#F0E3E3', fg:'#8A3B3B' },
+  // Az adatbázis ismerte, a felület nem: egy elutasított munka a STATUS[0]
+  // tartalék miatt „Új ajánlat"-ként, tehát TEENDŐKÉNT jelent meg.
+  { key:'elutasitva', label:'Elutasítva', bg:'#F0E3E3', fg:'#8A3B3B' }
 ];
+// A térkép jelölőinek színe. NEM a STATUS.bg: azok halvány háttérszínek, amik
+// csempén, tíz méteres pöttyben olvashatatlanok. Ezek telített, egymástól messze
+// eső színek — a jelentésük ugyanaz, csak a hordozó más.
+const TERKEP_SZIN = {
+  uj:                    '#8E8779',
+  elutasitva:            '#8A3B3B',
+  visszaigazolasra_var:  '#C4711A',
+  elfogadva:             '#2F6B3E',
+  utban:                 '#2F5F82',
+  kesz:                  '#57534A',
+  szamlazva:             '#1B1A17',
+  lemondva:              '#8A3B3B'
+};
+
 // „Még nem intézett munka": az új ajánlat és a telefonos visszaigazolásra váró
 // EGYFORMÁN teendő. Több helyen kellett, ezért egy helyen mondjuk ki.
 const isNew = o => o.status === 'uj' || o.status === 'visszaigazolasra_var';
@@ -840,7 +857,8 @@ class Component extends DCLogic {
     nagyKep: null, nagyKepIdx: 0,
     vjAr: '', vjKerdesek: '',
     dragAktiv: false,
-    slotPick: null
+    slotPick: null,
+    terkepNap: ''
   };
 
   componentDidMount() {
@@ -1891,6 +1909,140 @@ class Component extends DCLogic {
     }
     return out;
   }
+  /**
+   * Egy nap megerősített munkái, LÁTOGATÁSI SORRENDBEN.
+   * Az agenda és a térkép is ezt hívja — így a két nézet nem tud eltérni.
+   */
+  megallok(iso) {
+    if (!iso) return [];
+    return this.state.orders
+      .filter(o => o.confirmed && String(o.confirmed).split('|')[0] === iso)
+      .sort((a, b) => (+String(a.confirmed).split('|')[1]) - (+String(b.confirmed).split('|')[1]));
+  }
+
+  /**
+   * Melyik napot mutatja a térkép, és mi van rajta.
+   *
+   * A kirajzoló ÉS a felirat is ezt hívja. Ha külön számolnák, előbb-utóbb
+   * eltérnének — a térkép más napot mutatna, mint amit a felirata állít.
+   */
+  terkepAdat() {
+    const napok = this.weekDays();
+    // Az alapértelmezés a legelső nap, amin VAN megerősített munka — üres
+    // térképpel indulni értelmetlen lenne.
+    const elso = napok.find(d => this.megallok(d.iso).length);
+    const nap = (this.state.terkepNap && napok.some(d => d.iso === this.state.terkepNap))
+      ? this.state.terkepNap
+      : (elso ? elso.iso : (napok[0] ? napok[0].iso : ''));
+    const mind = this.megallok(nap);
+    return {
+      napok, nap, mind,
+      koordos: mind.filter(o => o.lat != null && o.lng != null),
+      hianyzo: mind.filter(o => o.lat == null || o.lng == null)
+    };
+  }
+
+  /**
+   * A napi térkép kirajzolása.
+   *
+   * Ez az EGYETLEN hely a felületen, ahol imperatív DOM-kezelés van, és ennek
+   * oka van: a Leaflet a saját belső világát kezeli, a React pedig nem tud
+   * csempéket és útvonalakat sorra rakni. A határvonal éles — a React adja a
+   * konténert, a Leaflet a tartalmát, és a kettő nem nyúl egymás dolgába.
+   *
+   * A `_terkepAlairas` őrzi meg, hogy minden újrarajzoláskor NE építsük újra a
+   * térképet: a componentDidUpdate másodpercenként sokszor lefut, egy teljes
+   * újraépítés pedig villogna és elvesztené a nagyítást.
+   */
+  terkepFrissit() {
+    const el = document.getElementById('napi-terkep');
+    if (!el) { this._terkep = null; this._terkepEl = null; return; }
+    if (typeof L === 'undefined') return;          // a Leaflet még nem töltődött be
+
+    const adat = this.terkepAdat();
+    const pontok = adat.koordos;
+
+    // Képernyőváltáskor a React kicseréli a konténert; a régi példány halott.
+    if (this._terkepEl !== el) { this._terkep = null; this._terkepEl = el; }
+    if (!pontok.length) return;
+
+    const alairas = adat.nap + '|' + pontok.map(o => o.id + ':' + o.lat + ',' + o.lng + ':' + o.status).join(';');
+    if (this._terkep && this._terkepAlairas === alairas) return;
+    this._terkepAlairas = alairas;
+
+    if (!this._terkep) {
+      this._terkep = L.map(el, { scrollWheelZoom: false, zoomControl: true });
+      // CARTO, nem az OpenStreetMap saját csempeszervere: azt a használati
+      // feltételek üzemi célra tiltják, és bármikor letilthatja a hivatkozót.
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19, subdomains: 'abcd',
+        attribution: '© OpenStreetMap közreműködők · © CARTO'
+      }).addTo(this._terkep);
+      this._terkepReteg = L.layerGroup().addTo(this._terkep);
+    }
+    this._terkepReteg.clearLayers();
+
+    const latlng = pontok.map(o => [o.lat, o.lng]);
+
+    // Az útvonal a jelölők ALÁ kerül, hogy a számok olvashatók maradjanak.
+    if (latlng.length > 1) {
+      L.polyline(latlng, { color: '#8A5A1B', weight: 3, opacity: .7, dashArray: '7 7' })
+        .addTo(this._terkepReteg);
+    }
+
+    pontok.forEach((o, i) => {
+      const szin = TERKEP_SZIN[o.status] || '#8E8779';
+      const sav = TIMES[+String(o.confirmed).split('|')[1]] || '';
+      const ikon = L.divIcon({
+        className: '',
+        iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -16],
+        html: '<div style="width:30px;height:30px;border-radius:100px;background:' + szin +
+              ';color:#fff;display:flex;align-items:center;justify-content:center;' +
+              'font-family:sans-serif;font-size:14px;font-weight:700;' +
+              'box-shadow:0 1px 4px rgba(0,0,0,.35);border:2px solid #fff;">' + (i + 1) + '</div>'
+      });
+      // A buborék szövege ADAT (ügyfélnév, cím) — escape-elni kell, különben egy
+      // idézőjeles cím elrontja a HTML-t, egy rosszindulatú pedig többet is.
+      const esc = t => String(t == null ? '' : t)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      const tel = String(o.phone || '').replace(/\s/g, '');
+      const jelolo = L.marker([o.lat, o.lng], { icon: ikon })
+        .bindPopup(
+          '<div style="font-family:sans-serif;font-size:13px;line-height:1.5;min-width:180px;">' +
+          '<div style="font-weight:700;font-size:14px;">' + (i + 1) + '. ' + esc(o.name) + '</div>' +
+          '<div style="color:#6B6559;">' + esc(sav) + '</div>' +
+          '<div style="margin-top:5px;">' + esc(o.address || '—') + '</div>' +
+          (tel ? '<div style="margin-top:5px;"><a href="tel:' + esc(tel) + '" style="color:#8A5A1B;">' + esc(o.phone) + '</a></div>' : '') +
+          '<button type="button" data-nyit="1" style="margin-top:9px; height:30px; padding:0 12px; ' +
+          'border-radius:8px; border:none; background:#1B1A17; color:#FAF7F2; font-size:12.5px; ' +
+          'font-weight:600; cursor:pointer; font-family:inherit;">Munkalap megnyitása</button>' +
+          '</div>');
+      // A gomb a Leaflet buborékjában van, azt a React nem ismeri — a hidat a
+      // popupopen adja. Kattintásra átlépünk a munkalapra, ugyanoda, ahova az
+      // agenda sora is visz.
+      jelolo.on('popupopen', (e) => {
+        const g = e.popup.getElement().querySelector('[data-nyit]');
+        if (g) g.onclick = () => this.nyitMunka(o.id);
+      });
+      jelolo.addTo(this._terkepReteg);
+    });
+
+    // Egyetlen pontnál a fitBounds a legnagyobb nagyításig ugrana — ott fix,
+    // olvasható városnegyed-szintű nagyítás a helyes.
+    if (latlng.length === 1) {
+      this._terkep.setView(latlng[0], 15);
+    } else {
+      this._terkep.fitBounds(L.latLngBounds(latlng), { padding: [42, 42], maxZoom: 16 });
+    }
+    // A konténer magassága a megállók számától függ; ha közben változott, a
+    // Leaflet a régi mérettel dolgozna, és a csempék fele szürke maradna.
+    setTimeout(() => { if (this._terkep) this._terkep.invalidateSize(); }, 60);
+  }
+
+  componentDidUpdate() {
+    this.terkepFrissit();
+  }
+
   slotBookings(slotId) {
     const conf = this.state.orders.find(o => o.confirmed === slotId);
     const pend = this.state.orders.filter(o => !o.confirmed && (o.slots || []).indexOf(slotId) >= 0);

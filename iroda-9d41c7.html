@@ -9,6 +9,11 @@
 <script>window.__resources={"https://unpkg.com/react@18.3.1/umd/react.production.min.js":"./vendor/react.production.min.js","https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js":"./vendor/react-dom.production.min.js"};</script>
 <script src="./config.js"></script>
 <script src="./support.js"></script>
+<!-- Leaflet a naptár alatti napi térképhez. Helyben kiszolgálva, nem CDN-ről:
+     az iroda ne függjön egy külső szolgáltató elérhetőségétől. A csempéket a
+     CARTO adja — az OpenStreetMap saját csempeszervere üzemi használatra tiltott. -->
+<link rel="stylesheet" href="./vendor/leaflet.css">
+<script src="./vendor/leaflet.js" defer></script>
 <style>
   body { margin:0; background:#1B1A17; color:#FAF7F2;
          font-family:'Instrument Sans',system-ui,-apple-system,sans-serif;
@@ -19,14 +24,18 @@
   .mark { font-family:'Familjen Grotesk',system-ui,sans-serif; font-weight:700; font-size:21px;
           letter-spacing:-.02em; margin-bottom:26px; }
   .mark i { color:#E8A33D; font-style:normal; }
-  label { display:block; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  #gate label { display:block; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
           color:#8E8779; font-weight:600; margin:0 0 7px; }
-  input { width:100%; box-sizing:border-box; height:46px; border-radius:11px; border:1.5px solid #33302A;
+  /* EZEK A SZABÁLYOK CSAK A BELÉPŐŰRLAPRA VONATKOZNAK.
+     Csupasz `input`/`button` szelektorként az egész CRM-re kiszivárogtak: minden
+     gomb, ami nem adott meg saját szélességet, 100%-osra nőtt és külön sorba
+     került. A naptár napválasztó gombjain bukott ki, de a hiba nem ott volt. */
+  #gate input { width:100%; box-sizing:border-box; height:46px; border-radius:11px; border:1.5px solid #33302A;
           background:#26241F; color:#FAF7F2; padding:0 14px; font-size:16px; margin-bottom:16px; }
-  input:focus { outline:2px solid #E8A33D; outline-offset:1px; }
-  button { width:100%; height:48px; border-radius:11px; border:none; background:#E8A33D; color:#1B1A17;
+  #gate input:focus { outline:2px solid #E8A33D; outline-offset:1px; }
+  #gate button { width:100%; height:48px; border-radius:11px; border:none; background:#E8A33D; color:#1B1A17;
            font-size:16px; font-weight:600; cursor:pointer; font-family:inherit; }
-  button[disabled] { opacity:.5; cursor:progress; }
+  #gate button[disabled] { opacity:.5; cursor:progress; }
   .err { min-height:20px; margin-top:14px; font-size:13.5px; color:#E8A33D; }
   .foot { margin-top:26px; font-size:12.5px; color:#6B655C; line-height:1.6; }
 </style>
