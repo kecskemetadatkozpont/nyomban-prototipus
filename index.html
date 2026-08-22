@@ -881,7 +881,7 @@ class Component extends DCLogic {
     naptarAdat: null,
     address: '',
     egyeniNyitva: false, egyeniKezd: '', egyeniVeg: '', kikuldFut: false, autoAr: true,
-    elMunkaPerc: '', elUtPerc: '', elVegosszeg: '', elMegj: '', elAnyag: {},
+    elMunkaPerc: '', elUtPerc: '', elVegosszeg: '', elMegj: '', elAnyag: {}, elBeszAr: {},
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
     irsz: '', telepules: '', telepulesId: null, utca: '', hazszam: '', emelet: '',
@@ -2433,6 +2433,10 @@ class Component extends DCLogic {
       elMegj: (o.elszamolas && o.elszamolas.megjegyzes) || '',
       elAnyag: (o.anyag || []).reduce((m, a) => {
         if (a.felhasznalt != null) m[a.id] = String(a.felhasznalt);
+        return m;
+      }, {}),
+      elBeszAr: (o.anyag || []).reduce((m, a) => {
+        if (a.beszerzesiAr != null) m[a.id] = String(a.beszerzesiAr);
         return m;
       }, {})
     });
