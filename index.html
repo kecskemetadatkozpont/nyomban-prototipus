@@ -906,6 +906,7 @@ class Component extends DCLogic {
     anyagSzerk: [], anyagKi: 'mi', anyagTorzsLista: [], anyagUjId: '', anyagUjDb: '1',
     anyagLista: [], anyagCsoportok: [], anyagFigy: [], anyagSzures: '',
     mozgasId: '', mozgasDb: '', mozgasNem: 'bevet', mozgasAr: '', mozgasMegj: '',
+    mozgasHely: '', mozgasLink: '', anyagNyit: null, anyagNaplo: {},
     ujAnyagNev: '', ujAnyagEgyseg: 'db', ujAnyagCsoport: 'szerelvény', ujAnyagMin: '', ujAnyagMax: '',
     nagyKep: null, nagyKepIdx: 0,
     vjAr: '', vjKerdesek: '',
@@ -936,7 +937,15 @@ class Component extends DCLogic {
 
   // ---------- anyagtörzs és leltár ----------
   // A demóban nincs szerver; az éles buildben a build.mjs cseréli le.
+  /** Egy tétel részleteinek ki-be nyitása; a naplót csak elsőre kérjük le. */
+  anyagNaploNyit(id) {
+    const zar = this.state.anyagNyit === id;
+    this.setState({ anyagNyit: zar ? null : id });
+    if (!zar && !(this.state.anyagNaplo || {})[id]) this.anyagNaploTolt(id);
+  }
+
   async anyagtorzsTolt() { }
+  async anyagNaploTolt() { }
   async anyagtorzsMent() { this.flash('Módosítások mentve.'); }
   async anyagMozgasRogzit() { this.flash('Készletmozgás rögzítve.'); }
   async ujAnyagFelvesz() { this.flash('Anyag felvéve.'); }
