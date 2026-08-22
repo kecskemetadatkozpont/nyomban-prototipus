@@ -886,6 +886,7 @@ class Component extends DCLogic {
     address: '',
     egyeniNyitva: false, egyeniKezd: '', egyeniVeg: '', kikuldFut: false, autoAr: true,
     elMunkaPerc: '', elUtPerc: '', elVegosszeg: '', elMegj: '', elAnyag: {}, elBeszAr: {},
+    elOk: null, elteresOkok: [], pontossag: null,
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
     irsz: '', telepules: '', telepulesId: null, utca: '', hazszam: '', emelet: '',
@@ -909,7 +910,7 @@ class Component extends DCLogic {
     rules: DEFAULT_RULES, glob: DEFAULT_GLOB,
     mapBusy: false, mapErr: false,
     ujTetelLabel: '', ujTetelAr: '', anyagUgyfele: false,
-    tbLista: [], tbTetelek: [], tbHelyszinek: [], tbTetel: '', tbHely: '', tbTipus: '', tbSzoveg: '',
+    tbLista: [], tbTetelek: [], tbHelyszinek: [], tbTetel: '', tbHely: '', tbTipus: '', tbSzoveg: '', tbFelmeres: false,
     anyagSzerk: [], anyagKi: 'mi', anyagTorzsLista: [], anyagUjId: '', anyagUjDb: '1',
     anyagLista: [], anyagCsoportok: [], anyagFigy: [], anyagSzures: '',
     mozgasId: '', mozgasDb: '', mozgasNem: 'bevet', mozgasAr: '', mozgasMegj: '',
@@ -945,6 +946,8 @@ class Component extends DCLogic {
   async arhival() { this.flash('Archiválva (demó).'); }
   async oradijatMent() { }
   async elszamolastMent() { this.flash('Elszámolás mentve (demó).'); }
+  async elteresOkokTolt() { }
+  async pontossagotTolt() { }
 
   // ---------- anyagtörzs és leltár ----------
   // A demóban nincs szerver; az éles buildben a build.mjs cseréli le.
@@ -2502,6 +2505,7 @@ class Component extends DCLogic {
       elUtPerc: (o.elszamolas && o.elszamolas.utPerc != null) ? String(o.elszamolas.utPerc) : '',
       elVegosszeg: (o.elszamolas && o.elszamolas.vegosszeg != null) ? String(o.elszamolas.vegosszeg) : '',
       elMegj: (o.elszamolas && o.elszamolas.megjegyzes) || '',
+      elOk: (o.elszamolas && o.elszamolas.ok) || null,
       elAnyag: (o.anyag || []).reduce((m, a) => {
         if (a.felhasznalt != null) m[a.id] = String(a.felhasznalt);
         return m;
@@ -2512,6 +2516,7 @@ class Component extends DCLogic {
       }, {})
     });
     this.anyagTolt();
+    this.elteresOkokTolt();
   }
 
   patch(fn) {
