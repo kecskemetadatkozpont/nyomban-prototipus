@@ -1269,19 +1269,38 @@ class Component extends DCLogic {
     const kezd = perc(m.kezdes || '08:00');
     const zar  = perc(m.zaras  || '17:00');
     const hossz = Math.max(30, Math.min(480, +m.sav_perc || 120));
-    const ebedK = m.ebed_kezdes ? perc(m.ebed_kezdes) : null;
-    const ebedZ = m.ebed_zaras  ? perc(m.ebed_zaras)  : null;
+    // Az ebédszünet ALAPÉRTELMEZETT értéke is 12:00–13:00, nem „nincs". Enélkül a
+    // munkarend betöltése előtt más sávokat számoltunk (…12–14, 14–16), mint utána
+    // — a naptárrácsban két sor jelent meg, ami valójában nem létezik.
+    const ebedK = perc(m.ebed_kezdes || '12:00');
+    const ebedZ = perc(m.ebed_zaras  || '13:00');
 
     const out = [];
     for (let t = kezd; t + hossz <= zar && out.length < 12; t += hossz) {
       // Az ebédszünettel átfedő sáv kimarad, és utána onnan folytatjuk.
-      if (ebedK != null && ebedZ != null && t < ebedZ && t + hossz > ebedK) {
+      if (ebedZ > ebedK && t < ebedZ && t + hossz > ebedK) {
         t = ebedZ - hossz;
         continue;
       }
       out.push(ora(t).replace(/^0/, '') + '–' + ora(t + hossz).replace(/^0/, ''));
     }
     return out.length ? out : TIMES;
+  }
+
+  /**
+   * Munkaidőn kívülre esik-e a sáv. Üres szöveg = szokásos munkaidőben van.
+   *
+   * A KLIENS és a CRM is ezt hívja, hogy ugyanazt mondják: ami az ügyfélnek
+   * „felárral járhat", az a szerelőnek „felárazandó".
+   */
+  savFelaras(id) {
+    const m = (this.state.naptarAdat && this.state.naptarAdat.munkarend) || {};
+    const b = savBont(id, this.savok());
+    if (!b.kezd || !b.veg) return '';
+    const k = percOra(b.kezd), v = percOra(b.veg);
+    if (k < percOra(m.kezdes || '08:00') || v > percOra(m.zaras || '17:00')) return 'munkaidőn kívül';
+    if (m.ebed_kezdes && m.ebed_zaras && k < percOra(m.ebed_zaras) && v > percOra(m.ebed_kezdes)) return 'ebédszünet';
+    return '';
   }
 
   async naptaratTolt() {
@@ -1420,12 +1439,22 @@ class Component extends DCLogic {
         const m = (s.naptarAdat && s.naptarAdat.munkarend) || {};
         const napKezd = percOra(m.kezdes || '08:00');
         const napZar  = percOra(m.zaras  || '17:00');
+        const szelsoK = percOra(m.szelso_kezdes || '06:00');
+        const szelsoZ = percOra(m.szelso_zaras  || '22:00');
         const ebedK = m.ebed_kezdes ? percOra(m.ebed_kezdes) : null;
         const ebedZ = m.ebed_zaras  ? percOra(m.ebed_zaras)  : null;
+        const kFelar = (s.naptarAdat && s.naptarAdat.munkaidon_kivul_felar) || 0;
         const MIN_HOSSZ = 30, MAX_HOSSZ = 300;
 
         // Ugyanaz az ellenőrzés, mint a szerveren. Nem a szigor a lényeg, hanem
         // hogy az ügyfél ITT tudja meg, mi a baj, ne a megrendelés végén.
+        //
+        // KÉT SZINT VAN, és ez szándékos:
+        //   • HIBA — amit nem lehet megjelölni (ütközés, elgépelt hossz, éjszaka).
+        //   • FIGYELMEZTETÉS — amit LEHET, csak nem a szokásos munkaidőben van.
+        // A munkaidőn kívüli és az ebédszünetre eső időpont a MÁSODIK csoport:
+        // van, akinek csak este vagy délben jó, és inkább kér ilyet felárral,
+        // mint hogy elmenjen. A szerelő úgyis ő választ a megjelölt sávok közül.
         const ellenoriz = () => {
           if (!nyitott) return 'Előbb válasszon napot a naptárban.';
           const k = percOra(s.egyeniKezd || ''), v = percOra(s.egyeniVeg || '');
@@ -1433,11 +1462,10 @@ class Component extends DCLogic {
           if (!(v > k)) return 'A befejezés legyen későbbi, mint a kezdés.';
           if (v - k < MIN_HOSSZ) return 'Legalább ' + MIN_HOSSZ + ' perces sávot jelöljön meg.';
           if (v - k > MAX_HOSSZ) return 'Legfeljebb ' + (MAX_HOSSZ / 60) + ' órás sávot jelölhet meg.';
-          if (k < napKezd || v > napZar) {
-            return 'A munkaidő ' + (m.kezdes || '08:00') + ' és ' + (m.zaras || '17:00') + ' között van.';
-          }
-          if (ebedK != null && ebedZ != null && k < ebedZ && v > ebedK) {
-            return 'Ez az idő az ebédszünetre esik (' + m.ebed_kezdes + '–' + m.ebed_zaras + ').';
+          // A KÜLSŐ határ marad kemény tiltás: hajnali háromra kért időpont nem
+          // kérés, hanem elgépelés — és a szerelő úgysem menne ki rá.
+          if (k < szelsoK || v > szelsoZ) {
+            return 'Időpontot ' + (m.szelso_kezdes || '06:00') + ' és ' + (m.szelso_zaras || '22:00') + ' között tud megjelölni.';
           }
           const utkozes = (foglalt[nyitott] || []).some(f =>
             k < percOra(String(f.zaras).slice(0, 5)) && v > percOra(String(f.kezdes).slice(0, 5)));
@@ -1449,7 +1477,23 @@ class Component extends DCLogic {
           if (osszes >= MAX_OSSZ) return 'Összesen legfeljebb ' + MAX_OSSZ + ' sávot jelölhet meg.';
           return '';
         };
+
+        /** Munkaidőn kívülre vagy az ebédszünetre esik-e — ez NEM hiba, csak felár. */
+        const felaras = () => {
+          if (!s.egyeniKezd || !s.egyeniVeg) return '';
+          const k = percOra(s.egyeniKezd), v = percOra(s.egyeniVeg);
+          if (!(v > k)) return '';
+          if (k < napKezd || v > napZar) {
+            return 'a szokásos munkaidőn (' + (m.kezdes || '08:00') + '–' + (m.zaras || '17:00') + ') kívülre esik';
+          }
+          if (ebedK != null && ebedZ != null && k < ebedZ && v > ebedK) {
+            return 'az ebédszünetre (' + m.ebed_kezdes + '–' + m.ebed_zaras + ') esik';
+          }
+          return '';
+        };
+
         const hiba = ellenoriz();
+        const figy = hiba ? '' : felaras();
         const kesz = !!(nyitott && s.egyeniKezd && s.egyeniVeg && !hiba);
 
         return {
@@ -1463,8 +1507,13 @@ class Component extends DCLogic {
           egyeniKezd: s.egyeniKezd, egyeniVeg: s.egyeniVeg,
           setEgyeniKezd: e => this.setState({ egyeniKezd: e.target.value }),
           setEgyeniVeg:  e => this.setState({ egyeniVeg: e.target.value }),
-          egyeniHiba: hiba || 'Például 9:30–11:00. A szerelő ezt is választhatja a megjelölt sávok közül.',
-          egyeniHibaStyle: 'font-size:12.5px; line-height:1.45; color:' + (hiba ? '#8A5A1B' : '#9A9388') + ';',
+          egyeniHiba: hiba
+            || (figy
+              ? ('Ez az időpont ' + figy + '. Meg tudja jelölni, de a szerelő ilyenkor '
+                 + (kFelar > 0 ? ('+' + kFelar + '% felárat számíthat fel.') : 'felárat számíthat fel.')
+                 + ' A pontos összeget az ajánlat véglegesítésekor mondja meg.')
+              : 'Például 9:30–11:00. A szerelő ezt is választhatja a megjelölt sávok közül.'),
+          egyeniHibaStyle: 'font-size:12.5px; line-height:1.45; color:' + ((hiba || figy) ? '#8A5A1B' : '#9A9388') + ';',
           egyeniHozzaadStyle: 'height:44px; padding:0 14px; border-radius:11px; border:none; font-size:14px; font-weight:600; '
             + 'background:#1B1A17; color:#FAF7F2; cursor:' + (kesz ? 'pointer' : 'not-allowed') + '; opacity:' + (kesz ? '1' : '.4') + ';',
           egyeniHozzaad: () => {
@@ -1483,7 +1532,8 @@ class Component extends DCLogic {
       vanValasztott: napok.length > 0,
       valasztottNapok: napok.map(d => ({
         nap: this.napFelirat(d),
-        savok: (savokNaponta[d] || []).slice().sort((a, b) => percOra(a.kezd) - percOra(b.kezd)).map(x => x.cimke).join(' · '),
+        savok: (savokNaponta[d] || []).slice().sort((a, b) => percOra(a.kezd) - percOra(b.kezd))
+          .map(x => x.cimke + (this.savFelaras(savId(d, x.kezd, x.veg)) ? ' (felárral)' : '')).join(' · '),
         torol: () => this.setState(st => ({
           picked: st.picked.filter(x => savBont(x).nap !== d),
           nyitottNap: st.nyitottNap === d ? null : st.nyitottNap
