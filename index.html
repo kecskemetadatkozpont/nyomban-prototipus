@@ -878,7 +878,7 @@ class Component extends DCLogic {
     // meg, a naptár az alapértelmezéssel működik — nem várakoztatjuk az ügyfelet.
     naptarAdat: null,
     address: '',
-    egyeniNyitva: false, egyeniKezd: '', egyeniVeg: '', kikuldFut: false,
+    egyeniNyitva: false, egyeniKezd: '', egyeniVeg: '', kikuldFut: false, autoAr: true,
     // Tagolt cím. Az `address` ezekből ÖSSZERAKVA áll elő — az a mező megy tovább
     // a becsléshez és a megrendeléshez, tehát a régi folyamat változatlan marad.
     irsz: '', telepules: '', telepulesId: null, utca: '', hazszam: '', emelet: '',
@@ -965,7 +965,11 @@ class Component extends DCLogic {
    * meg sem történt volna. Most ugyanúgy késleltetve, magától mentődik.
    */
   anyagValtozott(uj) {
-    this.setState(uj, () => this.anyagAutoMent());
+    this.setState(uj, () => {
+      // Az anyag ÁRAT jelent: a tételek végleges ára és a végösszeg is követi.
+      this.arUjraszamol();
+      this.anyagAutoMent();
+    });
   }
 
   anyagSortFelvesz() {
@@ -1316,6 +1320,60 @@ class Component extends DCLogic {
       out.push(ora(t).replace(/^0/, '') + '–' + ora(t + hossz).replace(/^0/, ''));
     }
     return out.length ? out : TIMES;
+  }
+
+  /**
+   * ÁRSZÁMÍTÁS: idő × óradíj + anyag.
+   *
+   * A megrendelő kérése: „ha átírom a percet, automatikusan módosulnia kellene a
+   * Végleges oszlopnak… ugyanígy ha növelem az anyagszükségletet."
+   *
+   * Ez megfordítja a korábbi logikát. Eddig a végleges ár egy beírt szám volt, az
+   * árlista sávjából kiindulva; az anyag pedig KIBONTÁS volt belőle. Most az ár
+   * ÖSSZEÁLL: annyi munkadíj, amennyi idő kell, plusz a ténylegesen felhasznált
+   * anyag. Ez az, ahogy a szerelő a helyszínen valóban számol.
+   *
+   * A kiszállás nem számolódik: fix díj, nincs se ideje, se anyaga.
+   * A kézzel felülírt tételek (`arKezi`) kimaradnak — aki beír egy összeget, azt
+   * nem írjuk felül a háta mögött.
+   */
+  anyagTetelenkent() {
+    const map = {};
+    (this.state.anyagSzerk || []).forEach(a => {
+      const ossz = Math.round((+a.mennyiseg || 0) * (+a.egysegar || 0));
+      const kulcs = (a.tetel || '').split(',')[0].trim();
+      map[kulcs] = (map[kulcs] || 0) + ossz;
+    });
+    return map;
+  }
+
+  /**
+   * Újraszámolja a tételek végleges árát, és el is menti.
+   * Ha az automatikus árazás ki van kapcsolva, nem nyúl semmihez.
+   */
+  arUjraszamol() {
+    if (!this.state.autoAr) return;
+    const cur = this.cur();
+    if (!cur) return;
+    const oradij = this.glob().hourly || 9900;
+    const anyagMap = this.anyagTetelenkent();
+
+    // A nem besorolt anyag (kézzel felvett sor, vagy törölt munkatételhez tartozó)
+    // az ELSŐ munkatételre kerül — nem tűnhet el az árból.
+    const munkaIdx = (cur.items || []).findIndex(i => !i.isCallout && !i.isSurcharge);
+    const besorolatlan = Object.keys(anyagMap)
+      .filter(k => !k || !(cur.items || []).some(i => i.label === k))
+      .reduce((a, k) => a + anyagMap[k], 0);
+
+    this.patch(o => {
+      o.items = (o.items || []).map((i, idx) => {
+        if (i.isCallout || i.isSurcharge || i.arKezi) return i;
+        const perc = i.percValos != null ? i.percValos : (i.perc || 0);
+        const anyag = (anyagMap[i.label] || 0) + (idx === munkaIdx ? besorolatlan : 0);
+        return Object.assign({}, i, { final: Math.round(perc / 60 * oradij) + anyag });
+      });
+      return o;
+    });
   }
 
   /**
@@ -2291,6 +2349,17 @@ class Component extends DCLogic {
    */
   nyitMunka(id) {
     const o = this.state.orders.find(x => x.id === id) || {};
+    // A KORÁBBAN BEÍRT árakat nem írjuk felül: aki egyszer megadott egy összeget,
+    // annak az marad, amíg a ↺ gombbal vissza nem kéri a számolt árat. Csak a
+    // helyi másolatot jelöljük meg — nem mentés, tehát a szerverre nem megy ki.
+    this.setState(st => ({
+      orders: st.orders.map(x => (x.id !== id ? x : Object.assign({}, x, {
+        items: (x.items || []).map(i =>
+          (i.final != null && i.arKezi === undefined && !i.isCallout)
+            ? Object.assign({}, i, { arKezi: true })
+            : i)
+      })))
+    }));
     this.setState({
       view: 'crmDetail', curId: id,
       // A törzs ársávjából itt lesz EGY szám. Az ajánlat összeget ígér, nem
