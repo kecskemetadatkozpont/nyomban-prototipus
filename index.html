@@ -956,6 +956,18 @@ class Component extends DCLogic {
   // A demóban nincs szerver; az éles buildben a build.mjs cseréli le a mentőket.
   anyagTolt() { }
 
+  /**
+   * Az anyaglista MINDEN módosítása ezen megy át.
+   *
+   * MIÉRT KELLETT: a tételek árát és percét a `patch()` magától elmenti, az
+   * anyaglistát viszont csak a gomb — aki átírt egy mennyiséget és továbblépett,
+   * annak a munkája elveszett, és a visszatéréskor úgy tűnt, mintha a szerkesztés
+   * meg sem történt volna. Most ugyanúgy késleltetve, magától mentődik.
+   */
+  anyagValtozott(uj) {
+    this.setState(uj, () => this.anyagAutoMent());
+  }
+
   anyagSortFelvesz() {
     const t = (this.state.anyagTorzsLista || []).find(x => x.id === this.state.anyagUjId);
     if (!t) return;
@@ -966,14 +978,20 @@ class Component extends DCLogic {
       ? this.state.anyagSzerk.map((x, i) => (i === meglevo ? Object.assign({}, x, { mennyiseg: x.mennyiseg + db }) : x))
       : (this.state.anyagSzerk || []).concat([{
           anyagId: t.id, nev: t.nev, egyseg: t.egyseg, mennyiseg: db,
-          egysegarMin: t.arMin, egysegarMax: t.arMax, forras: 'kezi', tetel: ''
+          egysegarMin: t.arMin, egysegarMax: t.arMax,
+          savMin: t.arMin, savMax: t.arMax,
+          egysegar: t.arMin === t.arMax ? t.arMin : Math.round((t.arMin + t.arMax) / 2 / 10) * 10,
+          forras: 'kezi', tetel: ''
         }]);
-    this.setState({ anyagSzerk: uj, anyagUjId: '', anyagUjDb: '1' });
+    this.anyagValtozott({ anyagSzerk: uj, anyagUjId: '', anyagUjDb: '1' });
   }
 
   anyagBeszerzesValt() {
-    this.setState({ anyagKi: this.state.anyagKi === 'ugyfel' ? 'mi' : 'ugyfel' });
+    this.anyagValtozott({ anyagKi: this.state.anyagKi === 'ugyfel' ? 'mi' : 'ugyfel' });
   }
+
+  /** Éles buildben a build.mjs cseréli le késleltetett mentésre. */
+  anyagAutoMent() { }
 
   async anyagListaMent() { this.flash('Anyaglista mentve.'); }
 
@@ -2275,7 +2293,15 @@ class Component extends DCLogic {
     const o = this.state.orders.find(x => x.id === id) || {};
     this.setState({
       view: 'crmDetail', curId: id,
-      anyagSzerk: (o.anyag || []).map(a => Object.assign({}, a)),
+      // A törzs ársávjából itt lesz EGY szám. Az ajánlat összeget ígér, nem
+      // tartományt. A javaslat a sáv közepe, 10 Ft-ra kerekítve — a szerelő
+      // átírhatja, és a sáv ott marad alatta emlékeztetőnek.
+      anyagSzerk: (o.anyag || []).map(a => Object.assign({}, a, {
+        savMin: a.egysegarMin, savMax: a.egysegarMax,
+        egysegar: a.egysegarMin === a.egysegarMax
+          ? a.egysegarMin
+          : Math.round((a.egysegarMin + a.egysegarMax) / 2 / 10) * 10
+      })),
       anyagKi: o.anyagBeszerzes || 'mi',
       anyagUjId: '', anyagUjDb: '1', anyagBetoltve: id
     });
